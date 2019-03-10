@@ -1,0 +1,24 @@
+---
+title: "Trees and SVM"
+author: "Darya Vanichkina"
+keypoints:
+- somepoint
+objectives:
+- someobjective
+questions: What is the meaning of life FIXME?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+## Tree Models 
+
+Decision trees
+CART
+Bagging
+Random forests
+Variable Importance
+
+

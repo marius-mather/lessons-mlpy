@@ -1,0 +1,67 @@
+---
+title: "Linear Regression"
+author: "Darya Vanichkina"
+keypoints:
+- somepoint
+objectives:
+- someobjective
+questions: What is the meaning of life FIXME?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+Linear regression is a simple, intuitive approach for supervised learning. As we mentioned before, regression is used when we are trying to predict a quantitative variable based on one or more quantitative or categorical variables. 
+
+
+
+The formula for a basic linear regression looks like this:
+
+$\hat{y} = \hat{\beta_0} + \hat{\beta}_1x_1 + \hat{\beta}_2x_2 + ... \hat{\beta}_Nx_N$
+
+Here, $x_1$, $x_2$ etc are variables that capture features we know about (such as zoning category, neighborhood, number of floors, living area etc, for the Ames housing data, for example), and the beta values are weights that we use to estimate their influence on the prediction. 
+
+Assumptions and diagnostics
+Diagnostics and transformations
+The coefficient of determination
+
+Multiple linear regression
+Assumptions and diagnostics
+Extending model flexibility
+Generalized linear models
+
+Overfitting
+
+
+## Model evaluation (regression; minimize)
+
+- MSE: Mean squared error 
+    - The average of the squared error $MSE=\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y_i})^2$
+    - The squared component results in larger errors having larger penalties. 
+    - Along with RMSE is the most common error metric to use. 
+  
+- MAE: Mean absolute error. 
+    - Similar to MSE but rather than squaring, it just takes the mean absolute difference between the actual and predicted values
+    - $MAE=\frac{1}{n}\sum_{i=1}^{n}(|y_i - \hat{y_i}|)$
+
+- RMSE: Root mean squared error. 
+    - This simply takes the square root of the MSE metric $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y_i})^2}$
+    - Error ends up being in the same units as your response variable
+  
+- RMSLE: Root mean squared logarithmic error. 
+    - Performs a `log()` transformation on the actual and predicted values prior to computing the difference
+    - $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(log(y_i + 1) - log(\hat{y_i}))^2}$
+    
+    
+- Mean residual deviance
+    - a measure of goodness-of-fit of the model being evaluated when compared to the null model (intercept only).
+    - If the response variable distribution is gaussian, then it is equal to MSE. 
+    - Different formula for different distributions
+    - When not, it usually gives a more useful estimate of error. 
+
+  
+
+  
+  

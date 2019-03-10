@@ -1,0 +1,29 @@
+---
+title: "99_packages_used"
+output: html_notebook
+---
+
+We will use the following packages in this course:
+
+- caret
+- ggplot2
+- tidyverse
+- forecast
+
+
+- mlbench
+- class
+- caTools
+- randomForst
+- impute
+- ranger
+- kernlab
+- class
+- glmnet
+- naivebayes
+- rpart
+- rpart.plot
+
+The following materials were used in the preparation of this course:
+
+- [UC Business Analytics R programming guide](http://uc-r.github.io)

@@ -1,0 +1,25 @@
+---
+title: "kNN Regression"
+author: "Darya Vanichkina"
+keypoints:
+- somepoint
+objectives:
+- someobjective
+questions: What is the meaning of life FIXME?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+## kNN and Naive Bayes, the Curse of Dimensionality
+
+Association Rules & Naïve Bayes o Association Rule Mining o Naïve Bayes
+
+
+The K-Nearest Neighbors Algorithm
+The choice of K and distance measure
+Conditional probability: Bayes’ Theorem
+The Naive Bayes’ Algorithm
+The Laplace estimator

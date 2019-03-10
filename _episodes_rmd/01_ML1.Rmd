@@ -1,0 +1,94 @@
+---
+title: "Introduction to machine learning using R"
+author: "Darya Vanichkina"
+keypoints:
+- somepoint
+objectives:
+- someobjective
+questions: What is machine learning? How is it different from statistics? What types of machine learning exist?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+## Overview of the course
+
+This workshop is designed to provide and introduction to practical machine learning with R.
+
+The attendees are expected to have some R background (at least at the level of the "Introductory R" Intersect courses (link here FIXME)), especially the tidyverse (link here) suite of packages and the use of R as a data processing tool.
+
+The workshop will include a lot of live coding and hands-on "experimenting" with R code, and not a lot of detail about the mathematics FIXME of the algorithms used  - we suggest that when you want to try applying one of these algorithms to your own work, you review its underlying assumption in one of the recommended reference books FIXME link.
+
+We will provide an introduction to some basic principles of machine learning experimentation, describing how one selects a model to use, the concepts of cross-validation, (bootstrapping?) etc.We will demonstrate how these apply to several classical machine learning approaches in R, including unsupervised (clustering, such as hierarchical and k-means clustering, and dimensionality reduction, such as principal component analysis) and supervised (classification and regression, such as K-nearest neighbour and linear regression) methods
+
+
+We hope that at the end of the course, learners are able to assess whether any of these approaches are applicable to their own analysis problems, to apply the demonstrated methods to their own datasets (if they're appropriate), and to evaluate whether the models are a good fit for their data. Furthermore, we hope learners become more confident in discovering and trying out new methods of interest that they come across in the literature. 
+
+
+## What is Machine learning
+
+**Machine learning** - also called predictive modelling or statistical learning - is the process of developing a mathematical tool or model that generates an active prediction. (Kuhn 2013)
+
+This makes it distinct from **statistical inference**, where the model must be interpretable and possibly illuminate causal relationships in the data. In ML, we care less about that, and more about the accuracy of our prediction. 
+
+## Caveats to ML
+
+- If a predictive signal exists in the data, many models will find some degree of that signal regardless of the technique or care placed in developing the model (Kuhn 2013). <...> But the best, most predictive models are fundamentally influenced by a modeller with expert knowledge and context of the problem.
+
+## Why use R for machine learning?
+
+R is one of the leading languages for data science. Originally developed to carry out statistical analysis, it has a strong suite of tools for preprocessing, exploring and visualising data. A large number of academic researchers, working at the cutting edge of statistical and machine learning methods development, use R to create packages that implement the methods they describe. 
+
+FIXME needs to be spelled out better.
+
+R's primary competitor in the ML space is python, which has the [scikit-learn](https://scikit-learn.org/) library and other libraries. However, scikit-learn is substantially more challenging to add new functionality to, and may not have all of the statistical features required/expected (confidence intervals) implemented. 
+
+
+## Types of Machine learning
+
+Machine learning approaches are traditionally classified into three main categories:
+
+1. Supervised learning:
+  The dataset contains labelled inputs, where the labels indicate the desired output. FIXME better definition. The output can be numerical (in which case the problem is called regression) or categorical (classification).
+  
+2. Unsupervised learning:
+No labels are provided, and the algorithm tries to find structure in unlabelled data. Finding groups of similar users (think Netflix) is a classic example of this. 
+
+Sometimes, a combination of the two approaches, called semi-supervised learning, are used. These try to use labels from the data to influence the unlabelled data to identify and annotate new classes in the dataset (aka novelty detection)
+
+3. Reinforcement learning
+The learning algorithm performs a task and gets feedback in real time from operating in a real or simulated environment.  FIXME
+
+## What we're covering in this course
+
+
+## Differences between machine learning and statistical learning
+
+There is a lot of discussion in the [community](http://www.fharrell.com/post/stat-ml/) (and especially [online](https://stats.stackexchange.com/questions/6/the-two-cultures-statistics-vs-machine-learning)) about the differences between statistical modeling and machine learning. 
+
+For purposes of this workshop, we consider it to be the following:
+
+- **Statistical learning/modeling** is considered to deal with inference, i.e. you are trying to infer the process by which data you have was generated.
+
+- **Machine learning** focuses on prediction, i.e. you want to predict what future data will look like with regards to some variable.
+
+### More details
+
+FIXME just link to this?
+
+
+What this means, in practice, [adapted from here](http://www.fharrell.com/post/stat-ml/) is:
+
+- A statistical model incorporates probabilities for the data generating mechanism and has identified unknown parameters that are usually interpretable and of special interest, e.g., effects of predictor variables and distributional parameters about the outcome variable
+
+Examples of statistical models include: ordinary regression, Bayesian regression, semiparametric models, generalized additive models, longitudinal models, time-to-event models, penalized regression (ridge regression, lasso, and elastic net) etc.
+
+
+- Machine learning involves an algorithmic approach that does not use traditional identified statistical parameters, and for which a preconceived structure is not imposed on the relationships between predictors and outcomes, i.e. the effect of any one specific variable on the data is not attempted to be isolated. 
+
+- ML includes random forests, recursive partitioning (CART), bagging, boosting, support vector machines, neural networks, and deep learning. 
+
+
+## Other stuff

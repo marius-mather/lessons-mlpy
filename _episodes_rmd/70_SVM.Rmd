@@ -1,0 +1,28 @@
+---
+title: "Support vector machines"
+author: "Darya Vanichkina"
+keypoints:
+- somepoint
+objectives:
+- someobjective
+questions: What is the meaning of life FIXME?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+Support Vector Machines 
+Maximal Margin Classifier 
+Linear Support Vector Classifier
+Nonlinear Kernels
+Polynomial Kernels
+Gaussian radial based function
+Support Vector Machines 
+Multi-Class SVMs
+Hyperplanes and maximal margin classifier
+Sort margin and support vector classifier
+Kernels and support vector machines
+
+? Voting classifier (hard/soft)
