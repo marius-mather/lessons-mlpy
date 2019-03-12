@@ -1,67 +1,119 @@
 ---
 title: "Linear Regression"
 author: "Darya Vanichkina"
-keypoints:
-- somepoint
-objectives:
-- someobjective
+exercises: 0
+keypoints: somepoint
+objectives: someobjective
 questions: What is the meaning of life FIXME?
 source: Rmd
 start: 0
 teaching: 30
-exercises: 0
+bibliography: references.bib
 ---
 
+First, let's load the required libraries. We will use the `caret` library for our ML tasks, and the `tidyverse` for general data processing and visualisation.
 
-Linear regression is a simple, intuitive approach for supervised learning. As we mentioned before, regression is used when we are trying to predict a quantitative variable based on one or more quantitative or categorical variables. 
+```{r loadLibraries}
+library(tidyverse)
+library(caret)
+library(naniar) # for visualising missing data
 
+```
 
+We will use the Ames housing data to explore different ML approaches to regression. This dataset was designed by Dean De Cock [@de2011ames] as an alternative to the "classic" Boston housing dataset, and has been extensively used in  ML teaching. It is also available from kaggle as part of its [advanced regression practice competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques).
 
-The formula for a basic linear regression looks like this:
-
-$\hat{y} = \hat{\beta_0} + \hat{\beta}_1x_1 + \hat{\beta}_2x_2 + ... \hat{\beta}_Nx_N$
-
-Here, $x_1$, $x_2$ etc are variables that capture features we know about (such as zoning category, neighborhood, number of floors, living area etc, for the Ames housing data, for example), and the beta values are weights that we use to estimate their influence on the prediction. 
-
-Assumptions and diagnostics
-Diagnostics and transformations
-The coefficient of determination
-
-Multiple linear regression
-Assumptions and diagnostics
-Extending model flexibility
-Generalized linear models
-
-Overfitting
+The Ames Housing Data Documentation file describes the independent variables presented in the data. This includes:
+- 20 continuous variables relate to various area dimensions for each observation
+- 14 discrete variables, which typically quantify the number of items occurring within the house
+- 23 ordinal, 23 nominal categorical variables, with 2 (STREET: gravel or paved) - 28 (NEIGHBORHOOD) classes 
 
 
-## Model evaluation (regression; minimize)
+```{r loadData}
+ameshousing <- read_csv("data/AmesHousing.csv", guess_max=1500)
+```
 
-- MSE: Mean squared error 
-    - The average of the squared error $MSE=\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y_i})^2$
-    - The squared component results in larger errors having larger penalties. 
-    - Along with RMSE is the most common error metric to use. 
-  
-- MAE: Mean absolute error. 
-    - Similar to MSE but rather than squaring, it just takes the mean absolute difference between the actual and predicted values
-    - $MAE=\frac{1}{n}\sum_{i=1}^{n}(|y_i - \hat{y_i}|)$
+## Exploratory data analysis
 
-- RMSE: Root mean squared error. 
-    - This simply takes the square root of the MSE metric $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(y_i - \hat{y_i})^2}$
-    - Error ends up being in the same units as your response variable
-  
-- RMSLE: Root mean squared logarithmic error. 
-    - Performs a `log()` transformation on the actual and predicted values prior to computing the difference
-    - $\sqrt{\frac{1}{n}\sum_{i=1}^{n}(log(y_i + 1) - log(\hat{y_i}))^2}$
-    
-    
-- Mean residual deviance
-    - a measure of goodness-of-fit of the model being evaluated when compared to the null model (intercept only).
-    - If the response variable distribution is gaussian, then it is equal to MSE. 
-    - Different formula for different distributions
-    - When not, it usually gives a more useful estimate of error. 
+```{r dim}
+dim(ameshousing)
+```
 
-  
+```{r str}
+str(ameshousing)
+```
+
+
+```{r missingdata}
+colSums(sapply(ameshousing, is.na)) %>% 
+  as.data.frame() %>% 
+  rename(Missing = ".") %>%
+  tibble::rownames_to_column()%>% 
+  arrange(desc(Missing))
+```
+
+### Use the naniar library to visualise missing
+
+Some new visualisation for missing data in the tidy context has been proposed [@tierney2018expanding]. See this [web page](http://naniar.njtierney.com/articles/naniar-visualisation.html) for more options for your own data.
+
+```{r uninformativeMissing}
+gg_miss_var(ameshousing)
+```
+
+```{r naniar}
+gg_miss_upset(ameshousing)
+```
+
+## EDA of outcome variable
+
+```{r salesPrice}
+ameshousing %>% 
+  select(SalePrice) %>%
+  ggplot(aes(x = SalePrice)) + geom_histogram(bins = 50) + theme_minimal()
+```
+
+```{r ScatterFindOutliers}
+ameshousing %>%
+  select(SalePrice, `Gr Liv Area`) %>%
+  ggplot(aes(x = `Gr Liv Area`, y = SalePrice)) + geom_point() + theme_minimal() +
+  geom_smooth(method= "lm")
+
+```
+
+```{r RemoveOutliers}
+# remove 5 observations
+ameshousingFilt <- 
+  ameshousing %>% 
+  filter(`Gr Liv Area` <= 4000)
+```
+
+Explore the variance:
+
+```{r varianceExplore}
+ameshousing %>%
+  mutate()
+
+```
+
+
+
+
+
+## Splitting into testing and training datasets
+
+We will use t
+
+
+FIXME: (a plot of SALE PRICE versus GR LIV AREA will quickly indicate these points). Three of them are true outliers (Partial Sales that likely don’t represent actual market values) and two of them are simply unusual sales (very large houses priced relatively appropriately). I would recommend removing any houses with more than 4000 square feet from the data set
+
+FIXME: when we do train/test split, do so by ordering houses by price and then holding out the ith one.
+
+
+
+
+```
+
+## References
+
 
   
   

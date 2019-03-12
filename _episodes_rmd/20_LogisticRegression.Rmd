@@ -13,6 +13,10 @@ exercises: 0
 ---
 
 
+
+
+
+
 Logistic regression
 Maximum likelihood estimation
 Model interpretation
