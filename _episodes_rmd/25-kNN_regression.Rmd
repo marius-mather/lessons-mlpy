@@ -23,3 +23,10 @@ The choice of K and distance measure
 Conditional probability: Bayes’ Theorem
 The Naive Bayes’ Algorithm
 The Laplace estimator
+
+
+```{r knn}
+
+
+```
+
