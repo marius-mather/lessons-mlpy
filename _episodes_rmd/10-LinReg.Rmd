@@ -14,12 +14,15 @@ bibliography: references.bib
 First, let's load the required libraries. We will use the `caret` library for our ML tasks, and the `tidyverse` for general data processing and visualisation.
 
 ```{r loadLibraries}
+# set knitr options
+opts_knit$set(warning = FALSE, message = FALSE)
+  
 library(tidyverse)
 library(caret)
 library(naniar) # for visualising missing data
 library(GGally) # for EDA
 library(psych)
- library(corrplot)
+library(corrplot)
 
 
 ```
