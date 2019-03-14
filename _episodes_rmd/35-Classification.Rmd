@@ -14,101 +14,99 @@ exercises: 0
 
 
 
-## Model evaluation (classification) /FIXME random/
 
-Classification models
-Misclassification: This is the overall error. For example, say you are predicting 3 classes ( high, medium, low ) and each class has 25, 30, 35 observations respectively (90 observations total). If you misclassify 3 observations of class high, 6 of class medium, and 4 of class low, then you misclassified 13 out of 90 observations resulting in a 14% misclassification rate. Objective: minimize
-
-Mean per class error: This is the average error rate for each class. For the above example, this would be the mean of 3/25, 6/30, 4/35, which is 12%. If your classes are balanced this will be identical to misclassification. Objective: minimize
-
-MSE: Mean squared error. Computes the distance from 1.0 to the probability suggested. So, say we have three classes, A, B, and C, and your model predicts a probabilty of 0.91 for A, 0.07 for B, and 0.02 for C. If the correct answer was A the  MSE = 0.09^2 = 0.0081 , if it is B MSE = 0.93^2 = 0.8649, if it is C MSE = 0.98^2 = 0.9604. The squared component results in large differences in probabilities for the true class having larger penalties. Objective: minimize
-
-Cross-entropy (aka Log Loss or Deviance): Similar to MSE but it incorporates a log of the predicted probability multiplied by the true class. Consequently, this metric disproportionately punishes predictions where we predict a small probability for the true class, which is another way of saying having high confidence in the wrong answer is really bad. Objective: minimize
-
-Gini index: Mainly used with tree-based methods and commonly referred to as a measure of purity where a small value indicates that a node contains predominantly observations from a single class. Objective: minimize
-
-When applying classification models, we often use a confusion matrix to evaluate certain performance measures. A confusion matrix is simply a matrix that compares actual categorical levels (or events) to the predicted categorical levels. When we predict the right level, we refer to this as a true positive. However, if we predict a level or event that did not happen this is called a false positive (i.e. we predicted a customer would redeem a coupon and they did not). Alternatively, when we do not predict a level or event and it does happen that this is called a false negative (i.e. a customer that we did not predict to redeem a coupon does).
-
-TP/FP map
-
-Accuracy: Overall, how often is the classifier correct? Opposite of misclassification above. Example: 
-T
-P
-+
-T
-N
-t
-o
-t
-a
-l
-=
-100
-+
-50
-165
-=
-0.91
-. Objective: maximize
-
-Precision: How accurately does the classifier predict events? This metric is concerned with maximizing the true positives to false positive ratio. In other words, for the number of predictions that we made, how many were correct? Example: 
-T
-P
-T
-P
-+
-F
-P
-=
-100
-100
-+
-10
-=
-0.91
-. Objective: maximize
-
-Sensitivity (aka recall): How accurately does the classifier classify actual events? This metric is concerned with maximizing the true positives to false negatives ratio. In other words, for the events that occurred, how many did we predict? Example: 
-T
-P
-T
-P
-+
-F
-N
-=
-100
-100
-+
-5
-=
-0.95
-. Objective: maximize
-
-Specificity: How accurately does the classifier classify actual non-events? Example: 
-T
-N
-T
-N
-+
-F
-P
-=
-50
-50
-+
-10
-=
-0.83
-. Objective: maximize
-
-AUC: Area under the curve. A good classifier will have high precision and sensitivity. This means the classifier does well when it predicts an event will and will not occur, which minimizes false positives and false negatives. To capture this balance, we often use a ROC curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis. A line that is diagonal from the lower left corner to the upper right corner represents a random guess. The higher the line is in the upper left-hand corner, the better. AUC computes the area under this curve. Objective: maximize
+## Model evaluation (classification) 
 
 
 
+```{r libraries}
+library(caret)
+library(corrplot)
+library(data.table)
+library(ggplot2)
+library(tidyverse)
+```
+
+# Wisconsin Breast Cancer Dataset
+
+![An example of a Fine Needle Aspiration Biopsy](742_FNA1.jpg)
+
+Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. 
+
+## Attribute Information:
+
+1) ID number
+2) Diagnosis (M = malignant, B = benign)
+3-32)
+
+Ten real-valued features are computed for each cell nucleus, each has 
+- a *mean* across cells 
+- a *standard deviation* across cells and 
+- the *worst* value across cells:
+
+a) radius (mean of distances from center to points on the perimeter)
+b) texture (standard deviation of gray-scale values)
+c) perimeter
+d) area
+e) smoothness (local variation in radius lengths)
+f) compactness (perimeter^2 / area - 1.0)
+g) concavity (severity of concave portions of the contour)
+h) concave points (number of concave portions of the contour)
+i) symmetry
+j) fractal dimension ("coastline approximation" - 1)
+
+```{r loadData}
+wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"))
+wdbc<-copy(wdbcn)
+names(wdbc)
+
+wdbc$diagnosis<-factor(wdbc$diagnosis)
+
+anyNA(wdbc)
+
+summary(wdbc)
+```
+
+# Plot some things:
+
+```{r}
+ggplot(wdbc,
+       aes(x = radius_mean,
+           y = concavity_mean,
+           color = diagnosis))+
+  geom_point(alpha = 0.5)
 
 
 
+#GGally::ggpairs(wdbc,mapping = ggplot2::aes(color = diagnosis))
+wdbcn$diagnosis<-recode(wdbcn$diagnosis, "M"=1, "B"=-1)
 
 
+M<-cor(wdbcn[, -c("id")])
+cp<-corrplot(M, order = "hclust",tl.col = "black")
+dc <- which(colnames(cp)=="diagnosis") #column  of diagnosis
+tc <- dim(M)[1] #total columns
+dr <- tc-dc+1 #row of diagnosis, counting from the bottoem of the corrplot
+segments(c(-0.5,0.5)+dc, rep(0.5,2), c(-0.5,0.5)+dc, rep(tc+0.5,2), lwd=1) #vertical
+segments(rep(0.5,2), c(-0.5,0.5)+dr, rep(tc+0.5,2), c(-0.5,0.5)+dr, lwd=1) #horizontal
+```
 
+
+# Aim
+
+To create a classifier for predicting whether a breast cancer patient's tumor is malignant or benign.
+
+### Train Test Split
+
+```{r test_train_split}
+set.seed(3033)
+intrain <- createDataPartition(y = wdbc$diagnosis, p= 0.7, list = FALSE)
+training <- wdbc[intrain,]
+testing <- wdbc[-intrain,]
+```
+
+### Some standard checks on the data
+```{r standard_checks}
+dim(training)
+dim(testing)
+```
