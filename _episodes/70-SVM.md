@@ -15,21 +15,6 @@ exercises: 0
 ---
 
 
-Support Vector Machines 
-Maximal Margin Classifier 
-Linear Support Vector Classifier
-Nonlinear Kernels
-Polynomial Kernels
-Gaussian radial based function
-Support Vector Machines 
-Multi-Class SVMs
-Hyperplanes and maximal margin classifier
-Sort margin and support vector classifier
-Kernels and support vector machines
-
-? Voting classifier (hard/soft)
-
-
 
 
 
@@ -46,6 +31,14 @@ library(caret)
 ```
 
 ```r
+library(corrplot)
+```
+
+```
+## corrplot 0.84 loaded
+```
+
+```r
 library(data.table)
 ```
 
@@ -53,47 +46,114 @@ library(data.table)
 ## Warning: package 'data.table' was built under R version 3.5.2
 ```
 
-# Wisconsin Diagnositc Breast Cancer Dataset
+```r
+library(ggplot2)
+library(tidyverse)
+```
 
+```
+## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
+```
+
+```
+## ✔ tibble  2.0.1       ✔ purrr   0.3.1  
+## ✔ tidyr   0.8.3       ✔ dplyr   0.8.0.1
+## ✔ readr   1.3.1       ✔ stringr 1.4.0  
+## ✔ tibble  2.0.1       ✔ forcats 0.4.0
+```
+
+```
+## Warning: package 'tibble' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'tidyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'purrr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'stringr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'forcats' was built under R version 3.5.2
+```
+
+```
+## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::between()   masks data.table::between()
+## ✖ dplyr::filter()    masks stats::filter()
+## ✖ dplyr::first()     masks data.table::first()
+## ✖ dplyr::lag()       masks stats::lag()
+## ✖ dplyr::last()      masks data.table::last()
+## ✖ purrr::lift()      masks caret::lift()
+## ✖ purrr::transpose() masks data.table::transpose()
+```
+
+# Wisconsin Breast Cancer Dataset
+
+![An example of a Fine Needle Aspiration Biopsy](742_FNA1.jpg)
+
+Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. 
+
+## Attribute Information:
+
+1) ID number
+2) Diagnosis (M = malignant, B = benign)
+3-32)
+
+Ten real-valued features are computed for each cell nucleus, each has 
+- a *mean* across cells 
+- a *standard deviation* across cells and 
+- the *worst* value across cells:
+
+a) radius (mean of distances from center to points on the perimeter)
+b) texture (standard deviation of gray-scale values)
+c) perimeter
+d) area
+e) smoothness (local variation in radius lengths)
+f) compactness (perimeter^2 / area - 1.0)
+g) concavity (severity of concave portions of the contour)
+h) concave points (number of concave portions of the contour)
+i) symmetry
+j) fractal dimension ("coastline approximation" - 1)
 
 
 ```r
-wdbc<-fread(here::here("data/breast-cancer-wisconsin.csv"))
+wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"))
+wdbc<-copy(wdbcn)
+names(wdbc)
+```
 
+```
+##  [1] "id"                      "diagnosis"              
+##  [3] "radius_mean"             "texture_mean"           
+##  [5] "perimeter_mean"          "area_mean"              
+##  [7] "smoothness_mean"         "compactness_mean"       
+##  [9] "concavity_mean"          "concave points_mean"    
+## [11] "symmetry_mean"           "fractal_dimension_mean" 
+## [13] "radius_se"               "texture_se"             
+## [15] "perimeter_se"            "area_se"                
+## [17] "smoothness_se"           "compactness_se"         
+## [19] "concavity_se"            "concave points_se"      
+## [21] "symmetry_se"             "fractal_dimension_se"   
+## [23] "radius_worst"            "texture_worst"          
+## [25] "perimeter_worst"         "area_worst"             
+## [27] "smoothness_worst"        "compactness_worst"      
+## [29] "concavity_worst"         "concave points_worst"   
+## [31] "symmetry_worst"          "fractal_dimension_worst"
+```
+
+```r
 wdbc$diagnosis<-factor(wdbc$diagnosis)
-```
 
-# Aim
-
-To create a classifier for predicting whether a breast cancer patient's tumor is malignant or benign.
-
-
-```r
-set.seed(3033)
-intrain <- createDataPartition(y = wdbc$diagnosis, p= 0.7, list = FALSE)
-training <- wdbc[intrain,]
-testing <- wdbc[-intrain,]
-```
-
-
-
-```r
-dim(training)
-```
-
-```
-## [1] 399  32
-```
-
-```r
-dim(testing)
-```
-
-```
-## [1] 170  32
-```
-
-```r
 anyNA(wdbc)
 ```
 
@@ -171,36 +231,92 @@ summary(wdbc)
 ##  Max.   :0.6638   Max.   :0.20750
 ```
 
+# Plot some things:
+
+
+```r
+ggplot(wdbc,
+       aes(x = radius_mean,
+           y = concavity_mean,
+           color = diagnosis))+
+  geom_point(alpha = 0.5)
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
+
+```r
+#GGally::ggpairs(wdbc,mapping = ggplot2::aes(color = diagnosis))
+wdbcn$diagnosis<-recode(wdbcn$diagnosis, "M"=1, "B"=-1)
+
+
+M<-cor(wdbcn[, -c("id")])
+cp<-corrplot(M, order = "hclust",tl.col = "black")
+dc <- which(colnames(cp)=="diagnosis") #column  of diagnosis
+tc <- dim(M)[1] #total columns
+dr <- tc-dc+1 #row of diagnosis, counting from the bottoem of the corrplot
+segments(c(-0.5,0.5)+dc, rep(0.5,2), c(-0.5,0.5)+dc, rep(tc+0.5,2), lwd=1) #vertical
+segments(rep(0.5,2), c(-0.5,0.5)+dr, rep(tc+0.5,2), c(-0.5,0.5)+dr, lwd=1) #horizontal
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-2.png)
+
+
+# Aim
+
+To create a classifier for predicting whether a breast cancer patient's tumor is malignant or benign.
+
+### Train Test Split
+
+
+```r
+set.seed(3033)
+intrain <- createDataPartition(y = wdbc$diagnosis, p= 0.7, list = FALSE)
+training <- wdbc[intrain,]
+testing <- wdbc[-intrain,]
+```
+
+### Some standard checks on the data
+
+```r
+dim(training)
+```
+
+```
+## [1] 399  32
+```
+
+```r
+dim(testing)
+```
+
+```
+## [1] 170  32
+```
+
 
 ```r
 set.seed(3233)
 
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 
-svm_Linear <- train(diagnosis ~., data = training, method = "svmLinear",
+svm_Linear <- train(diagnosis ~ ., 
+                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
+                    method = "svmLinear",
                     trControl=trctrl,
                     preProcess = c("center", "scale"),
                     tuneLength = 10)
-svm_Linear
+
+# svm_Linear <- train(diagnosis ~., data = training, method = "svmLinear",
+#                     trControl=trctrl,
+#                     preProcess = c("center", "scale"),
+#                     tuneLength = 10)
+
+what_am_I<-svm_Linear$finalModel
+
+#plot(what_am_I, data = xd)
 ```
 
-```
-## Support Vector Machines with Linear Kernel 
-## 
-## 399 samples
-##  31 predictor
-##   2 classes: 'B', 'M' 
-## 
-## Pre-processing: centered (31), scaled (31) 
-## Resampling: Cross-Validated (10 fold, repeated 3 times) 
-## Summary of sample sizes: 359, 360, 359, 359, 359, 359, ... 
-## Resampling results:
-## 
-##   Accuracy   Kappa    
-##   0.9649145  0.9245162
-## 
-## Tuning parameter 'C' was held constant at a value of 1
-```
+
 
 ```r
 test_pred <- predict(svm_Linear, newdata = testing)
@@ -208,13 +324,69 @@ test_pred
 ```
 
 ```
-##   [1] M M M M M M M M M M B B M M M M M M B B M B B B B M M B M B M M B B M
-##  [36] B B M B M B B B B M M B M B M B B B B M B B B B B B B B B B B M M B M
+##   [1] M M M M M M M M M M B B M M M B M M B B M B B B B M M B M M B M M B B
+##  [36] B B M B M M B B B M M B M B M M B B B M B M B B B B B B B B B M M B B
 ##  [71] M M B B M B M B M M M M B B B B B M B M M M M B M B B B B B B B B B M
-## [106] B B M B B B B M B B B B B B B B M B B M B B B B B B B M B M B B M B B
-## [141] B B B B B B B B M B B B M M B B B B M B M M B B B B B B B B
+## [106] B B M B B B B M B B M B B B B B M B M M B B B B B B B M B M B B M B B
+## [141] B B B B B B B B M M B B M B B B B B M B M B B B B B B B B B
 ## Levels: B M
 ```
+
+```r
+#kernlab::plot(svm_Linear)#, data = training[,.(diagnosis, radius_mean,`concave points_worst`)])
+svm_Linear <- train(diagnosis ~ ., 
+                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
+                    method = "svmLinear",
+                    trControl=trctrl,
+                    preProcess = c("center", "scale"),
+                    tuneLength = 10)
+
+library(kernlab)
+```
+
+```
+## 
+## Attaching package: 'kernlab'
+```
+
+```
+## The following object is masked from 'package:purrr':
+## 
+##     cross
+```
+
+```
+## The following object is masked from 'package:ggplot2':
+## 
+##     alpha
+```
+
+```r
+xd = as.matrix(training[,.(radius_mean,`concave points_worst`)])
+yd = as.matrix(training[,.(diagnosis)])
+ksvm_Linear<-ksvm(x = xd,
+            y = yd,
+            kernel = "vanilladot", type = 'C-svc',
+            kpar = "automatic", C = .1, cross = 10)
+```
+
+```
+##  Setting default kernel parameters
+```
+
+```r
+plot(ksvm_Linear)
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+
+```r
+plot(ksvm_Linear, data = xd)
+
+kernlab::plot(ksvm_Linear, data = xd)
+```
+
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-2.png)
 
 
 ```r
@@ -225,26 +397,26 @@ confusionMatrix(test_pred, testing$diagnosis )
 ## Confusion Matrix and Statistics
 ## 
 ##           Reference
-## Prediction   B   M
-##          B 107   2
-##          M   0  61
+## Prediction  B  M
+##          B 99  8
+##          M  8 55
 ##                                           
-##                Accuracy : 0.9882          
-##                  95% CI : (0.9581, 0.9986)
+##                Accuracy : 0.9059          
+##                  95% CI : (0.8517, 0.9452)
 ##     No Information Rate : 0.6294          
 ##     P-Value [Acc > NIR] : <2e-16          
 ##                                           
-##                   Kappa : 0.9746          
-##  Mcnemar's Test P-Value : 0.4795          
+##                   Kappa : 0.7982          
+##  Mcnemar's Test P-Value : 1               
 ##                                           
-##             Sensitivity : 1.0000          
-##             Specificity : 0.9683          
-##          Pos Pred Value : 0.9817          
-##          Neg Pred Value : 1.0000          
+##             Sensitivity : 0.9252          
+##             Specificity : 0.8730          
+##          Pos Pred Value : 0.9252          
+##          Neg Pred Value : 0.8730          
 ##              Prevalence : 0.6294          
-##          Detection Rate : 0.6294          
-##    Detection Prevalence : 0.6412          
-##       Balanced Accuracy : 0.9841          
+##          Detection Rate : 0.5824          
+##    Detection Prevalence : 0.6294          
+##       Balanced Accuracy : 0.8991          
 ##                                           
 ##        'Positive' Class : B               
 ## 
@@ -253,7 +425,7 @@ confusionMatrix(test_pred, testing$diagnosis )
 ```r
 grid <- expand.grid(C = c(0,0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2,5))
 set.seed(3233)
-svm_Linear_Grid <- train(diagnosis ~., data = training, method = "svmLinear",
+svm_Linear_Grid <- train(diagnosis ~ ., data = training, method = "svmLinear",
                          trControl=trctrl,
                          preProcess = c("center", "scale"),
                          tuneGrid = grid,
@@ -294,10 +466,10 @@ svm_Linear_Grid
 ```
 
 ```r
-plot(svm_Linear_Grid)
-```
+what_about_me<-svm_Linear_Grid$finalModel
 
-![plot of chunk unnamed-chunk-4](figure/unnamed-chunk-4-1.png)
+#plot(what_about_me, data = xd)
+```
 
 
 ```r
@@ -391,7 +563,7 @@ svm_Radial
 plot(svm_Radial)
 ```
 
-![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
 
 ```r
 test_pred_Radial <- predict(svm_Radial, newdata = testing)
