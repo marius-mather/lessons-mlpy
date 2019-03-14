@@ -1,0 +1,175 @@
+---
+title: "Unsupervised learning"
+author: "Darya Vanichkina"
+keypoints:
+- Unsupervised learning is an approach where we use machine learning to search for patterns in the data
+- PCA
+objectives:
+- someobjective
+questions: What is the meaning of life FIXME?
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+## Load the Golub dataset
+
+```{r dataProcessing, include=F}
+# # data taken from https://github.com/ramhiser/datamicroarray
+# load("data/golub.RData")
+# golub_tst <- as.data.frame(golub_test$x)
+# golub_trn <-  as.data.frame(golub_train$x)
+# golub_tst$disease <- golub_test$y
+# golub_trn$disease <- golub_train$y
+# golub_tst$sample <- "test"
+# golub_trn$sample <- "train"
+# golub <- rbind(golub_tst, golub_trn)
+# golub$patient <- paste0("Patient_", rownames(golub))
+# rm(golub_test, golub_train, golub_tst, golub_trn)
+# saveRDS(golub, "data/golub.Rds")
+
+golub <- readRDS("data/golub.Rds")
+golub_matrix_df <- golub %>% select(-patient, -disease, -sample)
+golub_matrix <- t(golub_matrix_df)
+dim(golub_matrix)
+
+
+## Let's look at the high-variance genes 
+colnames(golub_matrix) <- paste0("Patient_", colnames(golub_matrix))
+
+vars<-apply(golub_matrix,1,var)
+subset <- vars > quantile(vars,(nrow(golub_matrix)-100)/nrow(golub_matrix))
+golub_subset <- golub_matrix[subset,]
+
+dim(golub_subset)
+
+
+```
+
+## Clustering
+### k-means clustering
+
+Let's partition the data into two clusters based on gene expression:
+
+First, lets just use the top 20 genes. 
+
+```{r kmeans20}
+set.seed(42)
+km <- kmeans(golub_matrix_df[,1:20], centers =  2)
+table(true = golub$disease, cluster=km$cluster)
+golub$kmeans2 <- km$cluster
+
+golub %>% 
+  select(disease, kmeans2, names(golub)[1], names(golub)[2] ) %>%
+  mutate(kmeans2 = if_else(kmeans2 == 1,
+                           "ALL", 
+                           "AML")) %>%
+  ggplot(aes(x = `AFFX-BioB-5_at`, y = `AFFX-BioB-M_at`, shape = disease, col = kmeans2)) + 
+  geom_point() + theme_bw()
+
+```
+
+
+
+```{r kmeansAll}
+set.seed(42)
+km2 <- kmeans(t(golub_subset), centers =  2)
+
+table(true = golub$disease, cluster=km2$cluster)
+
+
+golub$kmeans2 <- km2$cluster
+
+golub %>% 
+  select(disease, kmeans2, names(golub)[1], names(golub)[2] ) %>%
+  mutate(kmeans2 = if_else(kmeans2 == 1,
+                           "ALL", 
+                           "AML")) %>%
+  ggplot(aes(x = `AFFX-BioB-5_at`, y = `AFFX-BioB-M_at`, shape = disease, col = kmeans2)) + 
+  geom_point() + theme_bw()
+
+```
+
+### Hierarchical clustering
+
+The first step is to compute the distance between each sample, and by default, the complete linkage method is used.
+
+```{r hclust}
+clusters <- hclust(dist(golub_matrix))
+# cut dendrogram in 4 clusters
+clusMember = cutree(clusters, 2)
+
+library(RColorBrewer)
+# matrix contains genomics-style data where columns are samples 
+#   (if otherwise remove the transposition below)
+# labels is a factor variable going along the columns of matrix
+
+plotHclustColors <- function(matrix,labels,...) {
+  colnames(matrix) <- labels
+  d <- dist(t(matrix))
+  hc <- hclust(d)
+  labelColors <- brewer.pal(nlevels(labels),"Set1")
+  colLab <- function(n) {
+    if (is.leaf(n)) {
+      a <- attributes(n)
+      labCol <- labelColors[which(levels(clusMember) == a$label)]
+      attr(n, "nodePar") <- c(a$nodePar, label.col=labCol)
+    }
+    n
+  }
+  clusDendro <- dendrapply(as.dendrogram(hc), colLab)
+  plot(clusDendro,...)
+}
+
+plotHclustColors(t(golub_matrix), golub$disease)
+
+```
+
+
+
+```{r heatmap}
+library(pheatmap)
+tmp <- scale(golub_matrix)
+
+golub_gene_oriented_matrix <-
+  golub_matrix %>%
+   rownames_to_column %>% 
+   gather(var, value, -rowname) %>% 
+   spread(rowname, value) 
+
+pheatmap(golub_gene_oriented_matrix)
+
+
+trainTransformed <- predict(preProcess(golub_matrix, method=c("center", "scale") ), golub_matrix)
+summary(colSums(trainTransformed))
+
+
+
+
+```
+
+
+
+
+
+
+```{r PCA}
+pc <- golub %>% select(-patient, -disease, -sample) %>% prcomp()
+
+scores1 = as.data.frame(pc$x)
+scores1$patient <- paste0("Patient_", row.names(scores1))
+golub_pat_disease <- golub %>% 
+  select(patient, disease)
+
+scores1 <- merge.data.frame(scores1, golub_pat_disease, by = "patient")
+
+# plot of observations
+ggplot(data = scores1, aes(x = PC1, y = PC2, color = disease, label = rownames(scores1))) +
+  geom_text(alpha = 0.8, size = 4) +
+  ggtitle("First two PC of Golub data") +
+  theme_minimal()
+
+
+```
+
