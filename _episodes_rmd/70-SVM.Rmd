@@ -123,26 +123,100 @@ dim(training)
 dim(testing)
 ```
 
+#Try with caret and kernlab
+
+
 ```{r}
 set.seed(3233)
 
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 
-svm_Linear <- train(diagnosis ~ ., 
-                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
-                    method = "svmLinear",
-                    trControl=trctrl,
-                    preProcess = c("center", "scale"),
-                    tuneLength = 10)
+training$cpw <- training$`concave points_worst`
 
-# svm_Linear <- train(diagnosis ~., data = training, method = "svmLinear",
-#                     trControl=trctrl,
-#                     preProcess = c("center", "scale"),
-#                     tuneLength = 10)
+tr_subset<-training[,.(radius_mean,cpw, diagnosis)]
+tr_x_subset<-as.matrix(training[,.(radius_mean,cpw)])
+tr_y_vec<- training$diagnosis
 
-what_am_I<-svm_Linear$finalModel
+ksvm_Linear <- train(diagnosis ~ ., 
+                     data = tr_subset, 
+                     method = "svmLinear",
+                     trControl=trctrl,
+                     tuneLength = 10)
 
-#plot(what_am_I, data = xd)
+kernfit_caret_sml<-ksvm_Linear$finalModel
+
+plot(kernfit_caret_sml, data = tr_x_subset)
+```
+
+#Try with kernlab without caret, target separate
+
+
+```{r}
+
+# fit model and produce plot
+kernfit_bc <- ksvm(x = tr_x_subset,
+                   y = tr_y_vec,
+                   type = "C-svc", 
+                   kernel = 'vanilladot')
+plot(kernfit_bc, data = tr_x_subset)
+
+```
+
+
+#Try with e1071 without caret, formula
+
+```{r}
+# fit model and produce plot
+svmfit_bc <- svm(diagnosis ~ .,
+                 data = tr_subset,
+                 kernel = "linear", 
+                 scale = TRUE)
+
+e1071:::plot.svm(svmfit_bc, data = tr_subset)#, radius_mean ~ cpw)
+
+
+```
+
+
+#Try with e1071 without caret, formula, more variables
+
+```{r}
+
+#make subsets
+tr_subset2<-training[,.(radius_mean, radius_se, cpw, diagnosis)]
+tr_x_subset2<-as.matrix(training[,.(radius_mean, radius_se,cpw)])
+tr_y_vec2<- training$diagnosis
+
+# fit model and produce plot
+svmfit_bc <- svm(diagnosis ~ .,
+                 data = tr_subset2,
+                 kernel = "linear", 
+                 scale = TRUE)
+
+e1071:::plot.svm(svmfit_bc, radius_mean ~ cpw, data = tr_subset2)#, radius_mean ~ cpw)
+
+
+```
+
+
+
+#Try e1071 with caret
+
+```{r}
+set.seed(3233)
+
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+
+svm_Linear_bc <- train(diagnosis ~ ., 
+                     data = tr_subset, 
+                     method = "svmLinearWeights",
+                     trControl=trctrl,
+                     preProcess = c("center", "scale"),
+                     tuneLength = 10)
+
+svmfit_caret_bc<-svm_Linear_bc$finalModel
+plot(svmfit_caret_bc, tr_subset)
+
 ```
 
 
@@ -150,9 +224,9 @@ what_am_I<-svm_Linear$finalModel
 test_pred <- predict(svm_Linear, newdata = testing)
 test_pred
 
-#kernlab::plot(svm_Linear)#, data = training[,.(diagnosis, radius_mean,`concave points_worst`)])
+#kernlab::plot(svm_Linear)#, data = training[,.(diagnosis, radius_mean,cpw)])
 svm_Linear <- train(diagnosis ~ ., 
-                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
+                    data = training[,.(diagnosis, radius_mean,cpw)], 
                     method = "svmLinear",
                     trControl=trctrl,
                     preProcess = c("center", "scale"),
@@ -160,12 +234,12 @@ svm_Linear <- train(diagnosis ~ .,
 
 library(kernlab)
 
-xd = as.matrix(training[,.(radius_mean,`concave points_worst`)])
+xd = as.matrix(training[,.(radius_mean,cpw)])
 yd = as.matrix(training[,.(diagnosis)])
 ksvm_Linear<-ksvm(x = xd,
-            y = yd,
-            kernel = "vanilladot", type = 'C-svc',
-            kpar = "automatic", C = .1, cross = 10)
+                  y = yd,
+                  kernel = "vanilladot", type = 'C-svc',
+                  kpar = "automatic", C = .1, cross = 10)
 
 plot(ksvm_Linear)
 plot(ksvm_Linear, data = xd)
