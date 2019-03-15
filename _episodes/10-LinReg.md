@@ -17,6 +17,9 @@ First, let's load the required libraries. We will use the `caret` library for ou
 
 
 ```r
+# set knitr options
+opts_knit$set(warning = FALSE, message = FALSE)
+  
 library(tidyverse)
 ```
 
@@ -25,10 +28,10 @@ library(tidyverse)
 ```
 
 ```
-## ✔ ggplot2 3.1.0     ✔ purrr   0.2.5
-## ✔ tibble  2.0.1     ✔ dplyr   0.7.8
-## ✔ tidyr   0.8.2     ✔ stringr 1.4.0
-## ✔ readr   1.3.1     ✔ forcats 0.3.0
+## ✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
+## ✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
+## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
+## ✔ readr   1.3.1       ✔ forcats 0.4.0
 ```
 
 ```
@@ -36,7 +39,23 @@ library(tidyverse)
 ```
 
 ```
+## Warning: package 'tidyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'purrr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.5.2
+```
+
+```
 ## Warning: package 'stringr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'forcats' was built under R version 3.5.2
 ```
 
 ```
@@ -107,7 +126,7 @@ library(psych)
 ```
 
 ```r
- library(corrplot)
+library(corrplot)
 ```
 
 ```
@@ -539,6 +558,20 @@ corrplot(ameshousingCor, order="hclust",method="square")
 
 ![plot of chunk Corrplot](figure/Corrplot-1.png)
 
+```r
+# FIXME adapt below
+# all_numVar <- all[, numericVars]
+# cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
+# 
+# #sort on decreasing correlations with SalePrice
+# cor_sorted <- as.matrix(sort(cor_numVar[,'SalePrice'], decreasing = TRUE))
+#  #select only high corelations
+# CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5)))
+# cor_numVar <- cor_numVar[CorHigh, CorHigh]
+# 
+# corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
+```
+
 What variables are the most correlated with SalePrice?
 
 
@@ -695,6 +728,31 @@ ameshousingFiltTrain <- ameshousingFilt[train,]
 # testing set
 ameshousingFiltTest <- ameshousingFilt[-train,]
 ```
+
+
+## Fitting a model
+
+There are currently 237 types of ML models than can be fit using the caret package. To see a list of these, and to explore what tuning parameters they might need, [see here](https://topepo.github.io/caret/available-models.html). You can also [define your own model](https://topepo.github.io/caret/available-models.html).
+
+### Simple linear regression
+
+
+
+### Tmp
+
+```r
+# set.seed(1234)
+# svmFit <- train(SalePriceLog ~,
+#                 data = ameshousingFiltTrain,
+#                 method = "svmRadial",
+#                 preProc = c("center", "scale"),
+#                 trControl = trainControl(method = "repeatedcv",
+#                                          repeats = 10,
+#                                          classProbs = TRUE)
+#                 )
+# predict
+```
+
 
 
 

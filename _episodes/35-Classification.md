@@ -16,101 +16,283 @@ exercises: 0
 
 
 
-## Model evaluation (classification) /FIXME random/
 
-Classification models
-Misclassification: This is the overall error. For example, say you are predicting 3 classes ( high, medium, low ) and each class has 25, 30, 35 observations respectively (90 observations total). If you misclassify 3 observations of class high, 6 of class medium, and 4 of class low, then you misclassified 13 out of 90 observations resulting in a 14% misclassification rate. Objective: minimize
-
-Mean per class error: This is the average error rate for each class. For the above example, this would be the mean of 3/25, 6/30, 4/35, which is 12%. If your classes are balanced this will be identical to misclassification. Objective: minimize
-
-MSE: Mean squared error. Computes the distance from 1.0 to the probability suggested. So, say we have three classes, A, B, and C, and your model predicts a probabilty of 0.91 for A, 0.07 for B, and 0.02 for C. If the correct answer was A the  MSE = 0.09^2 = 0.0081 , if it is B MSE = 0.93^2 = 0.8649, if it is C MSE = 0.98^2 = 0.9604. The squared component results in large differences in probabilities for the true class having larger penalties. Objective: minimize
-
-Cross-entropy (aka Log Loss or Deviance): Similar to MSE but it incorporates a log of the predicted probability multiplied by the true class. Consequently, this metric disproportionately punishes predictions where we predict a small probability for the true class, which is another way of saying having high confidence in the wrong answer is really bad. Objective: minimize
-
-Gini index: Mainly used with tree-based methods and commonly referred to as a measure of purity where a small value indicates that a node contains predominantly observations from a single class. Objective: minimize
-
-When applying classification models, we often use a confusion matrix to evaluate certain performance measures. A confusion matrix is simply a matrix that compares actual categorical levels (or events) to the predicted categorical levels. When we predict the right level, we refer to this as a true positive. However, if we predict a level or event that did not happen this is called a false positive (i.e. we predicted a customer would redeem a coupon and they did not). Alternatively, when we do not predict a level or event and it does happen that this is called a false negative (i.e. a customer that we did not predict to redeem a coupon does).
-
-TP/FP map
-
-Accuracy: Overall, how often is the classifier correct? Opposite of misclassification above. Example: 
-T
-P
-+
-T
-N
-t
-o
-t
-a
-l
-=
-100
-+
-50
-165
-=
-0.91
-. Objective: maximize
-
-Precision: How accurately does the classifier predict events? This metric is concerned with maximizing the true positives to false positive ratio. In other words, for the number of predictions that we made, how many were correct? Example: 
-T
-P
-T
-P
-+
-F
-P
-=
-100
-100
-+
-10
-=
-0.91
-. Objective: maximize
-
-Sensitivity (aka recall): How accurately does the classifier classify actual events? This metric is concerned with maximizing the true positives to false negatives ratio. In other words, for the events that occurred, how many did we predict? Example: 
-T
-P
-T
-P
-+
-F
-N
-=
-100
-100
-+
-5
-=
-0.95
-. Objective: maximize
-
-Specificity: How accurately does the classifier classify actual non-events? Example: 
-T
-N
-T
-N
-+
-F
-P
-=
-50
-50
-+
-10
-=
-0.83
-. Objective: maximize
-
-AUC: Area under the curve. A good classifier will have high precision and sensitivity. This means the classifier does well when it predicts an event will and will not occur, which minimizes false positives and false negatives. To capture this balance, we often use a ROC curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis. A line that is diagonal from the lower left corner to the upper right corner represents a random guess. The higher the line is in the upper left-hand corner, the better. AUC computes the area under this curve. Objective: maximize
+## Model evaluation (classification) 
 
 
 
 
+```r
+library(caret)
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```r
+library(corrplot)
+```
+
+```
+## corrplot 0.84 loaded
+```
+
+```r
+library(data.table)
+```
+
+```
+## Warning: package 'data.table' was built under R version 3.5.2
+```
+
+```r
+library(ggplot2)
+library(tidyverse)
+```
+
+```
+## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
+```
+
+```
+## ✔ tibble  2.0.1       ✔ purrr   0.3.1  
+## ✔ tidyr   0.8.3       ✔ dplyr   0.8.0.1
+## ✔ readr   1.3.1       ✔ stringr 1.4.0  
+## ✔ tibble  2.0.1       ✔ forcats 0.4.0
+```
+
+```
+## Warning: package 'tibble' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'tidyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'purrr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'stringr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'forcats' was built under R version 3.5.2
+```
+
+```
+## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::between()   masks data.table::between()
+## ✖ dplyr::filter()    masks stats::filter()
+## ✖ dplyr::first()     masks data.table::first()
+## ✖ dplyr::lag()       masks stats::lag()
+## ✖ dplyr::last()      masks data.table::last()
+## ✖ purrr::lift()      masks caret::lift()
+## ✖ purrr::transpose() masks data.table::transpose()
+```
+
+# Wisconsin Breast Cancer Dataset
+
+![An example of a Fine Needle Aspiration Biopsy](742_FNA1.jpg)
+
+Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. 
+
+## Attribute Information:
+
+1) ID number
+2) Diagnosis (M = malignant, B = benign)
+3-32)
+
+Ten real-valued features are computed for each cell nucleus, each has 
+- a *mean* across cells 
+- a *standard deviation* across cells and 
+- the *worst* value across cells:
+
+a) radius (mean of distances from center to points on the perimeter)
+b) texture (standard deviation of gray-scale values)
+c) perimeter
+d) area
+e) smoothness (local variation in radius lengths)
+f) compactness (perimeter^2 / area - 1.0)
+g) concavity (severity of concave portions of the contour)
+h) concave points (number of concave portions of the contour)
+i) symmetry
+j) fractal dimension ("coastline approximation" - 1)
 
 
+```r
+wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"))
+wdbc<-copy(wdbcn)
+names(wdbc)
+```
+
+```
+##  [1] "id"                      "diagnosis"              
+##  [3] "radius_mean"             "texture_mean"           
+##  [5] "perimeter_mean"          "area_mean"              
+##  [7] "smoothness_mean"         "compactness_mean"       
+##  [9] "concavity_mean"          "concave points_mean"    
+## [11] "symmetry_mean"           "fractal_dimension_mean" 
+## [13] "radius_se"               "texture_se"             
+## [15] "perimeter_se"            "area_se"                
+## [17] "smoothness_se"           "compactness_se"         
+## [19] "concavity_se"            "concave points_se"      
+## [21] "symmetry_se"             "fractal_dimension_se"   
+## [23] "radius_worst"            "texture_worst"          
+## [25] "perimeter_worst"         "area_worst"             
+## [27] "smoothness_worst"        "compactness_worst"      
+## [29] "concavity_worst"         "concave points_worst"   
+## [31] "symmetry_worst"          "fractal_dimension_worst"
+```
+
+```r
+wdbc$diagnosis<-factor(wdbc$diagnosis)
+
+anyNA(wdbc)
+```
+
+```
+## [1] FALSE
+```
+
+```r
+summary(wdbc)
+```
+
+```
+##        id            diagnosis  radius_mean      texture_mean  
+##  Min.   :     8670   B:357     Min.   : 6.981   Min.   : 9.71  
+##  1st Qu.:   869218   M:212     1st Qu.:11.700   1st Qu.:16.17  
+##  Median :   906024             Median :13.370   Median :18.84  
+##  Mean   : 30371831             Mean   :14.127   Mean   :19.29  
+##  3rd Qu.:  8813129             3rd Qu.:15.780   3rd Qu.:21.80  
+##  Max.   :911320502             Max.   :28.110   Max.   :39.28  
+##  perimeter_mean     area_mean      smoothness_mean   compactness_mean 
+##  Min.   : 43.79   Min.   : 143.5   Min.   :0.05263   Min.   :0.01938  
+##  1st Qu.: 75.17   1st Qu.: 420.3   1st Qu.:0.08637   1st Qu.:0.06492  
+##  Median : 86.24   Median : 551.1   Median :0.09587   Median :0.09263  
+##  Mean   : 91.97   Mean   : 654.9   Mean   :0.09636   Mean   :0.10434  
+##  3rd Qu.:104.10   3rd Qu.: 782.7   3rd Qu.:0.10530   3rd Qu.:0.13040  
+##  Max.   :188.50   Max.   :2501.0   Max.   :0.16340   Max.   :0.34540  
+##  concavity_mean    concave points_mean symmetry_mean   
+##  Min.   :0.00000   Min.   :0.00000     Min.   :0.1060  
+##  1st Qu.:0.02956   1st Qu.:0.02031     1st Qu.:0.1619  
+##  Median :0.06154   Median :0.03350     Median :0.1792  
+##  Mean   :0.08880   Mean   :0.04892     Mean   :0.1812  
+##  3rd Qu.:0.13070   3rd Qu.:0.07400     3rd Qu.:0.1957  
+##  Max.   :0.42680   Max.   :0.20120     Max.   :0.3040  
+##  fractal_dimension_mean   radius_se        texture_se      perimeter_se   
+##  Min.   :0.04996        Min.   :0.1115   Min.   :0.3602   Min.   : 0.757  
+##  1st Qu.:0.05770        1st Qu.:0.2324   1st Qu.:0.8339   1st Qu.: 1.606  
+##  Median :0.06154        Median :0.3242   Median :1.1080   Median : 2.287  
+##  Mean   :0.06280        Mean   :0.4052   Mean   :1.2169   Mean   : 2.866  
+##  3rd Qu.:0.06612        3rd Qu.:0.4789   3rd Qu.:1.4740   3rd Qu.: 3.357  
+##  Max.   :0.09744        Max.   :2.8730   Max.   :4.8850   Max.   :21.980  
+##     area_se        smoothness_se      compactness_se      concavity_se    
+##  Min.   :  6.802   Min.   :0.001713   Min.   :0.002252   Min.   :0.00000  
+##  1st Qu.: 17.850   1st Qu.:0.005169   1st Qu.:0.013080   1st Qu.:0.01509  
+##  Median : 24.530   Median :0.006380   Median :0.020450   Median :0.02589  
+##  Mean   : 40.337   Mean   :0.007041   Mean   :0.025478   Mean   :0.03189  
+##  3rd Qu.: 45.190   3rd Qu.:0.008146   3rd Qu.:0.032450   3rd Qu.:0.04205  
+##  Max.   :542.200   Max.   :0.031130   Max.   :0.135400   Max.   :0.39600  
+##  concave points_se   symmetry_se       fractal_dimension_se
+##  Min.   :0.000000   Min.   :0.007882   Min.   :0.0008948   
+##  1st Qu.:0.007638   1st Qu.:0.015160   1st Qu.:0.0022480   
+##  Median :0.010930   Median :0.018730   Median :0.0031870   
+##  Mean   :0.011796   Mean   :0.020542   Mean   :0.0037949   
+##  3rd Qu.:0.014710   3rd Qu.:0.023480   3rd Qu.:0.0045580   
+##  Max.   :0.052790   Max.   :0.078950   Max.   :0.0298400   
+##   radius_worst   texture_worst   perimeter_worst    area_worst    
+##  Min.   : 7.93   Min.   :12.02   Min.   : 50.41   Min.   : 185.2  
+##  1st Qu.:13.01   1st Qu.:21.08   1st Qu.: 84.11   1st Qu.: 515.3  
+##  Median :14.97   Median :25.41   Median : 97.66   Median : 686.5  
+##  Mean   :16.27   Mean   :25.68   Mean   :107.26   Mean   : 880.6  
+##  3rd Qu.:18.79   3rd Qu.:29.72   3rd Qu.:125.40   3rd Qu.:1084.0  
+##  Max.   :36.04   Max.   :49.54   Max.   :251.20   Max.   :4254.0  
+##  smoothness_worst  compactness_worst concavity_worst  concave points_worst
+##  Min.   :0.07117   Min.   :0.02729   Min.   :0.0000   Min.   :0.00000     
+##  1st Qu.:0.11660   1st Qu.:0.14720   1st Qu.:0.1145   1st Qu.:0.06493     
+##  Median :0.13130   Median :0.21190   Median :0.2267   Median :0.09993     
+##  Mean   :0.13237   Mean   :0.25427   Mean   :0.2722   Mean   :0.11461     
+##  3rd Qu.:0.14600   3rd Qu.:0.33910   3rd Qu.:0.3829   3rd Qu.:0.16140     
+##  Max.   :0.22260   Max.   :1.05800   Max.   :1.2520   Max.   :0.29100     
+##  symmetry_worst   fractal_dimension_worst
+##  Min.   :0.1565   Min.   :0.05504        
+##  1st Qu.:0.2504   1st Qu.:0.07146        
+##  Median :0.2822   Median :0.08004        
+##  Mean   :0.2901   Mean   :0.08395        
+##  3rd Qu.:0.3179   3rd Qu.:0.09208        
+##  Max.   :0.6638   Max.   :0.20750
+```
+
+# Plot some things:
 
 
+```r
+ggplot(wdbc,
+       aes(x = radius_mean,
+           y = concavity_mean,
+           color = diagnosis))+
+  geom_point(alpha = 0.5)
+```
 
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
+
+```r
+#GGally::ggpairs(wdbc,mapping = ggplot2::aes(color = diagnosis))
+wdbcn$diagnosis<-recode(wdbcn$diagnosis, "M"=1, "B"=-1)
+
+
+M<-cor(wdbcn[, -c("id")])
+cp<-corrplot(M, order = "hclust",tl.col = "black")
+dc <- which(colnames(cp)=="diagnosis") #column  of diagnosis
+tc <- dim(M)[1] #total columns
+dr <- tc-dc+1 #row of diagnosis, counting from the bottoem of the corrplot
+segments(c(-0.5,0.5)+dc, rep(0.5,2), c(-0.5,0.5)+dc, rep(tc+0.5,2), lwd=1) #vertical
+segments(rep(0.5,2), c(-0.5,0.5)+dr, rep(tc+0.5,2), c(-0.5,0.5)+dr, lwd=1) #horizontal
+```
+
+![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-2.png)
+
+
+# Aim
+
+To create a classifier for predicting whether a breast cancer patient's tumor is malignant or benign.
+
+### Train Test Split
+
+
+```r
+set.seed(3033)
+intrain <- createDataPartition(y = wdbc$diagnosis, p= 0.7, list = FALSE)
+training <- wdbc[intrain,]
+testing <- wdbc[-intrain,]
+```
+
+### Some standard checks on the data
+
+```r
+dim(training)
+```
+
+```
+## [1] 399  32
+```
+
+```r
+dim(testing)
+```
+
+```
+## [1] 170  32
+```

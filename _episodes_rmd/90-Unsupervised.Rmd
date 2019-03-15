@@ -3,7 +3,7 @@ title: "Unsupervised learning"
 author: "Darya Vanichkina"
 keypoints:
 - Unsupervised learning is an approach where we use machine learning to search for patterns in the data
-- PCA
+- Clustering can 
 objectives:
 - someobjective
 questions: What is the meaning of life FIXME?
@@ -13,140 +13,180 @@ teaching: 30
 exercises: 0
 ---
 
-## Load the Golub dataset
 
-```{r dataProcessing, include=F}
-# # data taken from https://github.com/ramhiser/datamicroarray
-# load("data/golub.RData")
-# golub_tst <- as.data.frame(golub_test$x)
-# golub_trn <-  as.data.frame(golub_train$x)
-# golub_tst$disease <- golub_test$y
-# golub_trn$disease <- golub_train$y
-# golub_tst$sample <- "test"
-# golub_trn$sample <- "train"
-# golub <- rbind(golub_tst, golub_trn)
-# golub$patient <- paste0("Patient_", rownames(golub))
-# rm(golub_test, golub_train, golub_tst, golub_trn)
-# saveRDS(golub, "data/golub.Rds")
-
-library(tidyverse)
-
-golub <- readRDS("data/golub.Rds")
-golub_matrix_df <- golub %>% select(-patient, -disease, -sample)
-golub_matrix <- t(golub_matrix_df)
-dim(golub_matrix)
-
-
-## Let's look at the high-variance genes 
-colnames(golub_matrix) <- paste0("Patient_", colnames(golub_matrix))
-
-vars<-apply(golub_matrix,1,var)
-subset <- vars > quantile(vars,(nrow(golub_matrix)-100)/nrow(golub_matrix))
-golub_subset <- golub_matrix[subset,]
-
-dim(golub_subset)
-
-
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set( warning=FALSE, message=FALSE)
 ```
+
+
+## Load the Iris dataset and libraries
+
+```{r iris}
+library(tidyverse)  # data manipulation
+library(cluster)    # clustering algorithms
+library(factoextra) # clustering algorithms & visualization
+library(dendextend) # nice dendrograms 
+library(pheatmap) # nice heatmaps
+library(caret) #another option for pca
+library(Rtsne) #t-SNE
+
+data("iris")
+str(iris)
+```
+
+## Explore the iris dataset
+
+
+
+> ## Challenge
+>
+> Take a few moments to explore the Iris dataset. What can you learn? Which species do you think will be easier to separate?
+>
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > dim(iris)
+> > str(iris)
+> > 
+> > iris %>%
+> >   ggplot(aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point() + theme_minimal()
+> > 
+> > iris %>%
+> >   ggplot(aes(x = Sepal.Length, y = Sepal.Width, col = Species)) + geom_point() + theme_minimal()
+> > 
+> > iris %>%
+> >   ggplot(aes(x = Petal.Width, y = Petal.Length, col = Species)) + geom_point() + theme_minimal()
+> > 
+> > iris %>% 
+> >   gather(key, value, -Species) %>%
+> >   ggplot(aes(y = value, fill = Species)) + geom_boxplot() + facet_wrap(.~key) + theme_bw()
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+What if we didn't know we had 3 species??? Could we use the morphological data to study this problem?
 
 ## Clustering
+
 ### k-means clustering
 
-Let's partition the data into two clusters based on gene expression:
 
-First, lets just use the top 20 genes. 
+```{r getdist}
+iris_scaled <- scale(iris[,1:4])
+rownames(iris_scaled) <- paste(substr(iris$Species, 1, 2), seq(1:length(iris$Species)), sep = "_")
+distance <- get_dist(iris_scaled)
+fviz_dist(distance)
+```
 
-```{r kmeans20}
+```{r kmeans2}
+k2 <- kmeans(iris_scaled, centers = 2, nstart = 25)
+str(k2)
+```
+
+```{r Visualisek2}
+fviz_cluster(k2, data = iris_scaled) + theme_minimal()
+```
+
+
+
+```{r OptimalNumberOfClusters}
 set.seed(42)
-km <- kmeans(golub_matrix_df[,1:20], centers =  2)
-table(true = golub$disease, cluster=km$cluster)
-golub$kmeans2 <- km$cluster
+fviz_nbclust(iris_scaled, kmeans, method = "wss")
 
-golub %>% 
-  select(disease, kmeans2, names(golub)[1], names(golub)[2] ) %>%
-  mutate(kmeans2 = if_else(kmeans2 == 1,
-                           "ALL", 
-                           "AML")) %>%
-  ggplot(aes(x = `AFFX-BioB-5_at`, y = `AFFX-BioB-M_at`, shape = disease, col = kmeans2)) + 
-  geom_point() + theme_bw()
+fviz_nbclust(iris_scaled, kmeans, method = "silhouette")
+
+fviz_nbclust(iris_scaled, kmeans, method = "gap_stat")
+
+```
+
+```{r k3}
+k3 <- kmeans(iris_scaled, centers = 3, nstart = 25)
+str(k3)
+fviz_cluster(k3, data = iris_scaled) + theme_bw()
+
+k7 <- kmeans(iris_scaled, centers = 7, nstart = 25)
+str(k7)
+fviz_cluster(k7, data = iris_scaled) + theme_bw()
+
+
 
 ```
 
 
 
-```{r kmeansAll}
-set.seed(42)
-km2 <- kmeans(t(golub_subset), centers =  2)
-
-table(true = golub$disease, cluster=km2$cluster)
 
 
-golub$kmeans2 <- km2$cluster
 
-golub %>% 
-  select(disease, kmeans2, names(golub)[1], names(golub)[2] ) %>%
-  mutate(kmeans2 = if_else(kmeans2 == 1,
-                           "ALL", 
-                           "AML")) %>%
-  ggplot(aes(x = `AFFX-BioB-5_at`, y = `AFFX-BioB-M_at`, shape = disease, col = kmeans2)) + 
-  geom_point() + theme_bw()
+> ## Challenge
+>
+> Choose whichever clustering approach you think worked best among the above. If you partition the data this way, 
+> which of the variables is most distinct in the clusters?
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > iris %>%
+> >   mutate(Cluster = k3$cluster) %>%
+> >   group_by(Cluster) %>%
+> >   summarize (MostFreqSpecies =names(which.max(table(Species))),
+> >              Sepal.Length = mean(Sepal.Length),
+> >              Sepal.Width = mean(Sepal.Width),
+> >              Petal.Width = mean(Petal.Width),
+> >              Petal.Length = mean(Petal.Length))
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
 
-```
+
 
 ### Hierarchical clustering
 
-The first step is to compute the distance between each sample, and by default, the complete linkage method is used.
+The first step is to compute the distance between each sample, and by default, the complete linkage method is used. 
 
 ```{r hclust}
-clusters <- hclust(dist(golub_matrix))
-# cut dendrogram in 4 clusters
-clusMember = cutree(clusters, 2)
+iris_hcl <- hclust(dist(iris_scaled))
+plot(iris_hcl)
+# cut dendrogram in 3 clusters
+dendcut = cutree(iris_hcl, 3)
+table(dendcut, iris$Species)
 
-library(RColorBrewer)
-# matrix contains genomics-style data where columns are samples 
-#   (if otherwise remove the transposition below)
-# labels is a factor variable going along the columns of matrix
+iris_hcl %>% as.dendrogram() %>% plot()
+```
 
-plotHclustColors <- function(matrix,labels,...) {
-  colnames(matrix) <- labels
-  d <- dist(t(matrix))
-  hc <- hclust(d)
-  labelColors <- brewer.pal(nlevels(labels),"Set1")
-  colLab <- function(n) {
-    if (is.leaf(n)) {
-      a <- attributes(n)
-      labCol <- labelColors[which(levels(clusMember) == a$label)]
-      attr(n, "nodePar") <- c(a$nodePar, label.col=labCol)
-    }
-    n
-  }
-  clusDendro <- dendrapply(as.dendrogram(hc), colLab)
-  plot(clusDendro,...)
-}
 
-plotHclustColors(t(golub_matrix), golub$disease)
-
+```{r withFactorExtra}
+fviz_dend(hcut(iris_scaled, k = 3, hc_method = "complete"), 
+          rect = TRUE, 
+          cex = 0.5, 
+          palette = "Set1"
+          )
 ```
 
 
 
 ```{r heatmap}
-library(pheatmap)
-tmp <- scale(golub_matrix)
 
-golub_gene_oriented_matrix <-
-  golub_matrix %>%
-   rownames_to_column %>% 
-   gather(var, value, -rowname) %>% 
-   spread(rowname, value) 
-
-pheatmap(golub_gene_oriented_matrix)
-
-
-trainTransformed <- predict(preProcess(golub_matrix, method=c("center", "scale") ), golub_matrix)
-summary(colSums(trainTransformed))
-
-
+collabels <- data.frame(species = substr(rownames(iris_scaled), 1, 2))
+row.names(collabels) <- rownames(iris_scaled)
+pheatmap(iris_scaled, 
+         cluster_rows = iris_hcl, 
+         treeheight_row = 30, 
+         treeheight_col = 30,
+         annotation_row = collabels)
 
 
 ```
@@ -154,24 +194,190 @@ summary(colSums(trainTransformed))
 
 
 
+> ## Challenge
+>
+> Try constructing a heatmap using another agglomeration method, and visualise the results. 
+> 
+> Do you think your approach is better or worse than the "default"? Compare with your group...
+>
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > iris_hcl <- hclust(dist(iris_scaled), method = "ward.D")
+> > pheatmap(iris_scaled, 
+> >     cluster_rows = iris_hcl, 
+> >     treeheight_row = 30, 
+> >     treeheight_col = 30,
+> >     annotation_row = collabels)
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
 
+
+
+
+
+
+
+
+## PCA
 
 ```{r PCA}
-pc <- golub %>% select(-patient, -disease, -sample) %>% prcomp()
 
-scores1 = as.data.frame(pc$x)
-scores1$patient <- paste0("Patient_", row.names(scores1))
-golub_pat_disease <- golub %>% 
-  select(patient, disease)
+iris_pca <- prcomp(iris_scaled)
+iris_scores = as.data.frame(iris_pca$x)
+iris_scores$species <- substr(row.names(iris_scores), 1, 2)
 
-scores1 <- merge.data.frame(scores1, golub_pat_disease, by = "patient")
+
 
 # plot of observations
-ggplot(data = scores1, aes(x = PC1, y = PC2, color = disease, label = rownames(scores1))) +
+ggplot(data = iris_scores, aes(x = PC1, y = PC2, color = species, label = species)) +
   geom_text(alpha = 0.8, size = 4) +
-  ggtitle("First two PC of Golub data") +
+  ggtitle("First two PC of Iris data") +
   theme_minimal()
 
 
+```
+
+```{r VarianceExplained}
+fviz_eig(iris_pca, addlabels = TRUE)
+
+```
+
+
+```{r PC23}
+# plot of observations
+ggplot(data = iris_scores, aes(x = PC2, y = PC3, color = species, label = species)) +
+  geom_text(alpha = 0.8, size = 4) +
+  ggtitle("PC2/3 of Iris data") +
+  theme_minimal()
+```
+
+Let's look at the rotation matrix:
+
+```{r RotMatrix}
+iris_pca$rotation
+
+fviz_pca_var(iris_pca,  
+             col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"))
+```
+
+
+```{r ContribVars}
+# Contributions of variables to PC1
+fviz_contrib(iris_pca, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2
+fviz_contrib(iris_pca, choice = "var", axes = 2, top = 10)
+```
+
+
+
+```{r CoolVisualisation}
+
+# Visualize
+# Use habillage to specify groups for coloring
+fviz_pca_ind(iris_pca,
+             label = "none", 
+             habillage = iris$Species, 
+             palette = "Set1",
+             addEllipses = TRUE 
+             )
+```
+
+
+
+
+```{r PCAwCaret}
+iris_trans <- preProcess(iris[,1:4], method=c("BoxCox", "center",  "scale", "pca"))
+iris_PCaret <- predict(iris_trans, iris[,1:4])
+dim(iris_PCaret) # kept only the PCs that are necessary >= 95% of variability in the data
+
+head(iris_PCaret)
+
+head(iris_pca$x)
+
+ggplot(data = iris_PCaret, aes(x = PC1, y = PC2, color = iris$Species, label = iris$Species)) +
+  geom_text(alpha = 0.8, size = 4) +
+  ggtitle("First two PC of Iris data") +
+  theme_minimal()
+
+# We can see the results are the same as above
+```
+
+
+
+
+
+> ## Challenge
+>
+> Perform a PCA on the Ames housing filtered and unfiltered datasets. 
+> How much variance is explained by the top components?
+> What is the difference between including and not including the outlier points?
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > numericVarsWoutSale <- numericVars[1:length(numericVars) - 1]
+> > table(complete.cases(ameshousingFilt[,numericVarsWoutSale]))
+> > 
+> > ames_pca <- prcomp(ameshousingFilt[complete.cases(ameshousingFilt[,numericVarsWoutSale]), numericVarsWoutSale],
+> >                    center = TRUE,
+> >                    scale = TRUE) 
+> > 
+> > fviz_screeplot(ames_pca, addlabels = TRUE, ylim = c(0, 25))
+> > fviz_pca_var(ames_pca, col.var="contrib", gradient.cols = c("red", "blue", "black"), repel = TRUE)
+> > 
+> > # Contributions of variables to PC1
+> > fviz_contrib(ames_pca, choice = "var", axes = 1, top = 10)
+> > # Contributions of variables to PC2
+> > fviz_contrib(ames_pca, choice = "var", axes = 2, top = 10)
+> > fviz_pca_ind(ames_pca,label = "none")
+> > 
+> > 
+> > 
+> > 
+> > 
+> > table(complete.cases(ameshousing[,numericVarsWoutSale]))
+> > ames_pca2 <- prcomp(ameshousing[complete.cases(ameshousing[,numericVarsWoutSale]), numericVarsWoutSale],
+> >                    center = TRUE,
+> >                    scale = TRUE) 
+> > fviz_screeplot(ames_pca2, addlabels = TRUE, ylim = c(0, 25))
+> > fviz_pca_var(ames_pca2, col.var="contrib", gradient.cols = c("red", "blue", "black"), repel = TRUE)
+> > 
+> > # Contributions of variables to PC1
+> > fviz_contrib(ames_pca2, choice = "var", axes = 1, top = 10)
+> > # Contributions of variables to PC2
+> > fviz_contrib(ames_pca2, choice = "var", axes = 2, top = 10)
+> > fviz_pca_ind(ames_pca2,label = "none")
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+### t-SNE
+
+
+Don't forget to remove non-unique observations!
+
+```{r tsne}
+set.seed(42)
+iris_uniq <- unique(iris)
+iris_tsne <-  Rtsne(iris_uniq[1:4], dims = 2,  perplexity = 25, max_iter = 5000)
+iris_tsne_df = data.frame(iris_tsne$Y)  
+ggplot(iris_tsne_df, aes(x=X1, y=X2, color=iris_uniq$Species)) + geom_point(size=2) + theme_bw()
 ```
 

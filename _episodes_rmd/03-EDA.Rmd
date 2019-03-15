@@ -1,0 +1,308 @@
+---
+title: "EDA for Regression"
+author: "Darya Vanichkina"
+exercises: 0
+keypoints: 
+- Regression is the prediction of the value of a continuous variable based on one or more other continuous or categorical variables.
+- Exploratory data analysis is the essential first step in ML
+objectives: 
+- Introduce some of the key packages for EDA and ML
+- Introduce and explore the Ames Housing dataset
+questions: 
+- How do we predict one continuous variable based on others?
+- What is the first step of any ML project (and often the most time consuming)?
+source: Rmd
+start: 0
+teaching: 30
+bibliography: references.bib
+---
+
+First, let's load the required libraries. We will use the `caret` library for our ML tasks, and the `tidyverse` for general data processing and visualisation.
+
+```{r loadLibraries}
+# set knitr options
+# opts_knit$set(warning = FALSE, message = FALSE)
+  
+library(tidyverse)
+library(caret)
+library(tidymodels)
+library(naniar) # for visualising missing data
+library(GGally) # for EDA
+library(psych)
+library(corrplot)
+library(AmesHousing)
+
+```
+
+We will use the Ames housing data to explore different ML approaches to regression. This dataset was designed by Dean De Cock [@de2011ames] as an alternative to the "classic" Boston housing dataset, and has been extensively used in  ML teaching. It is also available from kaggle as part of its [advanced regression practice competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques).
+
+The Ames Housing Data Documentation file describes the independent variables presented in the data. This includes:
+- 20 continuous variables relate to various area dimensions for each observation
+- 14 discrete variables, which typically quantify the number of items occurring within the house
+- 23 ordinal, 23 nominal categorical variables, with 2 (STREET: gravel or paved) - 28 (NEIGHBORHOOD) classes 
+
+We will explore both the "uncleaned" data available from kaggle/UCI, and the processed data available in the `AmesHousing` package in R, for which documentation is available [here](https://cran.r-project.org/web/packages/AmesHousing/AmesHousing.pdf). It can be useful for understading what each of the independent variables mean.
+
+
+```{r loadData}
+ameshousing <- AmesHousing::make_ames()
+
+# Read in the uncleaned data. 
+ameshousing2 <- read_csv("data/AmesHousing.csv", guess_max=1500)
+```
+
+## Exploratory data analysis
+
+
+> ## Challenge
+>
+> 1. Explore the Ames Housing dataset. What can you figure out about the different variables? 
+> Which do you think are more or less important?
+> 
+> 2. Compare the ameshousing dataset, which is from the AmesHousing package in R and has been cleaned,
+> with the ameshousing2 dataset, which is the raw data from the UCI machine learning repository.
+> What was missing in the raw data?
+> What are some of the approaches that have been taken to deal with missingness?
+> 
+> {: .source}
+>
+> > ## Solution
+> > dim(ameshousing)
+> > 
+> > str(ameshousing)
+> > 
+> >
+> >
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+
+
+
+```{r NumericCateg}
+numericVars <- ameshousing %>% 
+  select_if( is.numeric) %>%
+  names()
+
+catVars <- ameshousing %>% 
+  select_if(Negate(is.numeric)) %>%
+  names()
+```
+
+
+```{r missingdata}
+colSums(sapply(ameshousing, is.na)) %>% 
+  as.data.frame() %>% 
+  rename(Missing = ".") %>%
+  tibble::rownames_to_column()%>% 
+  arrange(desc(Missing))
+
+
+colSums(sapply(ameshousing2, is.na)) %>% 
+  as.data.frame() %>% 
+  rename(Missing = ".") %>%
+  tibble::rownames_to_column()%>% 
+  arrange(desc(Missing))
+```
+
+### Use the naniar library to visualise missing
+
+Some new visualisation for missing data in the tidy context has been proposed [@tierney2018expanding]. See this [web page](http://naniar.njtierney.com/articles/naniar-visualisation.html) for more options for your own data.
+
+```{r uninformativeMissing}
+gg_miss_var(ameshousing2)
+```
+
+```{r naniar}
+gg_miss_upset(ameshousing2)
+```
+
+
+```{r EDAindependent}
+#
+ggpairs(ameshousing, numericVars[c(1:10, 33)], title = "Numeric variables 1 - 10")
+# ggpairs(ameshousing, numericVars[c(11:20, 33)], title = "Numeric variables 11 - 20")
+# ggpairs(ameshousing, numericVars[c(21:33)], title = "Numeric variables 21 - 33")
+ggpairs(ameshousing, c(catVars[2:5], "Sale_Price"), title = "Some categorical variables")
+```
+
+```{r Corrplot}
+# pairs.panels(ameshousing[ , names(ameshousing)[c(3, 16, 23, 27,37)]], scale=TRUE)
+ameshousingCor <- cor(na.omit(ameshousing[,numericVars]))
+corrplot(ameshousingCor, order="hclust",method="square")
+
+
+# FIXME adapt below
+# all_numVar <- all[, numericVars]
+# cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
+# 
+# #sort on decreasing correlations with SalePrice
+# cor_sorted <- as.matrix(sort(cor_numVar[,'SalePrice'], decreasing = TRUE))
+#  #select only high corelations
+# CorHigh <- names(which(apply(cor_sorted, 1, function(x) abs(x)>0.5)))
+# cor_numVar <- cor_numVar[CorHigh, CorHigh]
+# 
+# corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
+```
+
+
+> ## Challenge
+>
+> What variables are the most correlated with SalePrice?
+>
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > as.data.frame(ameshousingCor) %>% 
+> >   rownames_to_column() %>%
+> >   gather(pair, value, -rowname) %>%
+> >   filter(rowname != pair) %>% #remove self correlation
+> >   filter(rowname == "Sale_Price") %>%
+> >   arrange(desc(abs(value)))
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+
+
+```{r GrLivAr}
+ameshousing %>%
+  select(Sale_Price, Gr_Liv_Area) %>%
+  ggplot(aes(x = Gr_Liv_Area, y = Sale_Price)) + geom_point() + theme_minimal() +
+  geom_smooth(method= "lm")
+```
+
+```{r OvQual}
+ameshousing %>%
+  select(Sale_Price, `Overall_Qual`) %>%
+  ggplot(aes(x = `Overall_Qual`, y = Sale_Price)) + geom_point() + theme_minimal() +
+  geom_smooth(method= "lm")
+
+ameshousing %>%
+  select(Sale_Price, `Overall_Qual`) %>%
+  ggplot(aes(x = as.factor(`Overall_Qual`), y = Sale_Price, fill = as.factor(`Overall_Qual`))) + geom_boxplot() + theme_minimal() 
+```
+
+
+## EDA of outcome variable
+
+```{r salesPrice}
+ameshousing %>% 
+  select(Sale_Price) %>%
+  ggplot(aes(x = Sale_Price)) + geom_histogram(bins = 50) + theme_minimal() 
+```
+
+
+```{r RemoveOutliers}
+# remove 5 observations
+ameshousingFilt <- 
+  ameshousing %>% 
+  filter(Gr_Liv_Area <= 4000)
+```
+
+
+
+```{r WhyTransform}
+ameshousingFilt%>%
+  select(Sale_Price) %>%
+  ggplot(aes( sample = Sale_Price)) +
+  stat_qq() + stat_qq_line(col = "blue") +
+  theme_minimal()
+  
+ameshousingFilt %>%
+  select(Sale_Price) %>%
+  ggplot(aes( sample = sqrt(Sale_Price))) +
+  stat_qq() + stat_qq_line(col = "blue") +
+  theme_minimal()
+
+ameshousingFilt %>%
+  select(Sale_Price) %>%
+  ggplot(aes( sample = log(Sale_Price))) +
+  stat_qq() + stat_qq_line(col = "blue") +
+  theme_minimal()
+
+ameshousingFilt %>%
+  select(Sale_Price) %>%
+  ggplot(aes( sample = log10(Sale_Price))) +
+  stat_qq() + stat_qq_line(col = "blue") +
+  theme_minimal()
+
+
+ameshousingFilt <- ameshousingFilt %>%
+  mutate(Sale_PriceLog = log(Sale_Price))
+
+
+
+```
+
+
+
+
+## Splitting into testing and training datasets
+
+We will use the `rsample` package (part of `tidymodels`) to split the Ames housing data. We can also use the  `caret` function `createDataPartition()` to split the data into training and testing sets. See the [caret documentation](https://topepo.github.io/caret/data-splitting.html) if you'd like to learn about other approaches to generate a test set, for example based on maximum dissimilarity.
+
+```{r SplitTestTrain}
+set.seed(42) # so we all get the same results
+ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
+ameshousingFiltTrain <- training(ames_split)
+ameshousingFiltTest <- testing(ames_split)
+# alternatusing caret
+# train <- createDataPartition(ameshousingFilt$Sale_PriceLog, 
+#                              p = 0.7, #70/30 split
+#                              list = FALSE,
+#                              times = 1 #this is not for CV
+#                              )
+# 
+# 
+# # training set
+# ameshousingFiltTrain <- ameshousingFilt[train,]
+# # testing set
+# ameshousingFiltTest <- ameshousingFilt[-train,]
+
+```
+
+> ## Challenge
+>
+> Check the distribution of Sale price is the same in the testing and training datasets. 
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > ameshousingFiltTrain %>% 
+> >   ggplot(aes(x = Sale_PriceLog,  col = "red", fill = NULL)) + 
+> >   geom_density() + theme_minimal() +
+> >   geom_line(data = ameshousingFiltTest,
+> >             stat = "density",
+> >             col = "blue") + theme(legend.position="none")
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+
+
+## References
+
+
+  
+  
