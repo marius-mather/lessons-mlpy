@@ -21,3 +21,47 @@ The Curse of Dimensionality
 - Lasso Regression 
 - Cross-Validation 
 - Bias/Variance Tradeoff
+
+
+
+```{r}
+# 1. stratified sampling with the rsample package
+set.seed(123)
+split  <- initial_split(ames, prop = 0.7, strata = "Sale_Price")
+ames_train  <- training(split)
+ames_test   <- testing(split)
+# 2. create a resampling method
+cv <- trainControl(
+  method = "repeatedcv", 
+  number = 10, 
+  repeats = 5
+  )
+# 3. create a hyperparameter grid search
+hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
+# 4. execute grid search with knn model
+#    use RMSE as preferred metric
+knn_fit <- train(
+  Sale_Price ~ ., 
+  data = ames_train, 
+  method = "knn", 
+  trControl = cv, 
+  tuneGrid = hyper_grid,
+  metric = "RMSE"
+  )
+# 5. evaluate results
+# print model results
+knn_fit
+## k-Nearest Neighbors 
+## 
+## 2054 samples
+##   80 predictor
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold, repeated 5 times) 
+## Summary of sample sizes: 1848, 1850, 1848, 1848, 1848, 1848, ... 
+## Resampling results across tuning parameters:
+## 
+##   k   RMSE      Rsquared   MAE     
+##    2  46100.84  0.6618945  30205.06
+```
+

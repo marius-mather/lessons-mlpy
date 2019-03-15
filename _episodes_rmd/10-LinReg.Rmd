@@ -1,12 +1,12 @@
 ---
-title: "EDA for Regression"
+title: "Linear Regression"
 author: "Darya Vanichkina"
 exercises: 0
 keypoints: 
 - Regression is the prediction of the value of a continuous variable based on one or more other continuous or categorical variables.
-- Exploratory data analysis is the essential first step in ML
+- Multiple types of regression can be implemented to fit the data
 objectives: 
-- Introduce some of the key packages for EDA and ML
+- Introduce several approaches to carrying out linear regression in R
 - Introduce and explore the Ames Housing dataset
 questions: 
 - How do we predict one continuous variable based on others?
@@ -25,21 +25,150 @@ bibliography: references.bib
 library(tidyverse)
 library(caret)
 library(tidymodels)
-library(naniar) # for visualising missing data
 library(GGally) # for EDA
-library(psych)
-library(corrplot)
 library(AmesHousing)
-
 ```
 
+```{r getData, echo = F}
+ameshousing <- 
+  AmesHousing::make_ames() %>% 
+  filter(Gr_Liv_Area <= 4000)
+
+set.seed(42) # so we all get the same results
+ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
+ameshousingFiltTrain <- training(ames_split)
+ameshousingFiltTest <- testing(ames_split)
+```
+
+
+## Use the (new, tidy) recipes package for feature engineering
+
+```{r featureEngineering}
+engineer_features_allames <-
+  recipe(Sale_Price ~ ., data = ameshousingFiltTrain) %>%
+  step_log(Sale_Price) %>% # log(Sale_Price)
+  step_nzv(all_nominal()) %>% # removes variables that are highly sparse or unbalanced
+  step_integer(matches("Qual|Cond|QC|Qu")) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>%
+  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE)
+
+
+# Train a Data Recipe
+engineer_features_allames_prep <- prep(engineer_features_allames, training = ameshousingFiltTrain, verbose = TRUE)
+# get the transformed training dataset
+ameshousingFiltTrain_engineered <- juice(engineer_features_allames_prep)
+# apply the same transformation onto the test set (with the TRAINING parameters)
+ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data = ameshousingFiltTest)
+
+# use caret to specify cross-validation
+ames_resamplingCV <- trainControl(
+  method = "repeatedcv", 
+  number = 10, #  k = 10
+  repeats = 7 # repeat 7 times
+  )
+```
+
+
+> ## Challenge
+>
+> 1. Look at (and explore) the code for the recipe above. What are each of the steps doing?
+> Use the ?help to assist you with this.
+> 
+> 2. 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > We will discuss this as a group.
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
 
 
 ## Fitting a model
 
-There are currently 237 types of ML models than can be fit using the caret package. To see a list of these, and to explore what tuning parameters they might need, [see here](https://topepo.github.io/caret/available-models.html). You can also [define your own model](https://topepo.github.io/caret/available-models.html).
+There are currently 237 types of ML models than can be fit using the `caret` package. To see a list of these, and to explore what tuning parameters they might need, [see here](https://topepo.github.io/caret/available-models.html). You can also [define your own model](https://topepo.github.io/caret/available-models.html).
+
+
+
 
 ### Simple linear regression
+
+```{r ames1Cv}
+# predict sale price based on Gr_Liv_Area
+set.seed(42)
+ames_lm1 <- train(
+  Sale_Price ~ Gr_Liv_Area,
+  data = ameshousingFiltTrain_engineered,
+  method = "lm",
+  trControl = ames_resamplingCV)
+summary(ames_lm1)
+ames_lm1
+lm(Sale_Price ~ Gr_Liv_Area, data = ameshousingFiltTrain_engineered)
+```
+
+
+
+
+
+Use Second_Flr_SF and Gr_Liv_Area to predict:
+
+```{r ames2vars}
+set.seed(42)
+ames_lm2 <-  train(
+  Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF,
+  data = ameshousingFiltTrain_engineered,
+  method = "lm",
+  trControl = ames_resamplingCV)
+summary(ames_lm2)
+ames_lm2 
+```
+
+```{r ames2varsinteraction}
+set.seed(42)
+ames_lm2i <-  train(
+  Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF +Gr_Liv_Area:Second_Flr_SF ,
+  data = ameshousingFiltTrain_engineered,
+  method = "lm",
+  trControl = ames_resamplingCV)
+summary(ames_lm2i)
+ames_lm2i 
+```
+
+
+All predictors
+
+```{r amesallvars warnings=F}
+set.seed(42)
+ames_lm_all <-  train(
+  Sale_PriceLog ~. ,
+  data = ameshousingFiltTrain_engineered,
+  method = "lm",
+  trControl = ames_resamplingCV)
+
+```
+
+Compare performance on training set:
+
+```{r Resamples}
+allResamples <- resamples(list("Gr_Liv_Area cv" = ames_lm1, 
+                               "Gr_Liv_Area + Second_Flr_SF" = ames_lm2,
+                               "Gr_Liv_Area:Second_Flr_SF" = ames_lm2i,
+                               "All vars" = ames_lm_all
+                               ))
+
+
+bwplot(allResamples)
+parallelplot(allResamples)
+
+parallelplot(allResamples , metric = "Rsquared")
+parallelplot(allResamples , metric = "RMSE")
+
+
+```
+
 
 
 

@@ -240,9 +240,6 @@ ameshousingFilt %>%
   theme_minimal()
 
 
-ameshousingFilt <- ameshousingFilt %>%
-  mutate(Sale_PriceLog = log(Sale_Price))
-
 
 
 ```
@@ -285,7 +282,7 @@ ameshousingFiltTest <- testing(ames_split)
 > > ~~~
 > > 
 > > ameshousingFiltTrain %>% 
-> >   ggplot(aes(x = Sale_PriceLog,  col = "red", fill = NULL)) + 
+> >   ggplot(aes(x = log(Sale_Price),  col = "red", fill = NULL)) + 
 > >   geom_density() + theme_minimal() +
 > >   geom_line(data = ameshousingFiltTest,
 > >             stat = "density",
@@ -296,6 +293,8 @@ ameshousingFiltTest <- testing(ames_split)
 > > {: .output}
 > {: .solution}
 {: .challenge}
+
+
 
 
 
