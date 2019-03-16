@@ -183,7 +183,9 @@ ggplot(wdbc,
 
 If we wanted to look at all possible scatterplot pairs we would do something like:
 ```{r}
-ggpairs(wdbc, columns = 2:10, mapping = ggplot2::aes(color = diagnosis))
+ggpairs(wdbc, 
+        columns = 2:10, 
+        mapping = aes(color = diagnosis))
 ```
 
 But it's easier to look at a correlation plot:
@@ -271,7 +273,7 @@ confusionMatrix(data = y_pred_nb , y_test )
 ## Boosted Logistic Classifier
 ```{r, warning=F}
 # train Naive Bayes Classifier model
-nb_model <- train(
+logitb_model <- train(
   x = x_train,
   y = y_train,
   method = "LogitBoost",
@@ -279,10 +281,10 @@ nb_model <- train(
 )
 
 #predict results on test set
-y_pred_nb<-predict(nb_model, newdata = x_test)
+y_pred_logitb<-predict(logitb_model, newdata = x_test)
 
 # results on test set
-confusionMatrix(data = y_pred_nb , y_test )
+confusionMatrix(data = y_pred_logitb , y_test )
 ```
 
 
@@ -316,7 +318,7 @@ confusionMatrix(data = y_pred_rf , y_test )
 
 
 #make test data frame 
-tdf<-data_frame(y_pred_rf, 
+tdf<-tibble(y_pred_rf, 
                 B=y_pred_prob_rf$B, 
                 M=y_pred_prob_rf$M, 
                 y_test=y_test)
@@ -348,5 +350,10 @@ ggplot(rf_model$pred[selectedIndices, ],
   coord_equal()+
   scale_x_continuous(expand=c(0.005,0.005))+
   scale_y_continuous(expand=c(0.005,0.005))
+
+confusionMatrix(data = y_pred_rf , y_test )
+
+#Test AUC:
+auc(y_test, y_pred_prob_rf$B)
 ```
 
