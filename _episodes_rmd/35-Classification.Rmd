@@ -351,9 +351,10 @@ ggplot(rf_model$pred[selectedIndices, ],
   scale_x_continuous(expand=c(0.005,0.005))+
   scale_y_continuous(expand=c(0.005,0.005))
 
-confusionMatrix(data = y_pred_rf , y_test )
-
-#Test AUC:
+confus#Test AUC:
 auc(y_test, y_pred_prob_rf$B)
+
+#confusion matrix
+ionMatrix(data = y_pred_rf , y_test )
 ```
 
