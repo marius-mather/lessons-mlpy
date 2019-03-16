@@ -263,7 +263,7 @@ i) symmetry
 j) fractal dimension ("coastline approximation" - 1)
 
 ```{r loadData}
-wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"))
+wdbc2n<-fread(here::here("data/breast-cancer-wisconsin.csv"))
 wdbc<-copy(wdbcn)
 names(wdbc)
 Create respose and feature data in test and train sets

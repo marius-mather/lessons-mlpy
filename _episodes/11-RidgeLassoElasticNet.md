@@ -137,22 +137,180 @@ library(AmesHousing)
 ```
 
 
+```r
+param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
+```
+
+
+
 ## Regularised Regression. 
 
+### Ridge (alpha = 0 )
+
+
+```r
+lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_ridge <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+```
+
+```
+## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
+```
+
+```r
+# best model
+ames_ridge$results %>%
+  filter(
+    alpha == ames_ridge$bestTune$alpha,
+    lambda == ames_ridge$bestTune$lambda
+    )
+```
+
+```
+## Error in eval(lhs, parent, parent): object 'ames_ridge' not found
+```
+
+```r
+# plot results
+plot(ames_ridge)
+```
+
+```
+## Error in plot(ames_ridge): object 'ames_ridge' not found
+```
+
+### Lasso (alpha = 1)
 
 
 
-## Principle components Regression. 
+```r
+lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_lasso <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+```
+
+```
+## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
+```
+
+```r
+# best model
+ames_lasso$results %>%
+  filter(
+    alpha == ames_lasso$bestTune$alpha,
+    lambda == ames_lasso$bestTune$lambda
+    )
+```
+
+```
+## Error in eval(lhs, parent, parent): object 'ames_lasso' not found
+```
+
+```r
+# plot results
+plot(ames_lasso)
+```
+
+```
+## Error in plot(ames_lasso): object 'ames_lasso' not found
+```
+
+
+### Elastic net - mix of the two
+
+
+
+```r
+lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_en <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+```
+
+```
+## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
+```
+
+```r
+# best model
+ames_en$results %>%
+  filter(
+    alpha == ames_en$bestTune$alpha,
+    lambda == ames_en$bestTune$lambda
+    )
+```
+
+```
+## Error in eval(lhs, parent, parent): object 'ames_en' not found
+```
+
+```r
+# plot results
+plot(ames_en)
+```
+
+```
+## Error in plot(ames_en): object 'ames_en' not found
+```
+
+
+
+> ## Challenge
+>
+> Work with the grid search for the model above to identify which value of ncomp is optimal for this model?
+> Do you think the performance of this model will be very good?
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 175 +/- 5
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+
+## Partial Least Squares Regression.
 
 
 ```r
 set.seed(42)
-cv_pcr <- train(
+ames_plsr <- train(
   Sale_Price ~ ., 
-  data = ameshousingFiltTrain_engineered,
+  data = ameshousingFiltTrain_engineered, 
   trControl = cv,
-  method = "pcr", 
-  tuneGrid = expand.grid(ncomp = seq(180, 219, length.out =  10)), 
+  method = "pls",
+  tuneGrid = param_search,
   metric = "RMSE"
   )
 ```
@@ -162,29 +320,76 @@ cv_pcr <- train(
 ```
 
 ```r
-# 189
-
-cv_pcr$results %>% filter(ncomp == cv_pcr$bestTune$ncomp)
+# model with lowest RMSE
+ames_plsr$bestTune
 ```
 
 ```
-## Error in eval(lhs, parent, parent): object 'cv_pcr' not found
+## Error in eval(expr, envir, enclos): object 'ames_plsr' not found
 ```
 
 ```r
-plot(cv_pcr)
+ames_plsr$results %>%
+  filter(ncomp == as.numeric(ames_plsr$bestTune))
 ```
 
 ```
-## Error in plot(cv_pcr): object 'cv_pcr' not found
+## Error in eval(lhs, parent, parent): object 'ames_plsr' not found
+```
+
+```r
+# coef(ames_plsr$finalModel, ames_plsr$bestTune$ncomp)
 ```
 
 
 
 
-## Partial Least Squares Regression.
 
+```r
+allResamples <- resamples(list(
+                               "Ridge" = ames_ridge,
+                               "Lasso" = ames_lasso,
+                               "EN" = ames_en,
+                               "PLSR" = ames_plsr, 
+                               "PCR" = ames_pcr
+                               ))
+```
 
+```
+## Error in resamples(list(Ridge = ames_ridge, Lasso = ames_lasso, EN = ames_en, : object 'ames_ridge' not found
+```
+
+```r
+bwplot(allResamples)
+```
+
+```
+## Error in bwplot(allResamples): object 'allResamples' not found
+```
+
+```r
+parallelplot(allResamples)
+```
+
+```
+## Error in parallelplot(allResamples): object 'allResamples' not found
+```
+
+```r
+parallelplot(allResamples , metric = "Rsquared")
+```
+
+```
+## Error in parallelplot(allResamples, metric = "Rsquared"): object 'allResamples' not found
+```
+
+```r
+parallelplot(allResamples , metric = "RMSE")
+```
+
+```
+## Error in parallelplot(allResamples, metric = "RMSE"): object 'allResamples' not found
+```
 
 
 

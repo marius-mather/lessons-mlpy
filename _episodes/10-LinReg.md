@@ -193,7 +193,8 @@ ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data 
 ames_resamplingCV <- trainControl(
   method = "repeatedcv", 
   number = 10, #  k = 10
-  repeats = 7 # repeat 7 times
+  repeats = 7, # repeat 7 times,
+  savePredictions = "final"
   )
 ```
 
