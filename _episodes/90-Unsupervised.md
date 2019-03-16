@@ -24,11 +24,117 @@ exercises: 0
 
 ```r
 library(tidyverse)  # data manipulation
+```
+
+```
+## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
+```
+
+```
+## ✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
+## ✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
+## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
+## ✔ readr   1.3.1       ✔ forcats 0.4.0
+```
+
+```
+## Warning: package 'tibble' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'tidyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'purrr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'stringr' was built under R version 3.5.2
+```
+
+```
+## Warning: package 'forcats' was built under R version 3.5.2
+```
+
+```
+## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+```
+
+```r
 library(cluster)    # clustering algorithms
 library(factoextra) # clustering algorithms & visualization
+```
+
+```
+## Welcome! Related Books: `Practical Guide To Cluster Analysis in R` at https://goo.gl/13EFCZ
+```
+
+```r
 library(dendextend) # nice dendrograms 
+```
+
+```
+## 
+## ---------------------
+## Welcome to dendextend version 1.9.0
+## Type citation('dendextend') for how to cite the package.
+## 
+## Type browseVignettes(package = 'dendextend') for the package vignette.
+## The github page is: https://github.com/talgalili/dendextend/
+## 
+## Suggestions and bug-reports can be submitted at: https://github.com/talgalili/dendextend/issues
+## Or contact: <tal.galili@gmail.com>
+## 
+## 	To suppress this message use:  suppressPackageStartupMessages(library(dendextend))
+## ---------------------
+```
+
+```
+## 
+## Attaching package: 'dendextend'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     cutree
+```
+
+```r
 library(pheatmap) # nice heatmaps
+```
+
+```
+## Warning: package 'pheatmap' was built under R version 3.5.2
+```
+
+```r
 library(caret) #another option for pca
+```
+
+```
+## Loading required package: lattice
+```
+
+```
+## 
+## Attaching package: 'caret'
+```
+
+```
+## The following object is masked from 'package:purrr':
+## 
+##     lift
+```
+
+```r
 library(Rtsne) #t-SNE
 
 data("iris")

@@ -18,375 +18,305 @@ exercises: 0
 
 
 
-```r
-library(caret)
-```
+#Try with caret and kernlab
 
-```
-## Loading required package: lattice
-```
-
-```
-## Loading required package: ggplot2
-```
-
-```r
-library(corrplot)
-```
-
-```
-## corrplot 0.84 loaded
-```
-
-```r
-library(data.table)
-```
-
-```
-## Warning: package 'data.table' was built under R version 3.5.2
-```
-
-```r
-library(ggplot2)
-library(tidyverse)
-```
-
-```
-## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
-```
-
-```
-## ✔ tibble  2.0.1       ✔ purrr   0.3.1  
-## ✔ tidyr   0.8.3       ✔ dplyr   0.8.0.1
-## ✔ readr   1.3.1       ✔ stringr 1.4.0  
-## ✔ tibble  2.0.1       ✔ forcats 0.4.0
-```
-
-```
-## Warning: package 'tibble' was built under R version 3.5.2
-```
-
-```
-## Warning: package 'tidyr' was built under R version 3.5.2
-```
-
-```
-## Warning: package 'purrr' was built under R version 3.5.2
-```
-
-```
-## Warning: package 'dplyr' was built under R version 3.5.2
-```
-
-```
-## Warning: package 'stringr' was built under R version 3.5.2
-```
-
-```
-## Warning: package 'forcats' was built under R version 3.5.2
-```
-
-```
-## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::between()   masks data.table::between()
-## ✖ dplyr::filter()    masks stats::filter()
-## ✖ dplyr::first()     masks data.table::first()
-## ✖ dplyr::lag()       masks stats::lag()
-## ✖ dplyr::last()      masks data.table::last()
-## ✖ purrr::lift()      masks caret::lift()
-## ✖ purrr::transpose() masks data.table::transpose()
-```
-
-# Wisconsin Breast Cancer Dataset
-
-![An example of a Fine Needle Aspiration Biopsy](742_FNA1.jpg)
-
-Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. 
-
-## Attribute Information:
-
-1) ID number
-2) Diagnosis (M = malignant, B = benign)
-3-32)
-
-Ten real-valued features are computed for each cell nucleus, each has 
-- a *mean* across cells 
-- a *standard deviation* across cells and 
-- the *worst* value across cells:
-
-a) radius (mean of distances from center to points on the perimeter)
-b) texture (standard deviation of gray-scale values)
-c) perimeter
-d) area
-e) smoothness (local variation in radius lengths)
-f) compactness (perimeter^2 / area - 1.0)
-g) concavity (severity of concave portions of the contour)
-h) concave points (number of concave portions of the contour)
-i) symmetry
-j) fractal dimension ("coastline approximation" - 1)
-
-
-```r
-wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"))
-wdbc<-copy(wdbcn)
-names(wdbc)
-```
-
-```
-##  [1] "id"                      "diagnosis"              
-##  [3] "radius_mean"             "texture_mean"           
-##  [5] "perimeter_mean"          "area_mean"              
-##  [7] "smoothness_mean"         "compactness_mean"       
-##  [9] "concavity_mean"          "concave points_mean"    
-## [11] "symmetry_mean"           "fractal_dimension_mean" 
-## [13] "radius_se"               "texture_se"             
-## [15] "perimeter_se"            "area_se"                
-## [17] "smoothness_se"           "compactness_se"         
-## [19] "concavity_se"            "concave points_se"      
-## [21] "symmetry_se"             "fractal_dimension_se"   
-## [23] "radius_worst"            "texture_worst"          
-## [25] "perimeter_worst"         "area_worst"             
-## [27] "smoothness_worst"        "compactness_worst"      
-## [29] "concavity_worst"         "concave points_worst"   
-## [31] "symmetry_worst"          "fractal_dimension_worst"
-```
-
-```r
-wdbc$diagnosis<-factor(wdbc$diagnosis)
-
-anyNA(wdbc)
-```
-
-```
-## [1] FALSE
-```
-
-```r
-summary(wdbc)
-```
-
-```
-##        id            diagnosis  radius_mean      texture_mean  
-##  Min.   :     8670   B:357     Min.   : 6.981   Min.   : 9.71  
-##  1st Qu.:   869218   M:212     1st Qu.:11.700   1st Qu.:16.17  
-##  Median :   906024             Median :13.370   Median :18.84  
-##  Mean   : 30371831             Mean   :14.127   Mean   :19.29  
-##  3rd Qu.:  8813129             3rd Qu.:15.780   3rd Qu.:21.80  
-##  Max.   :911320502             Max.   :28.110   Max.   :39.28  
-##  perimeter_mean     area_mean      smoothness_mean   compactness_mean 
-##  Min.   : 43.79   Min.   : 143.5   Min.   :0.05263   Min.   :0.01938  
-##  1st Qu.: 75.17   1st Qu.: 420.3   1st Qu.:0.08637   1st Qu.:0.06492  
-##  Median : 86.24   Median : 551.1   Median :0.09587   Median :0.09263  
-##  Mean   : 91.97   Mean   : 654.9   Mean   :0.09636   Mean   :0.10434  
-##  3rd Qu.:104.10   3rd Qu.: 782.7   3rd Qu.:0.10530   3rd Qu.:0.13040  
-##  Max.   :188.50   Max.   :2501.0   Max.   :0.16340   Max.   :0.34540  
-##  concavity_mean    concave points_mean symmetry_mean   
-##  Min.   :0.00000   Min.   :0.00000     Min.   :0.1060  
-##  1st Qu.:0.02956   1st Qu.:0.02031     1st Qu.:0.1619  
-##  Median :0.06154   Median :0.03350     Median :0.1792  
-##  Mean   :0.08880   Mean   :0.04892     Mean   :0.1812  
-##  3rd Qu.:0.13070   3rd Qu.:0.07400     3rd Qu.:0.1957  
-##  Max.   :0.42680   Max.   :0.20120     Max.   :0.3040  
-##  fractal_dimension_mean   radius_se        texture_se      perimeter_se   
-##  Min.   :0.04996        Min.   :0.1115   Min.   :0.3602   Min.   : 0.757  
-##  1st Qu.:0.05770        1st Qu.:0.2324   1st Qu.:0.8339   1st Qu.: 1.606  
-##  Median :0.06154        Median :0.3242   Median :1.1080   Median : 2.287  
-##  Mean   :0.06280        Mean   :0.4052   Mean   :1.2169   Mean   : 2.866  
-##  3rd Qu.:0.06612        3rd Qu.:0.4789   3rd Qu.:1.4740   3rd Qu.: 3.357  
-##  Max.   :0.09744        Max.   :2.8730   Max.   :4.8850   Max.   :21.980  
-##     area_se        smoothness_se      compactness_se      concavity_se    
-##  Min.   :  6.802   Min.   :0.001713   Min.   :0.002252   Min.   :0.00000  
-##  1st Qu.: 17.850   1st Qu.:0.005169   1st Qu.:0.013080   1st Qu.:0.01509  
-##  Median : 24.530   Median :0.006380   Median :0.020450   Median :0.02589  
-##  Mean   : 40.337   Mean   :0.007041   Mean   :0.025478   Mean   :0.03189  
-##  3rd Qu.: 45.190   3rd Qu.:0.008146   3rd Qu.:0.032450   3rd Qu.:0.04205  
-##  Max.   :542.200   Max.   :0.031130   Max.   :0.135400   Max.   :0.39600  
-##  concave points_se   symmetry_se       fractal_dimension_se
-##  Min.   :0.000000   Min.   :0.007882   Min.   :0.0008948   
-##  1st Qu.:0.007638   1st Qu.:0.015160   1st Qu.:0.0022480   
-##  Median :0.010930   Median :0.018730   Median :0.0031870   
-##  Mean   :0.011796   Mean   :0.020542   Mean   :0.0037949   
-##  3rd Qu.:0.014710   3rd Qu.:0.023480   3rd Qu.:0.0045580   
-##  Max.   :0.052790   Max.   :0.078950   Max.   :0.0298400   
-##   radius_worst   texture_worst   perimeter_worst    area_worst    
-##  Min.   : 7.93   Min.   :12.02   Min.   : 50.41   Min.   : 185.2  
-##  1st Qu.:13.01   1st Qu.:21.08   1st Qu.: 84.11   1st Qu.: 515.3  
-##  Median :14.97   Median :25.41   Median : 97.66   Median : 686.5  
-##  Mean   :16.27   Mean   :25.68   Mean   :107.26   Mean   : 880.6  
-##  3rd Qu.:18.79   3rd Qu.:29.72   3rd Qu.:125.40   3rd Qu.:1084.0  
-##  Max.   :36.04   Max.   :49.54   Max.   :251.20   Max.   :4254.0  
-##  smoothness_worst  compactness_worst concavity_worst  concave points_worst
-##  Min.   :0.07117   Min.   :0.02729   Min.   :0.0000   Min.   :0.00000     
-##  1st Qu.:0.11660   1st Qu.:0.14720   1st Qu.:0.1145   1st Qu.:0.06493     
-##  Median :0.13130   Median :0.21190   Median :0.2267   Median :0.09993     
-##  Mean   :0.13237   Mean   :0.25427   Mean   :0.2722   Mean   :0.11461     
-##  3rd Qu.:0.14600   3rd Qu.:0.33910   3rd Qu.:0.3829   3rd Qu.:0.16140     
-##  Max.   :0.22260   Max.   :1.05800   Max.   :1.2520   Max.   :0.29100     
-##  symmetry_worst   fractal_dimension_worst
-##  Min.   :0.1565   Min.   :0.05504        
-##  1st Qu.:0.2504   1st Qu.:0.07146        
-##  Median :0.2822   Median :0.08004        
-##  Mean   :0.2901   Mean   :0.08395        
-##  3rd Qu.:0.3179   3rd Qu.:0.09208        
-##  Max.   :0.6638   Max.   :0.20750
-```
-
-# Plot some things:
-
-
-```r
-ggplot(wdbc,
-       aes(x = radius_mean,
-           y = concavity_mean,
-           color = diagnosis))+
-  geom_point(alpha = 0.5)
-```
-
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-1.png)
-
-```r
-#GGally::ggpairs(wdbc,mapping = ggplot2::aes(color = diagnosis))
-wdbcn$diagnosis<-recode(wdbcn$diagnosis, "M"=1, "B"=-1)
-
-
-M<-cor(wdbcn[, -c("id")])
-cp<-corrplot(M, order = "hclust",tl.col = "black")
-dc <- which(colnames(cp)=="diagnosis") #column  of diagnosis
-tc <- dim(M)[1] #total columns
-dr <- tc-dc+1 #row of diagnosis, counting from the bottoem of the corrplot
-segments(c(-0.5,0.5)+dc, rep(0.5,2), c(-0.5,0.5)+dc, rep(tc+0.5,2), lwd=1) #vertical
-segments(rep(0.5,2), c(-0.5,0.5)+dr, rep(tc+0.5,2), c(-0.5,0.5)+dr, lwd=1) #horizontal
-```
-
-![plot of chunk unnamed-chunk-1](figure/unnamed-chunk-1-2.png)
-
-
-# Aim
-
-To create a classifier for predicting whether a breast cancer patient's tumor is malignant or benign.
-
-### Train Test Split
-
-
-```r
-set.seed(3033)
-intrain <- createDataPartition(y = wdbc$diagnosis, p= 0.7, list = FALSE)
-training <- wdbc[intrain,]
-testing <- wdbc[-intrain,]
-```
-
-### Some standard checks on the data
-
-```r
-dim(training)
-```
-
-```
-## [1] 399  32
-```
-
-```r
-dim(testing)
-```
-
-```
-## [1] 170  32
-```
 
 
 ```r
 set.seed(3233)
 
 trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+```
 
-svm_Linear <- train(diagnosis ~ ., 
-                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
-                    method = "svmLinear",
-                    trControl=trctrl,
-                    preProcess = c("center", "scale"),
-                    tuneLength = 10)
+```
+## Error in trainControl(method = "repeatedcv", number = 10, repeats = 3): could not find function "trainControl"
+```
 
-# svm_Linear <- train(diagnosis ~., data = training, method = "svmLinear",
-#                     trControl=trctrl,
-#                     preProcess = c("center", "scale"),
-#                     tuneLength = 10)
+```r
+training$cpw <- training$`concave points_worst`
+```
 
-what_am_I<-svm_Linear$finalModel
+```
+## Error in eval(expr, envir, enclos): object 'training' not found
+```
 
-#plot(what_am_I, data = xd)
+```r
+tr_subset<-training[,.(radius_mean,cpw, diagnosis)]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'training' not found
+```
+
+```r
+tr_x_subset<-as.matrix(training[,.(radius_mean,cpw)])
+```
+
+```
+## Error in as.matrix(training[, .(radius_mean, cpw)]): object 'training' not found
+```
+
+```r
+tr_y_vec<- training$diagnosis
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'training' not found
+```
+
+```r
+ksvm_Linear <- train(diagnosis ~ ., 
+                     data = tr_subset, 
+                     method = "svmLinear",
+                     trControl=trctrl,
+                     tuneLength = 10)
+```
+
+```
+## Error in train(diagnosis ~ ., data = tr_subset, method = "svmLinear", : could not find function "train"
+```
+
+```r
+kernfit_caret_sml<-ksvm_Linear$finalModel
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'ksvm_Linear' not found
+```
+
+```r
+plot(kernfit_caret_sml, data = tr_x_subset)
+```
+
+```
+## Error in plot(kernfit_caret_sml, data = tr_x_subset): object 'kernfit_caret_sml' not found
+```
+
+#Try with kernlab without caret, target separate
+
+
+
+```r
+# fit model and produce plot
+kernfit_bc <- ksvm(x = tr_x_subset,
+                   y = tr_y_vec,
+                   type = "C-svc", 
+                   kernel = 'vanilladot')
+```
+
+```
+## Error in ksvm(x = tr_x_subset, y = tr_y_vec, type = "C-svc", kernel = "vanilladot"): could not find function "ksvm"
+```
+
+```r
+plot(kernfit_bc, data = tr_x_subset)
+```
+
+```
+## Error in plot(kernfit_bc, data = tr_x_subset): object 'kernfit_bc' not found
+```
+
+
+#Try with e1071 without caret, formula
+
+
+```r
+# fit model and produce plot
+svmfit_bc <- svm(diagnosis ~ .,
+                 data = tr_subset,
+                 kernel = "linear", 
+                 scale = TRUE)
+```
+
+```
+## Error in svm(diagnosis ~ ., data = tr_subset, kernel = "linear", scale = TRUE): could not find function "svm"
+```
+
+```r
+e1071:::plot.svm(svmfit_bc, data = tr_subset)#, radius_mean ~ cpw)
+```
+
+```
+## Error in e1071:::plot.svm(svmfit_bc, data = tr_subset): object 'svmfit_bc' not found
+```
+
+
+#Try with e1071 without caret, formula, more variables
+
+
+```r
+#make subsets
+tr_subset2<-training[,.(radius_mean, radius_se, cpw, diagnosis)]
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'training' not found
+```
+
+```r
+tr_x_subset2<-as.matrix(training[,.(radius_mean, radius_se,cpw)])
+```
+
+```
+## Error in as.matrix(training[, .(radius_mean, radius_se, cpw)]): object 'training' not found
+```
+
+```r
+tr_y_vec2<- training$diagnosis
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'training' not found
+```
+
+```r
+# fit model and produce plot
+svmfit_bc <- svm(diagnosis ~ .,
+                 data = tr_subset2,
+                 kernel = "linear", 
+                 scale = TRUE)
+```
+
+```
+## Error in svm(diagnosis ~ ., data = tr_subset2, kernel = "linear", scale = TRUE): could not find function "svm"
+```
+
+```r
+e1071:::plot.svm(svmfit_bc, radius_mean ~ cpw, data = tr_subset2)#, radius_mean ~ cpw)
+```
+
+```
+## Error in e1071:::plot.svm(svmfit_bc, radius_mean ~ cpw, data = tr_subset2): object 'svmfit_bc' not found
+```
+
+
+
+#Try e1071 with caret
+
+
+```r
+set.seed(3233)
+
+trctrl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+```
+
+```
+## Error in trainControl(method = "repeatedcv", number = 10, repeats = 3): could not find function "trainControl"
+```
+
+```r
+svm_Linear_bc <- train(diagnosis ~ ., 
+                     data = tr_subset, 
+                     method = "svmLinearWeights",
+                     trControl=trctrl,
+                     preProcess = c("center", "scale"),
+                     tuneLength = 10)
+```
+
+```
+## Error in train(diagnosis ~ ., data = tr_subset, method = "svmLinearWeights", : could not find function "train"
+```
+
+```r
+svmfit_caret_bc<-svm_Linear_bc$finalModel
+```
+
+```
+## Error in eval(expr, envir, enclos): object 'svm_Linear_bc' not found
+```
+
+```r
+plot(svmfit_caret_bc, tr_subset)
+```
+
+```
+## Error in plot(svmfit_caret_bc, tr_subset): object 'svmfit_caret_bc' not found
 ```
 
 
 
 ```r
 test_pred <- predict(svm_Linear, newdata = testing)
+```
+
+```
+## Error in predict(svm_Linear, newdata = testing): object 'svm_Linear' not found
+```
+
+```r
 test_pred
 ```
 
 ```
-##   [1] M M M M M M M M M M B B M M M B M M B B M B B B B M M B M M B M M B B
-##  [36] B B M B M M B B B M M B M B M M B B B M B M B B B B B B B B B M M B B
-##  [71] M M B B M B M B M M M M B B B B B M B M M M M B M B B B B B B B B B M
-## [106] B B M B B B B M B B M B B B B B M B M M B B B B B B B M B M B B M B B
-## [141] B B B B B B B B M M B B M B B B B B M B M B B B B B B B B B
-## Levels: B M
+## Error in eval(expr, envir, enclos): object 'test_pred' not found
 ```
 
 ```r
-#kernlab::plot(svm_Linear)#, data = training[,.(diagnosis, radius_mean,`concave points_worst`)])
+#kernlab::plot(svm_Linear)#, data = training[,.(diagnosis, radius_mean,cpw)])
 svm_Linear <- train(diagnosis ~ ., 
-                    data = training[,.(diagnosis, radius_mean,`concave points_worst`)], 
+                    data = training[,.(diagnosis, radius_mean,cpw)], 
                     method = "svmLinear",
                     trControl=trctrl,
                     preProcess = c("center", "scale"),
                     tuneLength = 10)
-
-library(kernlab)
 ```
 
 ```
-## 
-## Attaching package: 'kernlab'
-```
-
-```
-## The following object is masked from 'package:purrr':
-## 
-##     cross
-```
-
-```
-## The following object is masked from 'package:ggplot2':
-## 
-##     alpha
+## Error in train(diagnosis ~ ., data = training[, .(diagnosis, radius_mean, : could not find function "train"
 ```
 
 ```r
-xd = as.matrix(training[,.(radius_mean,`concave points_worst`)])
-yd = as.matrix(training[,.(diagnosis)])
-ksvm_Linear<-ksvm(x = xd,
-            y = yd,
-            kernel = "vanilladot", type = 'C-svc',
-            kpar = "automatic", C = .1, cross = 10)
+library(kernlab)
+
+xd = as.matrix(training[,.(radius_mean,cpw)])
 ```
 
 ```
-##  Setting default kernel parameters
+## Error in as.matrix(training[, .(radius_mean, cpw)]): object 'training' not found
+```
+
+```r
+yd = as.matrix(training[,.(diagnosis)])
+```
+
+```
+## Error in as.matrix(training[, .(diagnosis)]): object 'training' not found
+```
+
+```r
+ksvm_Linear<-ksvm(x = xd,
+                  y = yd,
+                  kernel = "vanilladot", type = 'C-svc',
+                  kpar = "automatic", C = .1, cross = 10)
+```
+
+```
+## Error in ksvm(x = xd, y = yd, kernel = "vanilladot", type = "C-svc", kpar = "automatic", : object 'xd' not found
 ```
 
 ```r
 plot(ksvm_Linear)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+```
+## Error in plot(ksvm_Linear): object 'ksvm_Linear' not found
+```
 
 ```r
 plot(ksvm_Linear, data = xd)
+```
 
+```
+## Error in plot(ksvm_Linear, data = xd): object 'ksvm_Linear' not found
+```
+
+```r
 kernlab::plot(ksvm_Linear, data = xd)
 ```
 
-![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-2.png)
+```
+## Error in kernlab::plot(ksvm_Linear, data = xd): object 'ksvm_Linear' not found
+```
 
 
 ```r
@@ -394,32 +324,7 @@ confusionMatrix(test_pred, testing$diagnosis )
 ```
 
 ```
-## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction  B  M
-##          B 99  8
-##          M  8 55
-##                                           
-##                Accuracy : 0.9059          
-##                  95% CI : (0.8517, 0.9452)
-##     No Information Rate : 0.6294          
-##     P-Value [Acc > NIR] : <2e-16          
-##                                           
-##                   Kappa : 0.7982          
-##  Mcnemar's Test P-Value : 1               
-##                                           
-##             Sensitivity : 0.9252          
-##             Specificity : 0.8730          
-##          Pos Pred Value : 0.9252          
-##          Neg Pred Value : 0.8730          
-##              Prevalence : 0.6294          
-##          Detection Rate : 0.5824          
-##    Detection Prevalence : 0.6294          
-##       Balanced Accuracy : 0.8991          
-##                                           
-##        'Positive' Class : B               
-## 
+## Error in confusionMatrix(test_pred, testing$diagnosis): could not find function "confusionMatrix"
 ```
 
 ```r
@@ -430,60 +335,47 @@ svm_Linear_Grid <- train(diagnosis ~ ., data = training, method = "svmLinear",
                          preProcess = c("center", "scale"),
                          tuneGrid = grid,
                          tuneLength = 10)
+```
 
+```
+## Error in train(diagnosis ~ ., data = training, method = "svmLinear", trControl = trctrl, : could not find function "train"
+```
+
+```r
 svm_Linear_Grid
 ```
 
 ```
-## Support Vector Machines with Linear Kernel 
-## 
-## 399 samples
-##  31 predictor
-##   2 classes: 'B', 'M' 
-## 
-## Pre-processing: centered (31), scaled (31) 
-## Resampling: Cross-Validated (10 fold, repeated 3 times) 
-## Summary of sample sizes: 359, 360, 359, 359, 359, 359, ... 
-## Resampling results across tuning parameters:
-## 
-##   C     Accuracy   Kappa    
-##   0.00        NaN        NaN
-##   0.01  0.9649359  0.9228165
-##   0.05  0.9724573  0.9399263
-##   0.10  0.9732692  0.9419997
-##   0.25  0.9673932  0.9296404
-##   0.50  0.9682479  0.9318922
-##   0.75  0.9657479  0.9266734
-##   1.00  0.9649145  0.9245162
-##   1.25  0.9624145  0.9189193
-##   1.50  0.9615598  0.9172453
-##   1.75  0.9598718  0.9136524
-##   2.00  0.9607051  0.9153625
-##   5.00  0.9540385  0.9011770
-## 
-## Accuracy was used to select the optimal model using the largest value.
-## The final value used for the model was C = 0.1.
+## Error in eval(expr, envir, enclos): object 'svm_Linear_Grid' not found
 ```
 
 ```r
 what_about_me<-svm_Linear_Grid$finalModel
+```
 
+```
+## Error in eval(expr, envir, enclos): object 'svm_Linear_Grid' not found
+```
+
+```r
 #plot(what_about_me, data = xd)
 ```
 
 
 ```r
 test_pred_grid <- predict(svm_Linear_Grid, newdata = testing)
+```
+
+```
+## Error in predict(svm_Linear_Grid, newdata = testing): object 'svm_Linear_Grid' not found
+```
+
+```r
 test_pred_grid
 ```
 
 ```
-##   [1] M M M M M M M M M M B B M M M M M M B B M B B B B M M B M B M M B B M
-##  [36] B B M B M B B B B M M B M B M B B B B M B B B B B B B B B B B M M B M
-##  [71] M M B B M B M B M M M M B B B B B M B M M M M B M B B B B B B B B B M
-## [106] B B M B B B B M B B B B B B B B M B B M B B B B B B B M B M B B M B B
-## [141] B B B B B B B B M B B B M B B B B B M B M M B B B B B B B B
-## Levels: B M
+## Error in eval(expr, envir, enclos): object 'test_pred_grid' not found
 ```
 
 
@@ -492,32 +384,7 @@ confusionMatrix(test_pred_grid, testing$diagnosis )
 ```
 
 ```
-## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction   B   M
-##          B 107   3
-##          M   0  60
-##                                           
-##                Accuracy : 0.9824          
-##                  95% CI : (0.9493, 0.9963)
-##     No Information Rate : 0.6294          
-##     P-Value [Acc > NIR] : <2e-16          
-##                                           
-##                   Kappa : 0.9618          
-##  Mcnemar's Test P-Value : 0.2482          
-##                                           
-##             Sensitivity : 1.0000          
-##             Specificity : 0.9524          
-##          Pos Pred Value : 0.9727          
-##          Neg Pred Value : 1.0000          
-##              Prevalence : 0.6294          
-##          Detection Rate : 0.6294          
-##    Detection Prevalence : 0.6471          
-##       Balanced Accuracy : 0.9762          
-##                                           
-##        'Positive' Class : B               
-## 
+## Error in confusionMatrix(test_pred_grid, testing$diagnosis): could not find function "confusionMatrix"
 ```
 
 ```r
@@ -526,57 +393,42 @@ svm_Radial <- train(diagnosis ~., data = training, method = "svmRadial",
                     trControl=trctrl,
                     preProcess = c("center", "scale"),
                     tuneLength = 10)
+```
 
+```
+## Error in train(diagnosis ~ ., data = training, method = "svmRadial", trControl = trctrl, : could not find function "train"
+```
+
+```r
 svm_Radial
 ```
 
 ```
-## Support Vector Machines with Radial Basis Function Kernel 
-## 
-## 399 samples
-##  31 predictor
-##   2 classes: 'B', 'M' 
-## 
-## Pre-processing: centered (31), scaled (31) 
-## Resampling: Cross-Validated (10 fold, repeated 3 times) 
-## Summary of sample sizes: 359, 360, 359, 359, 359, 359, ... 
-## Resampling results across tuning parameters:
-## 
-##   C       Accuracy   Kappa    
-##     0.25  0.9490171  0.8904167
-##     0.50  0.9573718  0.9079250
-##     1.00  0.9657692  0.9260199
-##     2.00  0.9707906  0.9372007
-##     4.00  0.9666026  0.9283122
-##     8.00  0.9640812  0.9227732
-##    16.00  0.9640598  0.9231233
-##    32.00  0.9606838  0.9163937
-##    64.00  0.9598504  0.9146393
-##   128.00  0.9598504  0.9146393
-## 
-## Tuning parameter 'sigma' was held constant at a value of 0.04749587
-## Accuracy was used to select the optimal model using the largest value.
-## The final values used for the model were sigma = 0.04749587 and C = 2.
+## Error in eval(expr, envir, enclos): object 'svm_Radial' not found
 ```
 
 ```r
 plot(svm_Radial)
 ```
 
-![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
+```
+## Error in plot(svm_Radial): object 'svm_Radial' not found
+```
 
 ```r
 test_pred_Radial <- predict(svm_Radial, newdata = testing)
+```
+
+```
+## Error in predict(svm_Radial, newdata = testing): object 'svm_Radial' not found
+```
+
+```r
 test_pred_Radial
 ```
 
 ```
-##   [1] M M M M M M M M M M B B M M M M M M B M M B B B B M M B M M M M B B M
-##  [36] B B M B M B B B B M M B M B M B B B B M B B M B M B B B B B B M M B M
-##  [71] M M B B M B M B M M M M B B B B B M B M M M M B M B B B B B B B B B M
-## [106] B B M B B B B M B B B B B B B B M B B M B B B B B B B M B M B B M B B
-## [141] B B B B B B B B M B B B M B B B B B M B M M B B B B B B B B
-## Levels: B M
+## Error in eval(expr, envir, enclos): object 'test_pred_Radial' not found
 ```
 
 ```r
@@ -584,32 +436,7 @@ confusionMatrix(test_pred_Radial, testing$diagnosis )
 ```
 
 ```
-## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction   B   M
-##          B 104   2
-##          M   3  61
-##                                           
-##                Accuracy : 0.9706          
-##                  95% CI : (0.9327, 0.9904)
-##     No Information Rate : 0.6294          
-##     P-Value [Acc > NIR] : <2e-16          
-##                                           
-##                   Kappa : 0.9372          
-##  Mcnemar's Test P-Value : 1               
-##                                           
-##             Sensitivity : 0.9720          
-##             Specificity : 0.9683          
-##          Pos Pred Value : 0.9811          
-##          Neg Pred Value : 0.9531          
-##              Prevalence : 0.6294          
-##          Detection Rate : 0.6118          
-##    Detection Prevalence : 0.6235          
-##       Balanced Accuracy : 0.9701          
-##                                           
-##        'Positive' Class : B               
-## 
+## Error in confusionMatrix(test_pred_Radial, testing$diagnosis): could not find function "confusionMatrix"
 ```
 
 
