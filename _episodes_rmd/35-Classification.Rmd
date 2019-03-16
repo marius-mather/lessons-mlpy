@@ -125,7 +125,7 @@ j) fractal dimension ("coastline approximation" - 1)
 
 ## Let's Explore our data
 
-```{r libraries, mess4age=FALSE}
+```{r libraries, message=FALSE}
 #for data manipulation
 library(data.table)
 library(tidyverse)
@@ -142,7 +142,7 @@ library(mlbench)
 
 Load data:
 
-```{r loadData}
+```{r loadData42}
 wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv")) #read in the csv
 names(wdbcn)<-make.names(names(wdbcn),unique = TRUE) #fix up variable names with whitespace so they  don't  have whitespace  anymore.
 names(wdbcn)
