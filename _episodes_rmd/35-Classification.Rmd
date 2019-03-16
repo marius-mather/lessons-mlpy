@@ -1,6 +1,6 @@
 ---
 title: "Classification"
-author: "Darya Vanichkina"
+author: "Gordon McDonald"
 keypoints:
 - somepoint
 objectives:
@@ -125,7 +125,7 @@ j) fractal dimension ("coastline approximation" - 1)
 
 ## Let's Explore our data
 
-```{r libraries, message=FALSE}
+```{r libraries, mess4age=FALSE}
 #for data manipulation
 library(data.table)
 library(tidyverse)
@@ -139,7 +139,7 @@ library(caret)
 Load data:
 
 ```{r loadData}
-wdbcn<-fread(here::here("data/breast-cancer-wisconsin.csv"),) #read in the csv
+wdbc2n<-fread(here::here("data/breast-cancer-wisconsin.csv"),) #read in the csv
 names(wdbcn)<-make.names(names(wdbcn),unique = TRUE) #fix up variable names with whitespace so they  don't  have whitespace  anymore.
 names(wdbcn)
 ```
@@ -211,7 +211,7 @@ dim(testing)
 ```
 
 ```{r libraries}
-library(caret)
+libr2ary(caret)
 library(corrplot)
 library(data.table)
 library(ggplot2)

@@ -1,5 +1,5 @@
 ---
-title: "Linear Regression"
+title: "Linear Regression. "
 author: "Darya Vanichkina"
 exercises: 0
 keypoints: 
@@ -25,7 +25,6 @@ bibliography: references.bib
 library(tidyverse)
 library(caret)
 library(tidymodels)
-library(GGally) # for EDA
 library(AmesHousing)
 ```
 
@@ -48,6 +47,7 @@ engineer_features_allames <-
   recipe(Sale_Price ~ ., data = ameshousingFiltTrain) %>%
   step_log(Sale_Price) %>% # log(Sale_Price)
   step_nzv(all_nominal()) %>% # removes variables that are highly sparse or unbalanced
+  step_zv(all_nominal()) %>% 
   step_integer(matches("Qual|Cond|QC|Qu")) %>%
   step_center(all_numeric(), -all_outcomes()) %>%
   step_scale(all_numeric(), -all_outcomes()) %>%
@@ -65,7 +65,8 @@ ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data 
 ames_resamplingCV <- trainControl(
   method = "repeatedcv", 
   number = 10, #  k = 10
-  repeats = 7 # repeat 7 times
+  repeats = 7, # repeat 7 times,
+  savePredictions = "final"
   )
 ```
 
@@ -106,7 +107,23 @@ ames_lm1 <- train(
   trControl = ames_resamplingCV)
 summary(ames_lm1)
 ames_lm1
-lm(Sale_Price ~ Gr_Liv_Area, data = ameshousingFiltTrain_engineered)
+
+
+basicLm <- lm(Sale_Price ~ Gr_Liv_Area, data = ameshousingFiltTrain_engineered)
+
+# implement as function
+
+myLinearRegression <- function(formula){
+set.seed(42)
+tmp <-  train(
+  formula,
+  data = ameshousingFiltTrain_engineered,
+  method = "lm",
+  trControl = ames_resamplingCV)
+print(summary(tmp))
+return(tmp)
+}
+ames_lm1 <- myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area)
 ```
 
 
@@ -116,37 +133,26 @@ lm(Sale_Price ~ Gr_Liv_Area, data = ameshousingFiltTrain_engineered)
 Use Second_Flr_SF and Gr_Liv_Area to predict:
 
 ```{r ames2vars}
-set.seed(42)
-ames_lm2 <-  train(
-  Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF,
-  data = ameshousingFiltTrain_engineered,
-  method = "lm",
-  trControl = ames_resamplingCV)
-summary(ames_lm2)
-ames_lm2 
+ames_lm2 <- myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF)
 ```
 
 ```{r ames2varsinteraction}
-set.seed(42)
-ames_lm2i <-  train(
-  Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF +Gr_Liv_Area:Second_Flr_SF ,
-  data = ameshousingFiltTrain_engineered,
-  method = "lm",
-  trControl = ames_resamplingCV)
-summary(ames_lm2i)
-ames_lm2i 
+ames_lm2i <-  myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF +Gr_Liv_Area:Second_Flr_SF)
 ```
+
+
+
+```{r Withyear}
+ames_lm2year <-  myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Year_Built)
+
+```
+
 
 
 All predictors
 
-```{r amesallvars warnings=F}
-set.seed(42)
-ames_lm_all <-  train(
-  Sale_PriceLog ~. ,
-  data = ameshousingFiltTrain_engineered,
-  method = "lm",
-  trControl = ames_resamplingCV)
+```{r amesallvars, warnings=F}
+ames_lm_all <- myLinearRegression(Sale_PriceLog ~. )
 
 ```
 
@@ -154,38 +160,22 @@ Compare performance on training set:
 
 ```{r Resamples}
 allResamples <- resamples(list("Gr_Liv_Area cv" = ames_lm1, 
+                               "Gr_Liv_Area + Year_Built" = ames_lm2year,
                                "Gr_Liv_Area + Second_Flr_SF" = ames_lm2,
                                "Gr_Liv_Area:Second_Flr_SF" = ames_lm2i,
                                "All vars" = ames_lm_all
                                ))
-
-
 bwplot(allResamples)
 parallelplot(allResamples)
 
 parallelplot(allResamples , metric = "Rsquared")
 parallelplot(allResamples , metric = "RMSE")
 
-
 ```
 
 
 
 
-### Tmp
-```{r}
-# set.seed(1234)
-# svmFit <- train(SalePriceLog ~,
-#                 data = ameshousingFiltTrain,
-#                 method = "svmRadial",
-#                 preProc = c("center", "scale"),
-#                 trControl = trainControl(method = "repeatedcv",
-#                                          repeats = 10,
-#                                          classProbs = TRUE)
-#                 )
-# predict
-
-```
 
 
 

@@ -129,7 +129,7 @@ ggpairs(ameshousing, numericVars[c(1:10, 33)], title = "Numeric variables 1 - 10
 ggpairs(ameshousing, c(catVars[2:5], "Sale_Price"), title = "Some categorical variables")
 ```
 
-```{r Corrplot}
+```{r CorrelationPlot}
 # pairs.panels(ameshousing[ , names(ameshousing)[c(3, 16, 23, 27,37)]], scale=TRUE)
 ameshousingCor <- cor(na.omit(ameshousing[,numericVars]))
 corrplot(ameshousingCor, order="hclust",method="square")

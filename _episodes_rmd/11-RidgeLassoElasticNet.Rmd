@@ -1,11 +1,13 @@
 ---
-title: "Ridge & Lasso Regression. Elastic Net."
+title: "Regularised Regression. Principle components Regression. Partial Least Squares Regression."
 author: "Darya Vanichkina"
 keypoints:
-- somepoint
+- Regularisation helps us improve the performance of regression
+- 
 objectives:
 - someobjective
-questions: What is the meaning of life FIXME?
+questions:
+- How do we prevent all variables from being incorporated into a regression model?
 source: Rmd
 start: 0
 teaching: 30
@@ -14,17 +16,182 @@ exercises: 0
 
 
 
+```{r loadLibraries}
+
+library(tidyverse)
+library(caret)
+library(tidymodels)
+library(AmesHousing)
+```
+
+```{r getData, echo = F}
+ameshousing <- 
+  AmesHousing::make_ames() %>% 
+  filter(Gr_Liv_Area <= 4000)
+
+set.seed(42) # so we all get the same results
+ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
+ameshousingFiltTrain <- training(ames_split)
+ameshousingFiltTest <- testing(ames_split)
+```
+
+```{r gridDefine}
+param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
+
+```
 
 
-The Curse of Dimensionality 
-- Ridge Regression 
-- Lasso Regression 
-- Cross-Validation 
-- Bias/Variance Tradeoff
+
+## Regularised Regression. 
+
+### Ridge (alpha = 0 )
+
+```{r Ridge, warning=FALSE}
+lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_ridge <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+
+# best model
+ames_ridge$results %>%
+  filter(
+    alpha == ames_ridge$bestTune$alpha,
+    lambda == ames_ridge$bestTune$lambda
+    )
+
+# plot results
+plot(ames_ridge)
+```
+
+### Lasso (alpha = 1)
+
+
+```{r Lasso, warning=FALSE}
+lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_lasso <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+
+# best model
+ames_lasso$results %>%
+  filter(
+    alpha == ames_lasso$bestTune$alpha,
+    lambda == ames_lasso$bestTune$lambda
+    )
+
+# plot results
+plot(ames_lasso)
+```
+
+
+### Elastic net - mix of the two
+
+
+```{r EN, warning=F}
+lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
+set.seed(42)
+ames_en <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain,
+  preProcess = c("zv", "center", "scale"),
+  trControl = cv,
+  method = "glmnet", 
+  tuneGrid = lambda_search,
+  metric = "RMSE"
+  )
+
+# best model
+ames_en$results %>%
+  filter(
+    alpha == ames_en$bestTune$alpha,
+    lambda == ames_en$bestTune$lambda
+    )
+
+# plot results
+plot(ames_en)
+```
+
+
+
+> ## Challenge
+>
+> Work with the grid search for the model above to identify which value of ncomp is optimal for this model?
+> Do you think the performance of this model will be very good?
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 175 +/- 5
+> > 
+> > ~~~
+> > 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+
+
+
+## Partial Least Squares Regression.
+
+```{r PLS, cache = TRUE}
+set.seed(42)
+ames_plsr <- train(
+  Sale_Price ~ ., 
+  data = ameshousingFiltTrain_engineered, 
+  trControl = cv,
+  method = "pls",
+  tuneGrid = param_search,
+  metric = "RMSE"
+  )
+
+# model with lowest RMSE
+ames_plsr$bestTune
+ames_plsr$results %>%
+  filter(ncomp == as.numeric(ames_plsr$bestTune))
+
+# coef(ames_plsr$finalModel, ames_plsr$bestTune$ncomp)
+```
+
 
 
 
 ```{r}
+allResamples <- resamples(list(
+                               "Ridge" = ames_ridge,
+                               "Lasso" = ames_lasso,
+                               "EN" = ames_en,
+                               "PLSR" = ames_plsr, 
+                               "PCR" = ames_pcr
+                               ))
+bwplot(allResamples)
+parallelplot(allResamples)
+
+parallelplot(allResamples , metric = "Rsquared")
+parallelplot(allResamples , metric = "RMSE")
+```
+
+
+
+
+
+```{r KNN}
 # 1. stratified sampling with the rsample package
 set.seed(123)
 split  <- initial_split(ames, prop = 0.7, strata = "Sale_Price")
