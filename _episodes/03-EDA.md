@@ -19,171 +19,274 @@ teaching: 30
 bibliography: references.bib
 ---
 
+
+
+
+
 First, let's load the required libraries. We will use the `caret` library for our ML tasks, and the `tidyverse` for general data processing and visualisation.
 
 
-```r
+~~~
 # set knitr options
 # opts_knit$set(warning = FALSE, message = FALSE)
   
 library(tidyverse)
-```
+~~~
+{: .language-r}
 
-```
-## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
-```
 
-```
-## ✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
-## ✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
-## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-## ✔ readr   1.3.1       ✔ forcats 0.4.0
-```
 
-```
-## Warning: package 'tibble' was built under R version 3.5.2
-```
+~~~
+── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
+~~~
+{: .output}
 
-```
-## Warning: package 'tidyr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'purrr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'dplyr' was built under R version 3.5.2
-```
+~~~
+✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
+✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
+✔ tidyr   0.8.3       ✔ stringr 1.4.0  
+✔ readr   1.3.1       ✔ forcats 0.4.0  
+~~~
+{: .output}
 
-```
-## Warning: package 'stringr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'forcats' was built under R version 3.5.2
-```
 
-```
-## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-```
+~~~
+Warning: package 'tibble' was built under R version 3.5.2
+~~~
+{: .error}
 
-```r
+
+
+~~~
+Warning: package 'tidyr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'purrr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'dplyr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'stringr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'forcats' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+~~~
+{: .output}
+
+
+
+~~~
 library(caret)
-```
+~~~
+{: .language-r}
 
-```
-## Loading required package: lattice
-```
 
-```
-## 
-## Attaching package: 'caret'
-```
 
-```
-## The following object is masked from 'package:purrr':
-## 
-##     lift
-```
+~~~
+Loading required package: lattice
+~~~
+{: .output}
 
-```r
+
+
+~~~
+
+Attaching package: 'caret'
+~~~
+{: .output}
+
+
+
+~~~
+The following object is masked from 'package:purrr':
+
+    lift
+~~~
+{: .output}
+
+
+
+~~~
 library(tidymodels)
-```
+~~~
+{: .language-r}
 
-```
-## ── Attaching packages ───────────────────────────────── tidymodels 0.0.2 ──
-```
 
-```
-## ✔ broom     0.5.1     ✔ recipes   0.1.4
-## ✔ dials     0.0.2     ✔ rsample   0.0.4
-## ✔ infer     0.4.0     ✔ yardstick 0.0.3
-## ✔ parsnip   0.0.1
-```
 
-```
-## Warning: package 'rsample' was built under R version 3.5.2
-```
+~~~
+── Attaching packages ───────────────────────────────── tidymodels 0.0.2 ──
+~~~
+{: .output}
 
-```
-## Warning: package 'yardstick' was built under R version 3.5.2
-```
 
-```
-## ── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
-## ✖ scales::discard()      masks purrr::discard()
-## ✖ dplyr::filter()        masks stats::filter()
-## ✖ recipes::fixed()       masks stringr::fixed()
-## ✖ dplyr::lag()           masks stats::lag()
-## ✖ caret::lift()          masks purrr::lift()
-## ✖ yardstick::precision() masks caret::precision()
-## ✖ yardstick::recall()    masks caret::recall()
-## ✖ yardstick::spec()      masks readr::spec()
-## ✖ recipes::step()        masks stats::step()
-```
 
-```r
+~~~
+✔ broom     0.5.1     ✔ recipes   0.1.4
+✔ dials     0.0.2     ✔ rsample   0.0.4
+✔ infer     0.4.0     ✔ yardstick 0.0.3
+✔ parsnip   0.0.1     
+~~~
+{: .output}
+
+
+
+~~~
+Warning: package 'rsample' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'yardstick' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
+✖ scales::discard()      masks purrr::discard()
+✖ dplyr::filter()        masks stats::filter()
+✖ recipes::fixed()       masks stringr::fixed()
+✖ dplyr::lag()           masks stats::lag()
+✖ caret::lift()          masks purrr::lift()
+✖ yardstick::precision() masks caret::precision()
+✖ yardstick::recall()    masks caret::recall()
+✖ yardstick::spec()      masks readr::spec()
+✖ recipes::step()        masks stats::step()
+~~~
+{: .output}
+
+
+
+~~~
 library(naniar) # for visualising missing data
-```
+~~~
+{: .language-r}
 
-```
-## Warning: package 'naniar' was built under R version 3.5.2
-```
 
-```r
+
+~~~
+Warning: package 'naniar' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
 library(GGally) # for EDA
-```
+~~~
+{: .language-r}
 
-```
-## 
-## Attaching package: 'GGally'
-```
 
-```
-## The following object is masked from 'package:dplyr':
-## 
-##     nasa
-```
 
-```r
+~~~
+
+Attaching package: 'GGally'
+~~~
+{: .output}
+
+
+
+~~~
+The following object is masked from 'package:dplyr':
+
+    nasa
+~~~
+{: .output}
+
+
+
+~~~
 library(psych)
-```
+~~~
+{: .language-r}
 
-```
-## Warning: package 'psych' was built under R version 3.5.2
-```
 
-```
-## 
-## Attaching package: 'psych'
-```
 
-```
-## The following objects are masked from 'package:scales':
-## 
-##     alpha, rescale
-```
+~~~
+Warning: package 'psych' was built under R version 3.5.2
+~~~
+{: .error}
 
-```
-## The following objects are masked from 'package:ggplot2':
-## 
-##     %+%, alpha
-```
 
-```r
+
+~~~
+
+Attaching package: 'psych'
+~~~
+{: .output}
+
+
+
+~~~
+The following objects are masked from 'package:scales':
+
+    alpha, rescale
+~~~
+{: .output}
+
+
+
+~~~
+The following objects are masked from 'package:ggplot2':
+
+    %+%, alpha
+~~~
+{: .output}
+
+
+
+~~~
 library(corrplot)
-```
+~~~
+{: .language-r}
 
-```
-## corrplot 0.84 loaded
-```
 
-```r
+
+~~~
+corrplot 0.84 loaded
+~~~
+{: .output}
+
+
+
+~~~
 library(AmesHousing)
-```
+old <- theme_set(theme_minimal())
+rm(old)
+~~~
+{: .language-r}
 
 We will use the Ames housing data to explore different ML approaches to regression. This dataset was designed by Dean De Cock [@de2011ames] as an alternative to the "classic" Boston housing dataset, and has been extensively used in  ML teaching. It is also available from kaggle as part of its [advanced regression practice competition](https://www.kaggle.com/c/house-prices-advanced-regression-techniques).
 
@@ -196,44 +299,51 @@ We will explore both the "uncleaned" data available from kaggle/UCI, and the pro
 
 
 
-```r
+~~~
 ameshousing <- AmesHousing::make_ames()
 
 # Read in the uncleaned data. 
 ameshousing2 <- read_csv("data/AmesHousing.csv", guess_max=1500)
-```
+~~~
+{: .language-r}
 
-```
-## Parsed with column specification:
-## cols(
-##   .default = col_character(),
-##   Order = col_double(),
-##   `Lot Frontage` = col_double(),
-##   `Lot Area` = col_double(),
-##   `Overall Qual` = col_double(),
-##   `Overall Cond` = col_double(),
-##   `Year Built` = col_double(),
-##   `Year Remod/Add` = col_double(),
-##   `Mas Vnr Area` = col_double(),
-##   `BsmtFin SF 1` = col_double(),
-##   `BsmtFin SF 2` = col_double(),
-##   `Bsmt Unf SF` = col_double(),
-##   `Total Bsmt SF` = col_double(),
-##   `1st Flr SF` = col_double(),
-##   `2nd Flr SF` = col_double(),
-##   `Low Qual Fin SF` = col_double(),
-##   `Gr Liv Area` = col_double(),
-##   `Bsmt Full Bath` = col_double(),
-##   `Bsmt Half Bath` = col_double(),
-##   `Full Bath` = col_double(),
-##   `Half Bath` = col_double()
-##   # ... with 17 more columns
-## )
-```
 
-```
-## See spec(...) for full column specifications.
-```
+
+~~~
+Parsed with column specification:
+cols(
+  .default = col_character(),
+  Order = col_double(),
+  `Lot Frontage` = col_double(),
+  `Lot Area` = col_double(),
+  `Overall Qual` = col_double(),
+  `Overall Cond` = col_double(),
+  `Year Built` = col_double(),
+  `Year Remod/Add` = col_double(),
+  `Mas Vnr Area` = col_double(),
+  `BsmtFin SF 1` = col_double(),
+  `BsmtFin SF 2` = col_double(),
+  `Bsmt Unf SF` = col_double(),
+  `Total Bsmt SF` = col_double(),
+  `1st Flr SF` = col_double(),
+  `2nd Flr SF` = col_double(),
+  `Low Qual Fin SF` = col_double(),
+  `Gr Liv Area` = col_double(),
+  `Bsmt Full Bath` = col_double(),
+  `Bsmt Half Bath` = col_double(),
+  `Full Bath` = col_double(),
+  `Half Bath` = col_double()
+  # ... with 17 more columns
+)
+~~~
+{: .output}
+
+
+
+~~~
+See spec(...) for full column specifications.
+~~~
+{: .output}
 
 ## Exploratory data analysis
 
@@ -267,7 +377,7 @@ ameshousing2 <- read_csv("data/AmesHousing.csv", guess_max=1500)
 
 
 
-```r
+~~~
 numericVars <- ameshousing %>% 
   select_if( is.numeric) %>%
   names()
@@ -275,249 +385,268 @@ numericVars <- ameshousing %>%
 catVars <- ameshousing %>% 
   select_if(Negate(is.numeric)) %>%
   names()
-```
+~~~
+{: .language-r}
 
 
 
-```r
+~~~
 colSums(sapply(ameshousing, is.na)) %>% 
   as.data.frame() %>% 
   rename(Missing = ".") %>%
   tibble::rownames_to_column()%>% 
   arrange(desc(Missing))
-```
+~~~
+{: .language-r}
 
-```
-##               rowname Missing
-## 1         MS_SubClass       0
-## 2           MS_Zoning       0
-## 3        Lot_Frontage       0
-## 4            Lot_Area       0
-## 5              Street       0
-## 6               Alley       0
-## 7           Lot_Shape       0
-## 8        Land_Contour       0
-## 9           Utilities       0
-## 10         Lot_Config       0
-## 11         Land_Slope       0
-## 12       Neighborhood       0
-## 13        Condition_1       0
-## 14        Condition_2       0
-## 15          Bldg_Type       0
-## 16        House_Style       0
-## 17       Overall_Qual       0
-## 18       Overall_Cond       0
-## 19         Year_Built       0
-## 20     Year_Remod_Add       0
-## 21         Roof_Style       0
-## 22          Roof_Matl       0
-## 23       Exterior_1st       0
-## 24       Exterior_2nd       0
-## 25       Mas_Vnr_Type       0
-## 26       Mas_Vnr_Area       0
-## 27         Exter_Qual       0
-## 28         Exter_Cond       0
-## 29         Foundation       0
-## 30          Bsmt_Qual       0
-## 31          Bsmt_Cond       0
-## 32      Bsmt_Exposure       0
-## 33     BsmtFin_Type_1       0
-## 34       BsmtFin_SF_1       0
-## 35     BsmtFin_Type_2       0
-## 36       BsmtFin_SF_2       0
-## 37        Bsmt_Unf_SF       0
-## 38      Total_Bsmt_SF       0
-## 39            Heating       0
-## 40         Heating_QC       0
-## 41        Central_Air       0
-## 42         Electrical       0
-## 43       First_Flr_SF       0
-## 44      Second_Flr_SF       0
-## 45    Low_Qual_Fin_SF       0
-## 46        Gr_Liv_Area       0
-## 47     Bsmt_Full_Bath       0
-## 48     Bsmt_Half_Bath       0
-## 49          Full_Bath       0
-## 50          Half_Bath       0
-## 51      Bedroom_AbvGr       0
-## 52      Kitchen_AbvGr       0
-## 53       Kitchen_Qual       0
-## 54      TotRms_AbvGrd       0
-## 55         Functional       0
-## 56         Fireplaces       0
-## 57       Fireplace_Qu       0
-## 58        Garage_Type       0
-## 59      Garage_Finish       0
-## 60        Garage_Cars       0
-## 61        Garage_Area       0
-## 62        Garage_Qual       0
-## 63        Garage_Cond       0
-## 64        Paved_Drive       0
-## 65       Wood_Deck_SF       0
-## 66      Open_Porch_SF       0
-## 67     Enclosed_Porch       0
-## 68 Three_season_porch       0
-## 69       Screen_Porch       0
-## 70          Pool_Area       0
-## 71            Pool_QC       0
-## 72              Fence       0
-## 73       Misc_Feature       0
-## 74           Misc_Val       0
-## 75            Mo_Sold       0
-## 76          Year_Sold       0
-## 77          Sale_Type       0
-## 78     Sale_Condition       0
-## 79         Sale_Price       0
-## 80          Longitude       0
-## 81           Latitude       0
-```
 
-```r
+
+~~~
+              rowname Missing
+1         MS_SubClass       0
+2           MS_Zoning       0
+3        Lot_Frontage       0
+4            Lot_Area       0
+5              Street       0
+6               Alley       0
+7           Lot_Shape       0
+8        Land_Contour       0
+9           Utilities       0
+10         Lot_Config       0
+11         Land_Slope       0
+12       Neighborhood       0
+13        Condition_1       0
+14        Condition_2       0
+15          Bldg_Type       0
+16        House_Style       0
+17       Overall_Qual       0
+18       Overall_Cond       0
+19         Year_Built       0
+20     Year_Remod_Add       0
+21         Roof_Style       0
+22          Roof_Matl       0
+23       Exterior_1st       0
+24       Exterior_2nd       0
+25       Mas_Vnr_Type       0
+26       Mas_Vnr_Area       0
+27         Exter_Qual       0
+28         Exter_Cond       0
+29         Foundation       0
+30          Bsmt_Qual       0
+31          Bsmt_Cond       0
+32      Bsmt_Exposure       0
+33     BsmtFin_Type_1       0
+34       BsmtFin_SF_1       0
+35     BsmtFin_Type_2       0
+36       BsmtFin_SF_2       0
+37        Bsmt_Unf_SF       0
+38      Total_Bsmt_SF       0
+39            Heating       0
+40         Heating_QC       0
+41        Central_Air       0
+42         Electrical       0
+43       First_Flr_SF       0
+44      Second_Flr_SF       0
+45    Low_Qual_Fin_SF       0
+46        Gr_Liv_Area       0
+47     Bsmt_Full_Bath       0
+48     Bsmt_Half_Bath       0
+49          Full_Bath       0
+50          Half_Bath       0
+51      Bedroom_AbvGr       0
+52      Kitchen_AbvGr       0
+53       Kitchen_Qual       0
+54      TotRms_AbvGrd       0
+55         Functional       0
+56         Fireplaces       0
+57       Fireplace_Qu       0
+58        Garage_Type       0
+59      Garage_Finish       0
+60        Garage_Cars       0
+61        Garage_Area       0
+62        Garage_Qual       0
+63        Garage_Cond       0
+64        Paved_Drive       0
+65       Wood_Deck_SF       0
+66      Open_Porch_SF       0
+67     Enclosed_Porch       0
+68 Three_season_porch       0
+69       Screen_Porch       0
+70          Pool_Area       0
+71            Pool_QC       0
+72              Fence       0
+73       Misc_Feature       0
+74           Misc_Val       0
+75            Mo_Sold       0
+76          Year_Sold       0
+77          Sale_Type       0
+78     Sale_Condition       0
+79         Sale_Price       0
+80          Longitude       0
+81           Latitude       0
+~~~
+{: .output}
+
+
+
+~~~
 colSums(sapply(ameshousing2, is.na)) %>% 
   as.data.frame() %>% 
   rename(Missing = ".") %>%
   tibble::rownames_to_column()%>% 
   arrange(desc(Missing))
-```
+~~~
+{: .language-r}
 
-```
-##            rowname Missing
-## 1          Pool QC    2917
-## 2     Misc Feature    2824
-## 3            Alley    2732
-## 4            Fence    2358
-## 5     Fireplace Qu    1422
-## 6     Lot Frontage     490
-## 7    Garage Yr Blt     159
-## 8    Garage Finish     159
-## 9      Garage Qual     159
-## 10     Garage Cond     159
-## 11     Garage Type     157
-## 12   Bsmt Exposure      83
-## 13  BsmtFin Type 2      81
-## 14       Bsmt Qual      80
-## 15       Bsmt Cond      80
-## 16  BsmtFin Type 1      80
-## 17    Mas Vnr Type      23
-## 18    Mas Vnr Area      23
-## 19  Bsmt Full Bath       2
-## 20  Bsmt Half Bath       2
-## 21    BsmtFin SF 1       1
-## 22    BsmtFin SF 2       1
-## 23     Bsmt Unf SF       1
-## 24   Total Bsmt SF       1
-## 25      Electrical       1
-## 26     Garage Cars       1
-## 27     Garage Area       1
-## 28           Order       0
-## 29             PID       0
-## 30     MS SubClass       0
-## 31       MS Zoning       0
-## 32        Lot Area       0
-## 33          Street       0
-## 34       Lot Shape       0
-## 35    Land Contour       0
-## 36       Utilities       0
-## 37      Lot Config       0
-## 38      Land Slope       0
-## 39    Neighborhood       0
-## 40     Condition 1       0
-## 41     Condition 2       0
-## 42       Bldg Type       0
-## 43     House Style       0
-## 44    Overall Qual       0
-## 45    Overall Cond       0
-## 46      Year Built       0
-## 47  Year Remod/Add       0
-## 48      Roof Style       0
-## 49       Roof Matl       0
-## 50    Exterior 1st       0
-## 51    Exterior 2nd       0
-## 52      Exter Qual       0
-## 53      Exter Cond       0
-## 54      Foundation       0
-## 55         Heating       0
-## 56      Heating QC       0
-## 57     Central Air       0
-## 58      1st Flr SF       0
-## 59      2nd Flr SF       0
-## 60 Low Qual Fin SF       0
-## 61     Gr Liv Area       0
-## 62       Full Bath       0
-## 63       Half Bath       0
-## 64   Bedroom AbvGr       0
-## 65   Kitchen AbvGr       0
-## 66    Kitchen Qual       0
-## 67   TotRms AbvGrd       0
-## 68      Functional       0
-## 69      Fireplaces       0
-## 70     Paved Drive       0
-## 71    Wood Deck SF       0
-## 72   Open Porch SF       0
-## 73  Enclosed Porch       0
-## 74      3Ssn Porch       0
-## 75    Screen Porch       0
-## 76       Pool Area       0
-## 77        Misc Val       0
-## 78         Mo Sold       0
-## 79         Yr Sold       0
-## 80       Sale Type       0
-## 81  Sale Condition       0
-## 82       SalePrice       0
-```
+
+
+~~~
+           rowname Missing
+1          Pool QC    2917
+2     Misc Feature    2824
+3            Alley    2732
+4            Fence    2358
+5     Fireplace Qu    1422
+6     Lot Frontage     490
+7    Garage Yr Blt     159
+8    Garage Finish     159
+9      Garage Qual     159
+10     Garage Cond     159
+11     Garage Type     157
+12   Bsmt Exposure      83
+13  BsmtFin Type 2      81
+14       Bsmt Qual      80
+15       Bsmt Cond      80
+16  BsmtFin Type 1      80
+17    Mas Vnr Type      23
+18    Mas Vnr Area      23
+19  Bsmt Full Bath       2
+20  Bsmt Half Bath       2
+21    BsmtFin SF 1       1
+22    BsmtFin SF 2       1
+23     Bsmt Unf SF       1
+24   Total Bsmt SF       1
+25      Electrical       1
+26     Garage Cars       1
+27     Garage Area       1
+28           Order       0
+29             PID       0
+30     MS SubClass       0
+31       MS Zoning       0
+32        Lot Area       0
+33          Street       0
+34       Lot Shape       0
+35    Land Contour       0
+36       Utilities       0
+37      Lot Config       0
+38      Land Slope       0
+39    Neighborhood       0
+40     Condition 1       0
+41     Condition 2       0
+42       Bldg Type       0
+43     House Style       0
+44    Overall Qual       0
+45    Overall Cond       0
+46      Year Built       0
+47  Year Remod/Add       0
+48      Roof Style       0
+49       Roof Matl       0
+50    Exterior 1st       0
+51    Exterior 2nd       0
+52      Exter Qual       0
+53      Exter Cond       0
+54      Foundation       0
+55         Heating       0
+56      Heating QC       0
+57     Central Air       0
+58      1st Flr SF       0
+59      2nd Flr SF       0
+60 Low Qual Fin SF       0
+61     Gr Liv Area       0
+62       Full Bath       0
+63       Half Bath       0
+64   Bedroom AbvGr       0
+65   Kitchen AbvGr       0
+66    Kitchen Qual       0
+67   TotRms AbvGrd       0
+68      Functional       0
+69      Fireplaces       0
+70     Paved Drive       0
+71    Wood Deck SF       0
+72   Open Porch SF       0
+73  Enclosed Porch       0
+74      3Ssn Porch       0
+75    Screen Porch       0
+76       Pool Area       0
+77        Misc Val       0
+78         Mo Sold       0
+79         Yr Sold       0
+80       Sale Type       0
+81  Sale Condition       0
+82       SalePrice       0
+~~~
+{: .output}
 
 ### Use the naniar library to visualise missing
 
 Some new visualisation for missing data in the tidy context has been proposed [@tierney2018expanding]. See this [web page](http://naniar.njtierney.com/articles/naniar-visualisation.html) for more options for your own data.
 
 
-```r
+~~~
 gg_miss_var(ameshousing2)
-```
+~~~
+{: .language-r}
 
-![plot of chunk uninformativeMissing](figure/uninformativeMissing-1.png)
+<img src="../fig/rmd-03-uninformativeMissing-1.png" title="plot of chunk uninformativeMissing" alt="plot of chunk uninformativeMissing" width="612" style="display: block; margin: auto;" />
 
 
-```r
+~~~
 gg_miss_upset(ameshousing2)
-```
+~~~
+{: .language-r}
 
-![plot of chunk naniar](figure/naniar-1.png)
+<img src="../fig/rmd-03-naniar-1.png" title="plot of chunk naniar" alt="plot of chunk naniar" width="612" style="display: block; margin: auto;" />
 
 
 
-```r
+~~~
 #
 ggpairs(ameshousing, numericVars[c(1:10, 33)], title = "Numeric variables 1 - 10")
-```
+~~~
+{: .language-r}
 
-![plot of chunk EDAindependent](figure/EDAindependent-1.png)
+<img src="../fig/rmd-03-EDAindependent-1.png" title="plot of chunk EDAindependent" alt="plot of chunk EDAindependent" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 # ggpairs(ameshousing, numericVars[c(11:20, 33)], title = "Numeric variables 11 - 20")
 # ggpairs(ameshousing, numericVars[c(21:33)], title = "Numeric variables 21 - 33")
 ggpairs(ameshousing, c(catVars[2:5], "Sale_Price"), title = "Some categorical variables")
-```
-
-```
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-## `stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
-```
-
-![plot of chunk EDAindependent](figure/EDAindependent-2.png)
+~~~
+{: .language-r}
 
 
-```r
+
+~~~
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+`stat_bin()` using `bins = 30`. Pick better value with `binwidth`.
+~~~
+{: .output}
+
+<img src="../fig/rmd-03-EDAindependent-2.png" title="plot of chunk EDAindependent" alt="plot of chunk EDAindependent" width="612" style="display: block; margin: auto;" />
+
+
+~~~
 # pairs.panels(ameshousing[ , names(ameshousing)[c(3, 16, 23, 27,37)]], scale=TRUE)
 ameshousingCor <- cor(na.omit(ameshousing[,numericVars]))
 corrplot(ameshousingCor, order="hclust",method="square")
-```
+~~~
+{: .language-r}
 
-![plot of chunk CorrelationPlot](figure/CorrelationPlot-1.png)
+<img src="../fig/rmd-03-CorrelationPlot-1.png" title="plot of chunk CorrelationPlot" alt="plot of chunk CorrelationPlot" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 # FIXME adapt below
 # all_numVar <- all[, numericVars]
 # cor_numVar <- cor(all_numVar, use="pairwise.complete.obs") #correlations of all numeric variables
@@ -529,7 +658,8 @@ corrplot(ameshousingCor, order="hclust",method="square")
 # cor_numVar <- cor_numVar[CorHigh, CorHigh]
 # 
 # corrplot.mixed(cor_numVar, tl.col="black", tl.pos = "lt")
-```
+~~~
+{: .language-r}
 
 
 > ## Challenge
@@ -561,96 +691,105 @@ corrplot(ameshousingCor, order="hclust",method="square")
 
 
 
-```r
+~~~
 ameshousing %>%
   select(Sale_Price, Gr_Liv_Area) %>%
   ggplot(aes(x = Gr_Liv_Area, y = Sale_Price)) + geom_point() + theme_minimal() +
   geom_smooth(method= "lm")
-```
+~~~
+{: .language-r}
 
-![plot of chunk GrLivAr](figure/GrLivAr-1.png)
+<img src="../fig/rmd-03-GrLivAr-1.png" title="plot of chunk GrLivAr" alt="plot of chunk GrLivAr" width="612" style="display: block; margin: auto;" />
 
 
-```r
+~~~
 ameshousing %>%
   select(Sale_Price, `Overall_Qual`) %>%
   ggplot(aes(x = `Overall_Qual`, y = Sale_Price)) + geom_point() + theme_minimal() +
   geom_smooth(method= "lm")
-```
+~~~
+{: .language-r}
 
-![plot of chunk OvQual](figure/OvQual-1.png)
+<img src="../fig/rmd-03-OvQual-1.png" title="plot of chunk OvQual" alt="plot of chunk OvQual" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 ameshousing %>%
   select(Sale_Price, `Overall_Qual`) %>%
   ggplot(aes(x = as.factor(`Overall_Qual`), y = Sale_Price, fill = as.factor(`Overall_Qual`))) + geom_boxplot() + theme_minimal() 
-```
+~~~
+{: .language-r}
 
-![plot of chunk OvQual](figure/OvQual-2.png)
+<img src="../fig/rmd-03-OvQual-2.png" title="plot of chunk OvQual" alt="plot of chunk OvQual" width="612" style="display: block; margin: auto;" />
 
 
 ## EDA of outcome variable
 
 
-```r
+~~~
 ameshousing %>% 
   select(Sale_Price) %>%
   ggplot(aes(x = Sale_Price)) + geom_histogram(bins = 50) + theme_minimal() 
-```
+~~~
+{: .language-r}
 
-![plot of chunk salesPrice](figure/salesPrice-1.png)
+<img src="../fig/rmd-03-salesPrice-1.png" title="plot of chunk salesPrice" alt="plot of chunk salesPrice" width="612" style="display: block; margin: auto;" />
 
 
 
-```r
+~~~
 # remove 5 observations
 ameshousingFilt <- 
   ameshousing %>% 
   filter(Gr_Liv_Area <= 4000)
-```
+~~~
+{: .language-r}
 
 
 
 
-```r
+~~~
 ameshousingFilt%>%
   select(Sale_Price) %>%
   ggplot(aes( sample = Sale_Price)) +
   stat_qq() + stat_qq_line(col = "blue") +
   theme_minimal()
-```
+~~~
+{: .language-r}
 
-![plot of chunk WhyTransform](figure/WhyTransform-1.png)
+<img src="../fig/rmd-03-WhyTransform-1.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 ameshousingFilt %>%
   select(Sale_Price) %>%
   ggplot(aes( sample = sqrt(Sale_Price))) +
   stat_qq() + stat_qq_line(col = "blue") +
   theme_minimal()
-```
+~~~
+{: .language-r}
 
-![plot of chunk WhyTransform](figure/WhyTransform-2.png)
+<img src="../fig/rmd-03-WhyTransform-2.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 ameshousingFilt %>%
   select(Sale_Price) %>%
   ggplot(aes( sample = log(Sale_Price))) +
   stat_qq() + stat_qq_line(col = "blue") +
   theme_minimal()
-```
+~~~
+{: .language-r}
 
-![plot of chunk WhyTransform](figure/WhyTransform-3.png)
+<img src="../fig/rmd-03-WhyTransform-3.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
-```r
+~~~
 ameshousingFilt %>%
   select(Sale_Price) %>%
   ggplot(aes( sample = log10(Sale_Price))) +
   stat_qq() + stat_qq_line(col = "blue") +
   theme_minimal()
-```
+~~~
+{: .language-r}
 
-![plot of chunk WhyTransform](figure/WhyTransform-4.png)
+<img src="../fig/rmd-03-WhyTransform-4.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
 
 
@@ -660,7 +799,7 @@ ameshousingFilt %>%
 We will use the `rsample` package (part of `tidymodels`) to split the Ames housing data. We can also use the  `caret` function `createDataPartition()` to split the data into training and testing sets. See the [caret documentation](https://topepo.github.io/caret/data-splitting.html) if you'd like to learn about other approaches to generate a test set, for example based on maximum dissimilarity.
 
 
-```r
+~~~
 set.seed(42) # so we all get the same results
 ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
 ameshousingFiltTrain <- training(ames_split)
@@ -677,7 +816,8 @@ ameshousingFiltTest <- testing(ames_split)
 # ameshousingFiltTrain <- ameshousingFilt[train,]
 # # testing set
 # ameshousingFiltTest <- ameshousingFilt[-train,]
-```
+~~~
+{: .language-r}
 
 > ## Challenge
 >

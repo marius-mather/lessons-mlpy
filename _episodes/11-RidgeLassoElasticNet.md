@@ -19,263 +19,344 @@ exercises: 0
 
 
 
-```r
+~~~
 library(tidyverse)
-```
+~~~
+{: .language-r}
 
-```
-## ── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
-```
 
-```
-## ✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
-## ✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
-## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-## ✔ readr   1.3.1       ✔ forcats 0.4.0
-```
 
-```
-## Warning: package 'tibble' was built under R version 3.5.2
-```
+~~~
+── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
+~~~
+{: .output}
 
-```
-## Warning: package 'tidyr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'purrr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'dplyr' was built under R version 3.5.2
-```
+~~~
+✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
+✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
+✔ tidyr   0.8.3       ✔ stringr 1.4.0  
+✔ readr   1.3.1       ✔ forcats 0.4.0  
+~~~
+{: .output}
 
-```
-## Warning: package 'stringr' was built under R version 3.5.2
-```
 
-```
-## Warning: package 'forcats' was built under R version 3.5.2
-```
 
-```
-## ── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-```
+~~~
+Warning: package 'tibble' was built under R version 3.5.2
+~~~
+{: .error}
 
-```r
+
+
+~~~
+Warning: package 'tidyr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'purrr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'dplyr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'stringr' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'forcats' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+~~~
+{: .output}
+
+
+
+~~~
 library(caret)
-```
+~~~
+{: .language-r}
 
-```
-## Loading required package: lattice
-```
 
-```
-## 
-## Attaching package: 'caret'
-```
 
-```
-## The following object is masked from 'package:purrr':
-## 
-##     lift
-```
+~~~
+Loading required package: lattice
+~~~
+{: .output}
 
-```r
+
+
+~~~
+
+Attaching package: 'caret'
+~~~
+{: .output}
+
+
+
+~~~
+The following object is masked from 'package:purrr':
+
+    lift
+~~~
+{: .output}
+
+
+
+~~~
 library(tidymodels)
-```
+~~~
+{: .language-r}
 
-```
-## ── Attaching packages ───────────────────────────────── tidymodels 0.0.2 ──
-```
 
-```
-## ✔ broom     0.5.1     ✔ recipes   0.1.4
-## ✔ dials     0.0.2     ✔ rsample   0.0.4
-## ✔ infer     0.4.0     ✔ yardstick 0.0.3
-## ✔ parsnip   0.0.1
-```
 
-```
-## Warning: package 'rsample' was built under R version 3.5.2
-```
+~~~
+── Attaching packages ───────────────────────────────── tidymodels 0.0.2 ──
+~~~
+{: .output}
 
-```
-## Warning: package 'yardstick' was built under R version 3.5.2
-```
 
-```
-## ── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
-## ✖ scales::discard()      masks purrr::discard()
-## ✖ dplyr::filter()        masks stats::filter()
-## ✖ recipes::fixed()       masks stringr::fixed()
-## ✖ dplyr::lag()           masks stats::lag()
-## ✖ caret::lift()          masks purrr::lift()
-## ✖ yardstick::precision() masks caret::precision()
-## ✖ yardstick::recall()    masks caret::recall()
-## ✖ yardstick::spec()      masks readr::spec()
-## ✖ recipes::step()        masks stats::step()
-```
 
-```r
+~~~
+✔ broom     0.5.1     ✔ recipes   0.1.4
+✔ dials     0.0.2     ✔ rsample   0.0.4
+✔ infer     0.4.0     ✔ yardstick 0.0.3
+✔ parsnip   0.0.1     
+~~~
+{: .output}
+
+
+
+~~~
+Warning: package 'rsample' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+Warning: package 'yardstick' was built under R version 3.5.2
+~~~
+{: .error}
+
+
+
+~~~
+── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
+✖ scales::discard()      masks purrr::discard()
+✖ dplyr::filter()        masks stats::filter()
+✖ recipes::fixed()       masks stringr::fixed()
+✖ dplyr::lag()           masks stats::lag()
+✖ caret::lift()          masks purrr::lift()
+✖ yardstick::precision() masks caret::precision()
+✖ yardstick::recall()    masks caret::recall()
+✖ yardstick::spec()      masks readr::spec()
+✖ recipes::step()        masks stats::step()
+~~~
+{: .output}
+
+
+
+~~~
 library(AmesHousing)
-```
+old <- theme_set(theme_minimal())
+rm(old)
+~~~
+{: .language-r}
 
 
-```
-## Error in strata %in% vars: object 'ameshousingFilt' not found
-```
-
-```
-## Error in analysis(x): object 'ames_split' not found
-```
-
-```
-## Error in assessment(x): object 'ames_split' not found
-```
+~~~
+ameshousingFiltTrain <- readRDS("models/ameshousingFiltTrain.Rds")
+ameshousingFiltTest <- readRDS("models/ameshousingFiltTest.Rds")
+ameshousingFiltTrain_engineered <- readRDS("models/ameshousingFiltTrain_engineered.Rds")
+ameshousingFiltTest_engineered <-readRDS("models/ameshousingFiltTest_engineered.Rds")
+ames_resamplingCV <- readRDS("models/ames_resamplingCV.Rds")
+~~~
+{: .language-r}
 
 
-```r
-param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
-```
+
+
+
+
+~~~
+param_search <- expand.grid(ncomp = seq(2, 
+                                        dim(ameshousingFiltTest_engineered)[2] - 1,
+                                        length.out = 20))
+~~~
+{: .language-r}
 
 
 
 ## Regularised Regression. 
-
 ### Ridge (alpha = 0 )
 
 
-```r
-lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_ridge <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
-```
+~~~
+# lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_ridge <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_ridge, "models/ames_ridge.Rds")
 
-```
-## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
-```
+ames_ridge <- readRDS("models/ames_ridge.Rds")
 
-```r
 # best model
 ames_ridge$results %>%
   filter(
     alpha == ames_ridge$bestTune$alpha,
     lambda == ames_ridge$bestTune$lambda
     )
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(lhs, parent, parent): object 'ames_ridge' not found
-```
 
-```r
+
+~~~
+  alpha lambda     RMSE  Rsquared       MAE     RMSESD RsquaredSD
+1     0    0.1 0.143738 0.8726268 0.1008568 0.01916558 0.02622581
+        MAESD
+1 0.005953891
+~~~
+{: .output}
+
+
+
+~~~
 # plot results
 plot(ames_ridge)
-```
+~~~
+{: .language-r}
 
-```
-## Error in plot(ames_ridge): object 'ames_ridge' not found
-```
+<img src="../fig/rmd-11-Ridge-1.png" title="plot of chunk Ridge" alt="plot of chunk Ridge" width="612" style="display: block; margin: auto;" />
 
 ### Lasso (alpha = 1)
 
 
 
-```r
-lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_lasso <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
-```
+~~~
+# lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_lasso <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_lasso, "models/ames_lasso.Rds")
 
-```
-## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
-```
+ames_lasso <- readRDS("models/ames_lasso.Rds")
 
-```r
 # best model
 ames_lasso$results %>%
   filter(
     alpha == ames_lasso$bestTune$alpha,
     lambda == ames_lasso$bestTune$lambda
     )
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(lhs, parent, parent): object 'ames_lasso' not found
-```
 
-```r
+
+~~~
+  alpha lambda      RMSE  Rsquared      MAE     RMSESD RsquaredSD
+1     1    0.1 0.2220084 0.8073484 0.158704 0.01985766  0.0335873
+        MAESD
+1 0.008077922
+~~~
+{: .output}
+
+
+
+~~~
 # plot results
 plot(ames_lasso)
-```
+~~~
+{: .language-r}
 
-```
-## Error in plot(ames_lasso): object 'ames_lasso' not found
-```
+<img src="../fig/rmd-11-Lasso-1.png" title="plot of chunk Lasso" alt="plot of chunk Lasso" width="612" style="display: block; margin: auto;" />
 
 
 ### Elastic net - mix of the two
 
 
 
-```r
-lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_en <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
-```
+~~~
+# lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_en <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_en, "models/ames_en.Rds")
 
-```
-## Error in eval(expr, p): object 'ameshousingFiltTrain' not found
-```
+ames_en <- readRDS("models/ames_en.Rds")
 
-```r
 # best model
 ames_en$results %>%
   filter(
     alpha == ames_en$bestTune$alpha,
     lambda == ames_en$bestTune$lambda
     )
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(lhs, parent, parent): object 'ames_en' not found
-```
 
-```r
+
+~~~
+  alpha lambda     RMSE  Rsquared       MAE     RMSESD RsquaredSD
+1     0    0.1 0.143738 0.8726268 0.1008568 0.01916558 0.02622581
+        MAESD
+1 0.005953891
+~~~
+{: .output}
+
+
+
+~~~
 # plot results
 plot(ames_en)
-```
+~~~
+{: .language-r}
 
-```
-## Error in plot(ames_en): object 'ames_en' not found
-```
+<img src="../fig/rmd-11-EN-1.png" title="plot of chunk EN" alt="plot of chunk EN" width="612" style="display: block; margin: auto;" />
 
 
 
@@ -288,14 +369,57 @@ plot(ames_en)
 >
 > > ## Solution
 > > 
-> > ~~~
-> > 175 +/- 5
-> > 
-> > ~~~
-> > 
-> > {: .output}
-> {: .solution}
+> >
+> 
 {: .challenge}
+
+
+
+## Principle components regression
+
+
+~~~
+set.seed(42)
+ames_pcr <- train(
+  Sale_Price ~ .,
+  data = ameshousingFiltTrain_engineered,
+  trControl = ames_resamplingCV,
+  method = "pcr",
+  tuneGrid = param_search,
+  metric = "RMSE"
+  )
+saveRDS(ames_pcr, "models/ames_pcr.Rds")
+
+ames_pcr <- readRDS("models/ames_pcr.Rds")
+
+# model with lowest RMSE
+ames_pcr$bestTune
+~~~
+{: .language-r}
+
+
+
+~~~
+      ncomp
+15 91.89474
+~~~
+{: .output}
+
+
+
+~~~
+ames_pcr$results %>%
+  filter(ncomp == as.numeric(ames_pcr$bestTune))
+~~~
+{: .language-r}
+
+
+
+~~~
+     ncomp      RMSE  Rsquared        MAE     RMSESD RsquaredSD      MAESD
+1 91.89474 0.1416076 0.8759045 0.09972708 0.01806862 0.02525519 0.00532785
+~~~
+{: .output}
 
 
 
@@ -303,172 +427,192 @@ plot(ames_en)
 ## Partial Least Squares Regression.
 
 
-```r
-set.seed(42)
-ames_plsr <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain_engineered, 
-  trControl = cv,
-  method = "pls",
-  tuneGrid = param_search,
-  metric = "RMSE"
-  )
-```
+~~~
+# set.seed(42)
+# ames_plsr <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered, 
+#   trControl = ames_resamplingCV,
+#   method = "pls",
+#   tuneGrid = param_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_en, "models/ames_en.Rds")
 
-```
-## Error in eval(expr, p): object 'ameshousingFiltTrain_engineered' not found
-```
+ames_en <- readRDS("models/ames_en.Rds")
 
-```r
 # model with lowest RMSE
 ames_plsr$bestTune
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(expr, envir, enclos): object 'ames_plsr' not found
-```
 
-```r
+
+~~~
+Error in eval(expr, envir, enclos): object 'ames_plsr' not found
+~~~
+{: .error}
+
+
+
+~~~
 ames_plsr$results %>%
   filter(ncomp == as.numeric(ames_plsr$bestTune))
-```
+~~~
+{: .language-r}
 
-```
-## Error in eval(lhs, parent, parent): object 'ames_plsr' not found
-```
 
-```r
+
+~~~
+Error in eval(lhs, parent, parent): object 'ames_plsr' not found
+~~~
+{: .error}
+
+
+
+~~~
 # coef(ames_plsr$finalModel, ames_plsr$bestTune$ncomp)
-```
+~~~
+{: .language-r}
+
+
+
+## MARS
+
+~~~
+# grid_search <- expand.grid(
+#   nprune = seq(2, 80, length.out = 10) %>% floor(),
+#   degree = 1:3
+# )
+# # perform resampling
+# set.seed(42)
+# ames_mars <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered, 
+#   trControl = ames_resamplingCV,
+#   method = "earth",
+#   tuneGrid = grid_search,
+#   metric = "RMSE"
+#   )
+#saveRDS(ames_mars, "data/ames_mars.Rds")
+
+ames_mars <- readRDS("models/ames_mars.Rds")
+
+# best model
+ames_mars$results %>%
+  filter(
+    nprune == ames_mars$bestTune$nprune,
+    degree == ames_mars$bestTune$degree
+    )
+~~~
+{: .language-r}
+
+
+
+~~~
+  degree nprune      RMSE  Rsquared        MAE     RMSESD RsquaredSD
+1      2     45 0.1317219 0.8924146 0.08942624 0.01772713 0.02453256
+        MAESD
+1 0.005662895
+~~~
+{: .output}
 
 
 
 
 
-```r
+~~~
+ames_lm_all <- readRDS("models/ames_lm_all.Rds")
+
 allResamples <- resamples(list(
                                "Ridge" = ames_ridge,
                                "Lasso" = ames_lasso,
                                "EN" = ames_en,
                                "PLSR" = ames_plsr, 
-                               "PCR" = ames_pcr
+                               "PCR" = ames_pcr,
+                               "MARS" = ames_mars,
+                               "LM all" = ames_lm_all
                                ))
-```
+~~~
+{: .language-r}
 
-```
-## Error in resamples(list(Ridge = ames_ridge, Lasso = ames_lasso, EN = ames_en, : object 'ames_ridge' not found
-```
 
-```r
+
+~~~
+Error in resamples(list(Ridge = ames_ridge, Lasso = ames_lasso, EN = ames_en, : object 'ames_plsr' not found
+~~~
+{: .error}
+
+
+
+~~~
 bwplot(allResamples)
-```
+~~~
+{: .language-r}
 
-```
-## Error in bwplot(allResamples): object 'allResamples' not found
-```
 
-```r
+
+~~~
+Error in bwplot(allResamples): object 'allResamples' not found
+~~~
+{: .error}
+
+
+
+~~~
 parallelplot(allResamples)
-```
+~~~
+{: .language-r}
 
-```
-## Error in parallelplot(allResamples): object 'allResamples' not found
-```
 
-```r
+
+~~~
+Error in parallelplot(allResamples): object 'allResamples' not found
+~~~
+{: .error}
+
+
+
+~~~
 parallelplot(allResamples , metric = "Rsquared")
-```
+~~~
+{: .language-r}
 
-```
-## Error in parallelplot(allResamples, metric = "Rsquared"): object 'allResamples' not found
-```
 
-```r
+
+~~~
+Error in parallelplot(allResamples, metric = "Rsquared"): object 'allResamples' not found
+~~~
+{: .error}
+
+
+
+~~~
 parallelplot(allResamples , metric = "RMSE")
-```
-
-```
-## Error in parallelplot(allResamples, metric = "RMSE"): object 'allResamples' not found
-```
+~~~
+{: .language-r}
 
 
 
+~~~
+Error in parallelplot(allResamples, metric = "RMSE"): object 'allResamples' not found
+~~~
+{: .error}
 
 
 
-```r
-# 1. stratified sampling with the rsample package
-set.seed(123)
-split  <- initial_split(ames, prop = 0.7, strata = "Sale_Price")
-```
+~~~
+summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column()  %>% arrange(Median)
+~~~
+{: .language-r}
 
-```
-## Error in strata %in% vars: object 'ames' not found
-```
 
-```r
-ames_train  <- training(split)
-```
 
-```
-## Error: `x` should be an `rsplit` object
-```
+~~~
+Error in summary(allResamples): object 'allResamples' not found
+~~~
+{: .error}
 
-```r
-ames_test   <- testing(split)
-```
 
-```
-## Error: `x` should be an `rsplit` object
-```
 
-```r
-# 2. create a resampling method
-cv <- trainControl(
-  method = "repeatedcv", 
-  number = 10, 
-  repeats = 5
-  )
-# 3. create a hyperparameter grid search
-hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
-# 4. execute grid search with knn model
-#    use RMSE as preferred metric
-knn_fit <- train(
-  Sale_Price ~ ., 
-  data = ames_train, 
-  method = "knn", 
-  trControl = cv, 
-  tuneGrid = hyper_grid,
-  metric = "RMSE"
-  )
-```
-
-```
-## Error in eval(expr, p): object 'ames_train' not found
-```
-
-```r
-# 5. evaluate results
-# print model results
-knn_fit
-```
-
-```
-## Error in eval(expr, envir, enclos): object 'knn_fit' not found
-```
-
-```r
-## k-Nearest Neighbors 
-## 
-## 2054 samples
-##   80 predictor
-## 
-## No pre-processing
-## Resampling: Cross-Validated (10 fold, repeated 5 times) 
-## Summary of sample sizes: 1848, 1850, 1848, 1848, 1848, 1848, ... 
-## Resampling results across tuning parameters:
-## 
-##   k   RMSE      Rsquared   MAE     
-##    2  46100.84  0.6618945  30205.06
-```
 

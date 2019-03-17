@@ -1,10 +1,6 @@
 ---
 title: "Introduction to machine learning using R"
 author: "Darya Vanichkina"
-keypoints:
-- somepoint
-objectives:
-- someobjective
 questions: What is machine learning? How is it different from statistics? What types of machine learning exist?
 source: Rmd
 start: 0
@@ -12,6 +8,10 @@ teaching: 30
 exercises: 0
 ---
 
+```{r echo=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("01-")
+```
 
 ## Overview of the course
 

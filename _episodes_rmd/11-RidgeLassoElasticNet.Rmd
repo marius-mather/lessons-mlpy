@@ -3,9 +3,8 @@ title: "Regularised Regression. Principle components Regression. Partial Least S
 author: "Darya Vanichkina"
 keypoints:
 - Regularisation helps us improve the performance of regression
-- 
 objectives:
-- someobjective
+- To understand additional regression methods that can help us improve our model fit
 questions:
 - How do we prevent all variables from being incorporated into a regression model?
 source: Rmd
@@ -14,15 +13,17 @@ teaching: 30
 exercises: 0
 ---
 
-
+```{r echo=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("11-")
+```
 
 ```{r loadLibraries}
 library(tidyverse)
 library(caret)
 library(tidymodels)
 library(AmesHousing)
-old <- theme_set(theme_minimal())
-rm(old)
+theme_set(theme_minimal())
 ```
 
 ```{r getData}
@@ -182,21 +183,24 @@ ames_pcr$results %>%
 
 
 
+
+
+
 ## Partial Least Squares Regression.
 
 ```{r PLS, cache = TRUE}
 # set.seed(42)
 # ames_plsr <- train(
-#   Sale_Price ~ ., 
-#   data = ameshousingFiltTrain_engineered, 
+#   Sale_Price ~ .,
+#   data = ameshousingFiltTrain_engineered,
 #   trControl = ames_resamplingCV,
 #   method = "pls",
 #   tuneGrid = param_search,
 #   metric = "RMSE"
 #   )
-# saveRDS(ames_en, "models/ames_en.Rds")
+# saveRDS(ames_plsr, "models/ames_plsr.Rds")
 
-ames_en <- readRDS("models/ames_en.Rds")
+ames_plsr <- readRDS("models/ames_plsr.Rds")
 
 # model with lowest RMSE
 ames_plsr$bestTune

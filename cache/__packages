@@ -23,3 +23,10 @@ recipes
 rsample
 yardstick
 AmesHousing
+data.table
+corrplot
+GGally
+pROC
+plotROC
+mlbench
+e1071

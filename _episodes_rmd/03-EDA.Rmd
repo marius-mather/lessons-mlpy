@@ -17,6 +17,13 @@ teaching: 30
 bibliography: references.bib
 ---
 
+
+```{r echo=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("03-")
+```
+
+
 First, let's load the required libraries. We will use the `caret` library for our ML tasks, and the `tidyverse` for general data processing and visualisation.
 
 ```{r loadLibraries}

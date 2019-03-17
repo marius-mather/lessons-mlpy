@@ -17,6 +17,7 @@ teaching: 30
 
 
 
+
 ## Additional resources 
 
 
@@ -24,7 +25,7 @@ teaching: 30
 
 
 
-```r
+~~~
 
 list_of_pkgs <- c(
   "AmesHousing",   # provides data we'll use
@@ -46,14 +47,18 @@ list_of_pkgs <- c(
 # run the following line of code to install the packages you currently do not have
 new_pkgs <- list_of_pkgs[!(list_of_pkgs %in% installed.packages()[,"Package"])]
 if(length(new_pkgs)) install.packages(new_pkgs)
-```
+~~~
+{: .language-r}
 
-```
-## Error: <text>:20:1: unexpected symbol
-## 19: # run the following line of code to install the packages you currently do not have
-## 20: new_pkgs
-##     ^
-```
+
+
+~~~
+Error: <text>:20:1: unexpected symbol
+19: # run the following line of code to install the packages you currently do not have
+20: new_pkgs
+    ^
+~~~
+{: .error}
 
 
 

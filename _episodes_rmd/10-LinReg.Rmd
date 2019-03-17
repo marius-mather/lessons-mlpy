@@ -5,18 +5,16 @@ exercises: 0
 keypoints: 
 - Regression is the prediction of the value of a continuous variable based on one or more other continuous or categorical variables.
 - Multiple types of regression can be implemented to fit the data
-objectives: 
-- Introduce several approaches to carrying out linear regression in R
-- Introduce and explore the Ames Housing dataset
-questions: 
-- How do we predict one continuous variable based on others?
-- What is the first step of any ML project (and often the most time consuming)?
 source: Rmd
 start: 0
 teaching: 30
 bibliography: references.bib
 ---
 
+```{r echo=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("10-")
+```
 
 ```{r loadLibraries}
 # set knitr options

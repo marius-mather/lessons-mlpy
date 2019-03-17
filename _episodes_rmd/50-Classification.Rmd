@@ -2,15 +2,18 @@
 title: "Classification"
 author: "Gordon McDonald"
 keypoints:
-- somepoint
-objectives:
-- someobjective
-questions: What is the meaning of life FIXME?
+- Classification attempts to predict the class to which a particular observation belongs
 source: Rmd
 start: 0
 teaching: 30
 exercises: 0
 ---
+
+```{r echo=FALSE}
+source("../bin/chunk-options.R")
+knitr_fig_path("50-")
+```
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
                       message=F,
@@ -98,7 +101,7 @@ To capture this balance, we often use a Reciever Operator Characteristic (ROC) c
 
 
 
-# Wisconsin Diagnositc Breast Cancer Dataset
+# Wisconsin Diagnositc Braist Cancer Dataset
 
 Today we're going to be classifying patient's biopsy to see whether their breast tumor is malignant or benign. First, a fine needle aspirate (FNA) of a breast mass is taken. Basically they stick a needle in you and take a chunk out then put it under the microscope. It looks like this:
 
