@@ -1,0 +1,176 @@
+---
+title: "Random forest and kNN regression. ."
+author: "Darya Vanichkina"
+keypoints:
+- FIXME
+objectives:
+- FIXME
+questions:
+- FIXME
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+
+```{r loadLibraries}
+library(tidyverse)
+library(caret)
+library(tidymodels)
+library(AmesHousing)
+old <- theme_set(theme_minimal())
+rm(old)
+```
+
+```{r getData}
+ameshousingFiltTrain <- readRDS("models/ameshousingFiltTrain.Rds")
+ameshousingFiltTest <- readRDS("models/ameshousingFiltTest.Rds")
+
+ameshousingFiltTrain_engineered <- readRDS("models/ameshousingFiltTrain_engineered.Rds")
+ameshousingFiltTest_engineered <-readRDS("models/ameshousingFiltTest_engineered.Rds")
+
+ames_resamplingCV <- readRDS("models/ames_resamplingCV.Rds")
+
+ames_lm_all <- readRDS("models/ames_lm_all.Rds")
+ames_mars <- readRDS("models/ames_mars.Rds")
+
+```
+
+
+
+```{r RFoptimise}
+# # tuning grid
+# grid_search <- expand.grid(
+#   mtry = floor(dim(ameshousingFiltTrain)[2] * c(.15, .20, .25)),
+#   min.node.size = c(2,4,6),
+#   splitrule = c("variance", "extratrees")
+# )
+# # perform resampling
+# set.seed(42)
+# ames_rf <- train(
+#   log(Sale_Price) ~ ., 
+#   data = ameshousingFiltTrain, 
+#   trControl = ames_resamplingCV,
+#   method = "ranger",
+#   tuneGrid = grid_search,
+#   metric = "RMSE",
+#   num.trees = 1000,
+#   respect.unordered.factors = 'order'
+#   )
+# saveRDS(ames_rf, "models/ames_rf.Rds")
+
+ames_rf <- readRDS("models/ames_rf.Rds")
+summary(ames_rf)
+
+
+ames_rf$results %>%
+  filter(
+    mtry == ames_rf$bestTune$mtry,
+    min.node.size == ames_rf$bestTune$min.node.size,
+    splitrule == ames_rf$bestTune$splitrule
+    )
+
+
+
+
+
+
+```
+
+
+```{r ranger}
+ames_rfOpt <- ranger(
+  formula         = Sale_Price ~ ., 
+  data            = ameshousingFiltTrain, 
+  num.trees       = 2000,
+  mtry            = 20,
+  min.node.size   = 2,
+  sample.fraction = .8,
+  replace         = FALSE,
+  importance      = 'permutation',
+  respect.unordered.factors = 'order',
+  splitrule       = "variance",
+  verbose         = FALSE,
+  seed            = 42
+  )
+
+plot(ames_rfOpt)
+```
+
+
+
+
+```{r vipRanger}
+ vip(ames_rfOpt, num_features = 10) 
+
+
+vip(ames_lm_all, num_features = 10) 
+```
+
+
+```{r resample}
+allResamples <- resamples(list(
+                               "Ridge" = ames_ridge,
+                               "Lasso" = ames_lasso,
+                               "EN" = ames_en,
+                               "PLSR" = ames_plsr, 
+                               "PCR" = ames_pcr,
+                               "MARS" = ames_mars,
+                               "LM all" = ames_lm_all,
+                               "RF" = ames_rf
+                               ))
+
+
+bwplot(allResamples)
+parallelplot(allResamples)
+
+parallelplot(allResamples , metric = "Rsquared")
+parallelplot(allResamples , metric = "RMSE")
+
+summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column()  %>% arrange(Median)
+```
+
+
+
+```{r KNN}
+# 1. stratified sampling with the rsample package
+set.seed(123)
+split  <- initial_split(ames, prop = 0.7, strata = "Sale_Price")
+ames_train  <- training(split)
+ames_test   <- testing(split)
+# 2. create a resampling method
+cv <- trainControl(
+  method = "repeatedcv", 
+  number = 10, 
+  repeats = 5
+  )
+# 3. create a hyperparameter grid search
+hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
+# 4. execute grid search with knn model
+#    use RMSE as preferred metric
+knn_fit <- train(
+  Sale_Price ~ ., 
+  data = ames_train, 
+  method = "knn", 
+  trControl = cv, 
+  tuneGrid = hyper_grid,
+  metric = "RMSE"
+  )
+# 5. evaluate results
+# print model results
+knn_fit
+## k-Nearest Neighbors 
+## 
+## 2054 samples
+##   80 predictor
+## 
+## No pre-processing
+## Resampling: Cross-Validated (10 fold, repeated 5 times) 
+## Summary of sample sizes: 1848, 1850, 1848, 1848, 1848, 1848, ... 
+## Resampling results across tuning parameters:
+## 
+##   k   RMSE      Rsquared   MAE     
+##    2  46100.84  0.6618945  30205.06
+```

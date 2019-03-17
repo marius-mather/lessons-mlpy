@@ -31,6 +31,8 @@ library(GGally) # for EDA
 library(psych)
 library(corrplot)
 library(AmesHousing)
+old <- theme_set(theme_minimal())
+rm(old)
 
 ```
 

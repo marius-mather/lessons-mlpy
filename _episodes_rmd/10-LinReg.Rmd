@@ -26,11 +26,16 @@ library(tidyverse)
 library(caret)
 library(tidymodels)
 library(AmesHousing)
+old <- theme_set(theme_minimal())
+rm(old)
 ```
 
 ```{r getData, echo = F}
 ameshousing <- 
-  AmesHousing::make_ames() %>% 
+  AmesHousing::make_ames() 
+# remove 5 observations
+ameshousingFilt <- 
+  ameshousing %>% 
   filter(Gr_Liv_Area <= 4000)
 
 set.seed(42) # so we all get the same results
@@ -46,8 +51,8 @@ ameshousingFiltTest <- testing(ames_split)
 engineer_features_allames <-
   recipe(Sale_Price ~ ., data = ameshousingFiltTrain) %>%
   step_log(Sale_Price) %>% # log(Sale_Price)
+  step_other(all_nominal(), threshold = 0.1) %>%
   step_nzv(all_nominal()) %>% # removes variables that are highly sparse or unbalanced
-  step_zv(all_nominal()) %>% 
   step_integer(matches("Qual|Cond|QC|Qu")) %>%
   step_center(all_numeric(), -all_outcomes()) %>%
   step_scale(all_numeric(), -all_outcomes()) %>%
@@ -65,9 +70,15 @@ ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data 
 ames_resamplingCV <- trainControl(
   method = "repeatedcv", 
   number = 10, #  k = 10
-  repeats = 7, # repeat 7 times,
+  repeats = 5, # repeat 5 times,
   savePredictions = "final"
   )
+
+saveRDS(ames_resamplingCV, "models/ames_resamplingCV.Rds")
+saveRDS(ameshousingFiltTrain_engineered, "models/ameshousingFiltTrain_engineered.Rds")
+saveRDS(ameshousingFiltTest_engineered, "models/ameshousingFiltTest_engineered.Rds")
+saveRDS(ameshousingFiltTrain, "models/ameshousingFiltTrain.Rds")
+saveRDS(ameshousingFiltTest, "models/ameshousingFiltTest.Rds")
 ```
 
 
@@ -113,17 +124,20 @@ basicLm <- lm(Sale_Price ~ Gr_Liv_Area, data = ameshousingFiltTrain_engineered)
 
 # implement as function
 
-myLinearRegression <- function(formula){
+myLinearRegression <- function(formula, df){
 set.seed(42)
 tmp <-  train(
   formula,
-  data = ameshousingFiltTrain_engineered,
+  data = df,
   method = "lm",
   trControl = ames_resamplingCV)
 print(summary(tmp))
 return(tmp)
 }
-ames_lm1 <- myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area)
+ames_lm1 <- myLinearRegression(Sale_Price ~ Gr_Liv_Area, df = ameshousingFiltTrain_engineered)
+
+
+
 ```
 
 
@@ -133,17 +147,19 @@ ames_lm1 <- myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area)
 Use Second_Flr_SF and Gr_Liv_Area to predict:
 
 ```{r ames2vars}
-ames_lm2 <- myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF)
+ames_lm2 <- myLinearRegression(Sale_Price ~ Gr_Liv_Area + Second_Flr_SF,  df = ameshousingFiltTrain_engineered)
+
 ```
 
 ```{r ames2varsinteraction}
-ames_lm2i <-  myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Second_Flr_SF +Gr_Liv_Area:Second_Flr_SF)
+ames_lm2i <-  myLinearRegression(Sale_Price ~ Gr_Liv_Area + Second_Flr_SF +Gr_Liv_Area:Second_Flr_SF, df = ameshousingFiltTrain_engineered)
+
 ```
 
 
 
 ```{r Withyear}
-ames_lm2year <-  myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Year_Built)
+ames_lm2year <-  myLinearRegression(Sale_Price ~ Gr_Liv_Area + Year_Built, df = ameshousingFiltTrain_engineered)
 
 ```
 
@@ -152,18 +168,26 @@ ames_lm2year <-  myLinearRegression(Sale_PriceLog ~ Gr_Liv_Area + Year_Built)
 All predictors
 
 ```{r amesallvars, warnings=F}
-ames_lm_all <- myLinearRegression(Sale_PriceLog ~. )
-
+ames_lm_all <- myLinearRegression(Sale_Price ~. , df = ameshousingFiltTrain_engineered)
+saveRDS(ames_lm_all, "models/ames_lm_all.Rds")
 ```
+
+```{r amesallvarsF, warnings=F}
+ameshousingFiltTrain_engineeredF <- ameshousingFiltTrain_engineered %>% select(-ends_with("other"))
+ames_lm_all2 <- myLinearRegression(Sale_Price ~. , df = ameshousingFiltTrain_engineeredF)
+rm(ameshousingFiltTrain_engineeredF)
+```
+
 
 Compare performance on training set:
 
 ```{r Resamples}
-allResamples <- resamples(list("Gr_Liv_Area cv" = ames_lm1, 
+allResamples <- resamples(list("Gr_Liv_Area" = ames_lm1, 
                                "Gr_Liv_Area + Year_Built" = ames_lm2year,
                                "Gr_Liv_Area + Second_Flr_SF" = ames_lm2,
                                "Gr_Liv_Area:Second_Flr_SF" = ames_lm2i,
-                               "All vars" = ames_lm_all
+                               "All vars" = ames_lm_all,
+                               "All vars f" = ames_lm_all2
                                ))
 bwplot(allResamples)
 parallelplot(allResamples)
@@ -171,6 +195,10 @@ parallelplot(allResamples)
 parallelplot(allResamples , metric = "Rsquared")
 parallelplot(allResamples , metric = "RMSE")
 
+summary(allResamples)$statistics$RMSE %>% 
+  as.data.frame() %>% 
+  rownames_to_column()  %>%
+  arrange(Median)
 ```
 
 
