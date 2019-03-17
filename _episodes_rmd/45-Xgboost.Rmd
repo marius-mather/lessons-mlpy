@@ -200,37 +200,41 @@ ames_price_train <- ameshousingFiltTrain_engineered %>% select(Sale_Price) %>% a
 ames_xgb <- readRDS("models/grid_0.005_5.Rds")
 
 # #
-params <- list(
-  eta = 0.005,
-  max_depth = 5,
-  min_child_weight = 7,
-  subsample = 0.65,
-  colsample_bytree = 0.9,
-  nrounds = 2989
-)
-
-# 
-# # train final model
-# ames_xgb2 <- xgboost(
-#   params = params,
-#   data = ames_features_train,
-#   label = ames_price_train,
-#   nrounds = 2989,
-#   objective = "reg:linear",
-#   verbose = 0
+# params <- list(
+#   eta = 0.005,
+#   max_depth = 5,
+#   min_child_weight = 7,
+#   subsample = 0.65,
+#   colsample_bytree = 0.9,
+#   nrounds = 2989
 # )
+# 
+# # 
+# # # train final model
+# # ames_xgb2 <- xgboost(
+# #   params = params,
+# #   data = ames_features_train,
+# #   label = ames_price_train,
+# #   nrounds = 2989,
+# #   objective = "reg:linear",
+# #   verbose = 0
+# # )
+# 
+# ames_xgb2 <- readRDS("models/ames_xgb2.Rds")
+# 
+# 
+# ames_xgb_4caret <- caret::train(
+#   x = ames_features_train, # tr_x is data frame, xgbTree needs matrix
+#   y = as.vector(ames_price_train),
+#   trControl = ames_resamplingCV,
+#   tuneGrid = expand.grid(nrounds = 2989, eta = 0.005,  max_depth = 5,  min_child_weight = 7,  subsample = 0.65,  colsample_bytree = 0.9 , gamma = 0),
+#   method = "xgbTree",
+#   verbose = TRUE
+# )
+# saveRDS(ames_xgb_4caret, "models/ames_xgb_4caret.Rds")
 
-ames_xgb2 <- readRDS("models/ames_xgb2.Rds")
+ames_xgb_4caret <- readRDS("models/ames_xgb_4caret.Rds")
 
-
-ames_xgb_4caret <- caret::train(
-  x = ames_features_train, # tr_x is data frame, xgbTree needs matrix
-  y = as.vector(ames_price_train),
-  trControl = ames_resamplingCV,
-  tuneGrid = expand.grid(nrounds = 2989, eta = 0.005,  max_depth = 5,  min_child_weight = 7,  subsample = 0.65,  colsample_bytree = 0.9 , gamma = 0),
-  method = "xgbTree",
-  verbose = TRUE
-)
 
 ```
 
@@ -245,7 +249,8 @@ allResamples <- resamples(list(
                                "MARS" = ames_mars,
                                "LM all" = ames_lm_all,
                                "RF" = ames_rf, 
-                               "KNN" = ames_knn
+                               "KNN" = ames_knn, 
+                               "XGB" = ames_xgb_4caret
                                ))
 
 bwplot(allResamples)
