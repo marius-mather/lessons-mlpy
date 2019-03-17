@@ -26,39 +26,39 @@ teaching: 30
 
 
 ~~~
-
 list_of_pkgs <- c(
-  "AmesHousing",   # provides data we'll use
-  "tidyverse",     # data munging & visualization
-  "cluster",       # clustering techniques
-  "factoextra",    # clustering & PCA visualizations
-  "rsample",       # sampling procedures
-  "recipes",       # feature engineering procedures
-  "caret",         # meta modeling package,
-  "glmnet",        # regularized regression
-  "earth",         # multivariate adaptive regression splines
-  "ranger",        # fast random forest
-  "gbm",           # gradient boosting machines
-  "xgboost",       # extreme gradient boosting
-  "broom",         # provides model result clean up
-  "vip",           # model interpretation
-  "pdp"           # model interpretation
+"AmesHousing", 
+"GGally", 
+"Rtsne", 
+"bestNormalize", 
+"caret", 
+"cluster", 
+"corrplot", 
+"data.table", 
+"dendextend" , 
+"e1071", 
+"factoextra", 
+"gbm", 
+"ggplot2", 
+"kernlab", 
+"lattice", 
+"mlbench", 
+"naniar" , 
+"pROC", 
+"pheatmap" , 
+"plotROC", 
+"psych", 
+"ranger", 
+"tidymodels", 
+"tidyverse", 
+"xgboost", 
+"vip")
 
 # run the following line of code to install the packages you currently do not have
 new_pkgs <- list_of_pkgs[!(list_of_pkgs %in% installed.packages()[,"Package"])]
 if(length(new_pkgs)) install.packages(new_pkgs)
 ~~~
 {: .language-r}
-
-
-
-~~~
-Error: <text>:20:1: unexpected symbol
-19: # run the following line of code to install the packages you currently do not have
-20: new_pkgs
-    ^
-~~~
-{: .error}
 
 
 

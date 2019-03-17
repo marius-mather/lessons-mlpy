@@ -4,10 +4,11 @@
 title: "Classification"
 author: "Gordon McDonald"
 keypoints:
-- somepoint
+- Classification attempts to predict the class to which a particular observation belongs
+- If you use caret it's cats all the way down
 objectives:
-- someobjective
-questions: What is the meaning of life FIXME?
+- Learn how to build and evaluate classifiers
+questions: How to classify?
 source: Rmd
 start: 0
 teaching: 30
@@ -20,7 +21,7 @@ exercises: 0
 
 # What is a classifier?
 
-A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. above, we are classifying the animals to be either *cat* or *not cat*.
+A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
 ![A classifier for cats and not cats.](images/CatNotCat.jpg)
 
@@ -98,7 +99,7 @@ To capture this balance, we often use a Reciever Operator Characteristic (ROC) c
 
 
 
-# Wisconsin Diagnositc Breast Cancer Dataset
+# Wisconsin Diagnositc Braist Cancer Dataset
 
 Today we're going to be classifying patient's biopsy to see whether their breast tumor is malignant or benign. First, a fine needle aspirate (FNA) of a breast mass is taken. Basically they stick a needle in you and take a chunk out then put it under the microscope. It looks like this:
 
@@ -142,9 +143,11 @@ library(corrplot)
 library(GGally)
 library(pROC)
 library(plotROC)
+library(lattice)
 # for machine learning
 library(caret)
 library(mlbench)
+library(e1071)
 ~~~
 {: .language-r}
 
@@ -909,7 +912,6 @@ Prediction   B   M
 
 
 ~~~
-library(e1071)
 fulldata <- data.frame("diagnosis" = y_train,x_train)
 
 #train the svm
@@ -1054,4 +1056,40 @@ Prediction   B   M
 #note this result is the same
 ~~~
 {: .language-r}
+
+# Compare them all
+
+
+~~~
+allResamples <- resamples(list("k-Nearest Neighbours" = knn_model, 
+                               "Naive Bayes" = nb_model, 
+                               "Regularised Logit" = regLogistic_model,
+                               "Boosted Logit" = logitb_model,
+                               "Decision Tree" = tree_model,
+                               "Random Forest" = rf_model,
+                               "Linear Support Vector Machine" = svm_Linear_bc
+                               ))
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in resamples(list(`k-Nearest Neighbours` = knn_model, `Naive Bayes` = nb_model, : object 'regLogistic_model' not found
+~~~
+{: .error}
+
+
+
+~~~
+bwplot(allResamples)
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in bwplot(allResamples): object 'allResamples' not found
+~~~
+{: .error}
 

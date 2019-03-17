@@ -5,9 +5,8 @@ title: "Regularised Regression. Principle components Regression. Partial Least S
 author: "Darya Vanichkina"
 keypoints:
 - Regularisation helps us improve the performance of regression
-- 
 objectives:
-- someobjective
+- To understand additional regression methods that can help us improve our model fit
 questions:
 - How do we prevent all variables from being incorporated into a regression model?
 source: Rmd
@@ -181,8 +180,7 @@ Warning: package 'yardstick' was built under R version 3.5.2
 
 ~~~
 library(AmesHousing)
-old <- theme_set(theme_minimal())
-rm(old)
+theme_set(theme_minimal())
 ~~~
 {: .language-r}
 
@@ -235,7 +233,7 @@ ames_ridge$results %>%
   filter(
     alpha == ames_ridge$bestTune$alpha,
     lambda == ames_ridge$bestTune$lambda
-    )
+  )
 ~~~
 {: .language-r}
 
@@ -284,7 +282,7 @@ ames_lasso$results %>%
   filter(
     alpha == ames_lasso$bestTune$alpha,
     lambda == ames_lasso$bestTune$lambda
-    )
+  )
 ~~~
 {: .language-r}
 
@@ -334,7 +332,7 @@ ames_en$results %>%
   filter(
     alpha == ames_en$bestTune$alpha,
     lambda == ames_en$bestTune$lambda
-    )
+  )
 ~~~
 {: .language-r}
 
@@ -375,22 +373,35 @@ plot(ames_en)
 
 
 
-## Principle components regression
+## Principal components regression
 
 
 ~~~
 set.seed(42)
-ames_pcr <- train(
-  Sale_Price ~ .,
-  data = ameshousingFiltTrain_engineered,
-  trControl = ames_resamplingCV,
-  method = "pcr",
-  tuneGrid = param_search,
-  metric = "RMSE"
-  )
-saveRDS(ames_pcr, "models/ames_pcr.Rds")
 
-ames_pcr <- readRDS("models/ames_pcr.Rds")
+flnm = "models/ames_pcr.Rds"
+
+if (!file.exists(flnm)){
+  
+  ames_pcr <- train(
+    Sale_Price ~ .,
+    data = ameshousingFiltTrain_engineered,
+    trControl = ames_resamplingCV,
+    method = "pcr",
+    tuneGrid = param_search,
+    metric = "RMSE"
+  )
+  
+  saveRDS(ames_pcr, flnm)
+  
+} else {
+  
+  ames_pcr <- readRDS(flnm)
+} 
+
+
+
+
 
 # model with lowest RMSE
 ames_pcr$bestTune
@@ -424,22 +435,35 @@ ames_pcr$results %>%
 
 
 
+
+
+
 ## Partial Least Squares Regression.
 
 
 ~~~
-# set.seed(42)
-# ames_plsr <- train(
-#   Sale_Price ~ ., 
-#   data = ameshousingFiltTrain_engineered, 
-#   trControl = ames_resamplingCV,
-#   method = "pls",
-#   tuneGrid = param_search,
-#   metric = "RMSE"
-#   )
-# saveRDS(ames_en, "models/ames_en.Rds")
+set.seed(42)
 
-ames_en <- readRDS("models/ames_en.Rds")
+flnm = "models/ames_plsr.Rds"
+
+if (!file.exists(flnm)){
+  
+  ames_plsr <- train(
+    Sale_Price ~ .,
+    data = ameshousingFiltTrain_engineered,
+    trControl = ames_resamplingCV,
+    method = "pls",
+    tuneGrid = param_search,
+    metric = "RMSE"
+  )
+  
+  saveRDS(ames_plsr, flnm)
+  
+} else {
+  
+  ames_plsr <- readRDS(flnm)
+  
+}
 
 # model with lowest RMSE
 ames_plsr$bestTune
@@ -449,9 +473,10 @@ ames_plsr$bestTune
 
 
 ~~~
-Error in eval(expr, envir, enclos): object 'ames_plsr' not found
+     ncomp
+3 14.84211
 ~~~
-{: .error}
+{: .output}
 
 
 
@@ -464,9 +489,10 @@ ames_plsr$results %>%
 
 
 ~~~
-Error in eval(lhs, parent, parent): object 'ames_plsr' not found
+     ncomp     RMSE  Rsquared        MAE     RMSESD RsquaredSD     MAESD
+1 14.84211 0.141515 0.8760864 0.09970893 0.01757506 0.02433346 0.0053065
 ~~~
-{: .error}
+{: .output}
 
 
 
@@ -480,30 +506,41 @@ Error in eval(lhs, parent, parent): object 'ames_plsr' not found
 ## MARS
 
 ~~~
-# grid_search <- expand.grid(
-#   nprune = seq(2, 80, length.out = 10) %>% floor(),
-#   degree = 1:3
-# )
-# # perform resampling
-# set.seed(42)
-# ames_mars <- train(
-#   Sale_Price ~ ., 
-#   data = ameshousingFiltTrain_engineered, 
-#   trControl = ames_resamplingCV,
-#   method = "earth",
-#   tuneGrid = grid_search,
-#   metric = "RMSE"
-#   )
-#saveRDS(ames_mars, "data/ames_mars.Rds")
+flnm = "models/ames_mars.Rds"
 
-ames_mars <- readRDS("models/ames_mars.Rds")
+if (!file.exists(flnm)){
+
+grid_search <- expand.grid(
+  nprune = seq(2, 80, length.out = 10) %>% floor(),
+  degree = 1:3
+)
+
+# perform resampling
+set.seed(42)
+
+ames_mars <- train(
+  Sale_Price ~ .,
+  data = ameshousingFiltTrain_engineered,
+  trControl = ames_resamplingCV,
+  method = "earth",
+  tuneGrid = grid_search,
+  metric = "RMSE"
+  )
+
+saveRDS(ames_mars, flnm)
+
+} else {
+
+ames_mars <- readRDS(flnm)
+
+}
 
 # best model
 ames_mars$results %>%
   filter(
     nprune == ames_mars$bestTune$nprune,
     degree == ames_mars$bestTune$degree
-    )
+  )
 ~~~
 {: .language-r}
 
@@ -525,81 +562,40 @@ ames_mars$results %>%
 ames_lm_all <- readRDS("models/ames_lm_all.Rds")
 
 allResamples <- resamples(list(
-                               "Ridge" = ames_ridge,
-                               "Lasso" = ames_lasso,
-                               "EN" = ames_en,
-                               "PLSR" = ames_plsr, 
-                               "PCR" = ames_pcr,
-                               "MARS" = ames_mars,
-                               "LM all" = ames_lm_all
-                               ))
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in resamples(list(Ridge = ames_ridge, Lasso = ames_lasso, EN = ames_en, : object 'ames_plsr' not found
-~~~
-{: .error}
-
-
-
-~~~
+  "Ridge" = ames_ridge,
+  "Lasso" = ames_lasso,
+  "EN" = ames_en,
+  "PLSR" = ames_plsr, 
+  "PCR" = ames_pcr,
+  "MARS" = ames_mars,
+  "LM all" = ames_lm_all
+))
 bwplot(allResamples)
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in bwplot(allResamples): object 'allResamples' not found
-~~~
-{: .error}
-
-
+<img src="../fig/rmd-11-allresampes-1.png" title="plot of chunk allresampes" alt="plot of chunk allresampes" width="612" style="display: block; margin: auto;" />
 
 ~~~
 parallelplot(allResamples)
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in parallelplot(allResamples): object 'allResamples' not found
-~~~
-{: .error}
-
-
+<img src="../fig/rmd-11-allresampes-2.png" title="plot of chunk allresampes" alt="plot of chunk allresampes" width="612" style="display: block; margin: auto;" />
 
 ~~~
 parallelplot(allResamples , metric = "Rsquared")
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in parallelplot(allResamples, metric = "Rsquared"): object 'allResamples' not found
-~~~
-{: .error}
-
-
+<img src="../fig/rmd-11-allresampes-3.png" title="plot of chunk allresampes" alt="plot of chunk allresampes" width="612" style="display: block; margin: auto;" />
 
 ~~~
 parallelplot(allResamples , metric = "RMSE")
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in parallelplot(allResamples, metric = "RMSE"): object 'allResamples' not found
-~~~
-{: .error}
-
-
+<img src="../fig/rmd-11-allresampes-4.png" title="plot of chunk allresampes" alt="plot of chunk allresampes" width="612" style="display: block; margin: auto;" />
 
 ~~~
 summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column()  %>% arrange(Median)
@@ -609,9 +605,16 @@ summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column
 
 
 ~~~
-Error in summary(allResamples): object 'allResamples' not found
+  rowname      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. NA's
+1    MARS 0.1044245 0.1209309 0.1288786 0.1317219 0.1379503 0.1778900    0
+2     PCR 0.1203772 0.1315098 0.1364857 0.1416076 0.1441149 0.1939475    0
+3  LM all 0.1193320 0.1322394 0.1366107 0.1416634 0.1439775 0.1928341    0
+4    PLSR 0.1200169 0.1322344 0.1366309 0.1415150 0.1434831 0.1920911    0
+5   Ridge 0.1198476 0.1325558 0.1396472 0.1437380 0.1452600 0.1977365    0
+6      EN 0.1198476 0.1325558 0.1396472 0.1437380 0.1452600 0.1977365    0
+7   Lasso 0.1846198 0.2090732 0.2196389 0.2220084 0.2293391 0.2753984    0
 ~~~
-{: .error}
+{: .output}
 
 
 

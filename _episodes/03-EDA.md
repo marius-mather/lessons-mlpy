@@ -29,262 +29,19 @@ First, let's load the required libraries. We will use the `caret` library for ou
 ~~~
 # set knitr options
 # opts_knit$set(warning = FALSE, message = FALSE)
-  
+
 library(tidyverse)
-~~~
-{: .language-r}
-
-
-
-~~~
-── Attaching packages ────────────────────────────────── tidyverse 1.2.1 ──
-~~~
-{: .output}
-
-
-
-~~~
-✔ ggplot2 3.1.0       ✔ purrr   0.3.1  
-✔ tibble  2.0.1       ✔ dplyr   0.8.0.1
-✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-✔ readr   1.3.1       ✔ forcats 0.4.0  
-~~~
-{: .output}
-
-
-
-~~~
-Warning: package 'tibble' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'tidyr' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'purrr' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'dplyr' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'stringr' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'forcats' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-── Conflicts ───────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()
-~~~
-{: .output}
-
-
-
-~~~
 library(caret)
-~~~
-{: .language-r}
-
-
-
-~~~
-Loading required package: lattice
-~~~
-{: .output}
-
-
-
-~~~
-
-Attaching package: 'caret'
-~~~
-{: .output}
-
-
-
-~~~
-The following object is masked from 'package:purrr':
-
-    lift
-~~~
-{: .output}
-
-
-
-~~~
 library(tidymodels)
-~~~
-{: .language-r}
-
-
-
-~~~
-── Attaching packages ───────────────────────────────── tidymodels 0.0.2 ──
-~~~
-{: .output}
-
-
-
-~~~
-✔ broom     0.5.1     ✔ recipes   0.1.4
-✔ dials     0.0.2     ✔ rsample   0.0.4
-✔ infer     0.4.0     ✔ yardstick 0.0.3
-✔ parsnip   0.0.1     
-~~~
-{: .output}
-
-
-
-~~~
-Warning: package 'rsample' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-Warning: package 'yardstick' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-── Conflicts ──────────────────────────────────── tidymodels_conflicts() ──
-✖ scales::discard()      masks purrr::discard()
-✖ dplyr::filter()        masks stats::filter()
-✖ recipes::fixed()       masks stringr::fixed()
-✖ dplyr::lag()           masks stats::lag()
-✖ caret::lift()          masks purrr::lift()
-✖ yardstick::precision() masks caret::precision()
-✖ yardstick::recall()    masks caret::recall()
-✖ yardstick::spec()      masks readr::spec()
-✖ recipes::step()        masks stats::step()
-~~~
-{: .output}
-
-
-
-~~~
 library(naniar) # for visualising missing data
-~~~
-{: .language-r}
-
-
-
-~~~
-Warning: package 'naniar' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
+library(ggplot2)
 library(GGally) # for EDA
-~~~
-{: .language-r}
-
-
-
-~~~
-
-Attaching package: 'GGally'
-~~~
-{: .output}
-
-
-
-~~~
-The following object is masked from 'package:dplyr':
-
-    nasa
-~~~
-{: .output}
-
-
-
-~~~
 library(psych)
-~~~
-{: .language-r}
-
-
-
-~~~
-Warning: package 'psych' was built under R version 3.5.2
-~~~
-{: .error}
-
-
-
-~~~
-
-Attaching package: 'psych'
-~~~
-{: .output}
-
-
-
-~~~
-The following objects are masked from 'package:scales':
-
-    alpha, rescale
-~~~
-{: .output}
-
-
-
-~~~
-The following objects are masked from 'package:ggplot2':
-
-    %+%, alpha
-~~~
-{: .output}
-
-
-
-~~~
 library(corrplot)
-~~~
-{: .language-r}
-
-
-
-~~~
-corrplot 0.84 loaded
-~~~
-{: .output}
-
-
-
-~~~
 library(AmesHousing)
-old <- theme_set(theme_minimal())
-rm(old)
+library(bestNormalize)
+
+theme_set(theme_minimal())
 ~~~
 {: .language-r}
 
@@ -601,7 +358,7 @@ gg_miss_var(ameshousing2)
 
 
 ~~~
-gg_miss_upset(ameshousing2)
+gg_miss_upset(ameshousing2, nsets = 10)
 ~~~
 {: .language-r}
 
@@ -611,7 +368,9 @@ gg_miss_upset(ameshousing2)
 
 ~~~
 #
-ggpairs(ameshousing, numericVars[c(1:10, 33)], title = "Numeric variables 1 - 10")
+ggpairs(data = ameshousing, 
+        columns = numericVars[c(1:10, 33)], 
+        title = "Numeric variables 1 - 10")
 ~~~
 {: .language-r}
 
@@ -620,7 +379,9 @@ ggpairs(ameshousing, numericVars[c(1:10, 33)], title = "Numeric variables 1 - 10
 ~~~
 # ggpairs(ameshousing, numericVars[c(11:20, 33)], title = "Numeric variables 11 - 20")
 # ggpairs(ameshousing, numericVars[c(21:33)], title = "Numeric variables 21 - 33")
-ggpairs(ameshousing, c(catVars[2:5], "Sale_Price"), title = "Some categorical variables")
+ggpairs(data = ameshousing, 
+        columns = c(catVars[2:5], "Sale_Price"), 
+        title = "Some categorical variables")
 ~~~
 {: .language-r}
 
@@ -639,8 +400,21 @@ ggpairs(ameshousing, c(catVars[2:5], "Sale_Price"), title = "Some categorical va
 
 ~~~
 # pairs.panels(ameshousing[ , names(ameshousing)[c(3, 16, 23, 27,37)]], scale=TRUE)
-ameshousingCor <- cor(na.omit(ameshousing[,numericVars]))
-corrplot(ameshousingCor, order="hclust",method="square")
+ameshousingCor <- cor(ameshousing[,numericVars],
+                      use = "pairwise.complete.obs")
+
+cp<-corrplot(ameshousingCor, 
+             order="hclust",
+             method="square",
+             tl.col = 'black',
+             tl.cex = .8)
+
+#draw lines on the corrplot to highlight the Sale Price column
+dc <- which(colnames(cp)=="Sale_Price") #column  of diagnosis
+tc <- dim(ameshousingCor)[1] #total columns
+dr <- tc-dc+1 #row of diagnosis, counting from the bottoem of the corrplot
+segments(c(-0.5,0.5)+dc, rep(0.5,2), c(-0.5,0.5)+dc, rep(tc+0.5,2), lwd=1) #vertical
+segments(rep(0.5,2), c(-0.5,0.5)+dr, rep(tc+0.5,2), c(-0.5,0.5)+dr, lwd=1) #horizontal
 ~~~
 {: .language-r}
 
@@ -693,8 +467,11 @@ corrplot(ameshousingCor, order="hclust",method="square")
 
 ~~~
 ameshousing %>%
-  select(Sale_Price, Gr_Liv_Area) %>%
-  ggplot(aes(x = Gr_Liv_Area, y = Sale_Price)) + geom_point() + theme_minimal() +
+  ggplot(aes(x = Gr_Liv_Area, y = Sale_Price/1000)) + 
+  geom_point(alpha = 0.1) + 
+  labs(y = "Sale Price in $k's",
+       x = "Living Area in Square Feet",
+       title = "Ames Housing Data")+
   geom_smooth(method= "lm")
 ~~~
 {: .language-r}
@@ -704,9 +481,8 @@ ameshousing %>%
 
 ~~~
 ameshousing %>%
-  select(Sale_Price, `Overall_Qual`) %>%
-  ggplot(aes(x = `Overall_Qual`, y = Sale_Price)) + geom_point() + theme_minimal() +
-  geom_smooth(method= "lm")
+  ggplot(aes(x = `Overall_Qual`, y = Sale_Price)) + 
+  geom_violin()
 ~~~
 {: .language-r}
 
@@ -714,8 +490,15 @@ ameshousing %>%
 
 ~~~
 ameshousing %>%
-  select(Sale_Price, `Overall_Qual`) %>%
-  ggplot(aes(x = as.factor(`Overall_Qual`), y = Sale_Price, fill = as.factor(`Overall_Qual`))) + geom_boxplot() + theme_minimal() 
+  mutate(Quality = as.factor(`Overall_Qual`)) %>% 
+  ggplot(aes(x = Quality, 
+             y = Sale_Price/1000, 
+             fill = Quality)) + 
+  labs(y = "Sale Price in $k's",
+       x = "Overall Quality of House",
+       title = "Ames Housing Data")+
+  geom_boxplot()+
+  theme(axis.text.x= element_text(angle = 45))
 ~~~
 {: .language-r}
 
@@ -727,8 +510,10 @@ ameshousing %>%
 
 ~~~
 ameshousing %>% 
-  select(Sale_Price) %>%
-  ggplot(aes(x = Sale_Price)) + geom_histogram(bins = 50) + theme_minimal() 
+  ggplot(aes(x = Sale_Price/1000)) + 
+  geom_histogram(bins = 50) + 
+  labs(x = "Sale Price in $k's",
+       y = "Number of Houses sold")
 ~~~
 {: .language-r}
 
@@ -737,7 +522,7 @@ ameshousing %>%
 
 
 ~~~
-# remove 5 observations
+# remove 5 observations with huuuuuge houses which are skewing the data
 ameshousingFilt <- 
   ameshousing %>% 
   filter(Gr_Liv_Area <= 4000)
@@ -748,48 +533,75 @@ ameshousingFilt <-
 
 
 ~~~
-ameshousingFilt%>%
-  select(Sale_Price) %>%
+#No transform
+
+ameshousingFilt %>%
   ggplot(aes( sample = Sale_Price)) +
-  stat_qq() + stat_qq_line(col = "blue") +
-  theme_minimal()
+  stat_qq() + stat_qq_line(col = "blue")
 ~~~
 {: .language-r}
 
 <img src="../fig/rmd-03-WhyTransform-1.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
 ~~~
+#Sqrt transform
+
 ameshousingFilt %>%
-  select(Sale_Price) %>%
   ggplot(aes( sample = sqrt(Sale_Price))) +
-  stat_qq() + stat_qq_line(col = "blue") +
-  theme_minimal()
+  stat_qq() + stat_qq_line(col = "blue")
 ~~~
 {: .language-r}
 
 <img src="../fig/rmd-03-WhyTransform-2.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
 ~~~
+#natural log transform
+
 ameshousingFilt %>%
-  select(Sale_Price) %>%
   ggplot(aes( sample = log(Sale_Price))) +
-  stat_qq() + stat_qq_line(col = "blue") +
-  theme_minimal()
+  stat_qq() + stat_qq_line(col = "blue")
 ~~~
 {: .language-r}
 
 <img src="../fig/rmd-03-WhyTransform-3.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
 ~~~
+#log10 transform
+
 ameshousingFilt %>%
-  select(Sale_Price) %>%
   ggplot(aes( sample = log10(Sale_Price))) +
-  stat_qq() + stat_qq_line(col = "blue") +
-  theme_minimal()
+  stat_qq() + stat_qq_line(col = "blue")
 ~~~
 {: .language-r}
 
 <img src="../fig/rmd-03-WhyTransform-4.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
+
+~~~
+#rank transform to a normal distribution
+
+list_ordered<-orderNorm(ameshousingFilt$Sale_Price)
+~~~
+{: .language-r}
+
+
+
+~~~
+Warning in orderNorm(ameshousingFilt$Sale_Price): Ties in data, Normal distribution not guaranteed
+~~~
+{: .error}
+
+
+
+~~~
+ameshousingFilt$Sale_Price_normed<-list_ordered$x.t
+
+ameshousingFilt %>%
+  ggplot(aes( sample = Sale_Price_normed)) +
+  stat_qq() + stat_qq_line(col = "blue")
+~~~
+{: .language-r}
+
+<img src="../fig/rmd-03-WhyTransform-5.png" title="plot of chunk WhyTransform" alt="plot of chunk WhyTransform" width="612" style="display: block; margin: auto;" />
 
 
 
@@ -851,5 +663,4 @@ ameshousingFiltTest <- testing(ames_split)
 ## References
 
 
-  
-  
+

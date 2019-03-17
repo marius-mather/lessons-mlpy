@@ -6,9 +6,6 @@ author: "Darya Vanichkina"
 keypoints:
 - Unsupervised learning is an approach where we use machine learning to search for patterns in the data
 - Clustering can 
-objectives:
-- someobjective
-questions: What is the meaning of life FIXME?
 source: Rmd
 start: 0
 teaching: 30
