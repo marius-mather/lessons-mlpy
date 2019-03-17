@@ -18,7 +18,7 @@ bibliography: references.bib
 ---
 
 
-```{r loadLibraries}
+```{r loadLibraries, warning = FALSE, message = FALSE}
 # set knitr options
 # opts_knit$set(warning = FALSE, message = FALSE)
   

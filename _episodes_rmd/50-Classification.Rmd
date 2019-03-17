@@ -141,9 +141,11 @@ library(corrplot)
 library(GGally)
 library(pROC)
 library(plotROC)
+library(lattice)
 # for machine learning
 library(caret)
 library(mlbench)
+library(e1071)
 ```
 
 Load data:
@@ -496,7 +498,6 @@ eval_classifier(svm_Linear_bc,x_test = x_test, y_test = y_test)
 # Support Vector Machine with e1071, linear kernel to plot
 
 ```{r LinearSVMAgainToPlot}
-library(e1071)
 fulldata <- data.frame("diagnosis" = y_train,x_train)
 
 #train the svm
@@ -551,5 +552,20 @@ y_pred<-predict(my.svm,x_test)
 
 confusionMatrix(y_pred, y_test)
 #note this result is the same
+```
+
+# Compare them all
+
+```{r}
+allResamples <- resamples(list("k-Nearest Neighbours" = knn_model, 
+                               "Naive Bayes" = nb_model, 
+                               "Regularised Logit" = regLogistic_model,
+                               "Boosted Logit" = logitb_model,
+                               "Decision Tree" = tree_model,
+                               "Random Forest" = rf_model,
+                               "Linear Support Vector Machine" = svm_Linear_bc
+                               ))
+
+bwplot(allResamples)
 ```
 
