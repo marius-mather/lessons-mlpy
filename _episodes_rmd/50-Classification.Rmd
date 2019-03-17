@@ -253,11 +253,61 @@ Set up caret for 10-fold Cross Validation repeated 3 times
 train_control <- trainControl(
   method = "cv", 
   number = 10,
-  repeats = 3
+  repeats = 3,
+  summaryFunction = twoClassSummary, 
+  classProbs = T,
+  savePredictions = T
 )
 ```
 
 
+Make a function to evaluate our models
+```{r}
+eval_classifier<-function(trained_model, x_test, y_test){
+  
+  y_pred<-predict(trained_model,x_test,type = "raw")
+  y_pred_prob<-predict(trained_model,x_test,type = "prob")
+  
+  print(confusionMatrix(data = y_pred , y_test ))
+  
+  
+  #make test data frame 
+  tdf<-tibble(y_pred, 
+              B=y_pred_prob$B, 
+              M=y_pred_prob$M, 
+              y_test=y_test)
+  
+  
+  # Select a parameter setting
+  selectedIndices <- trained_model$pred$mtry == 2
+  
+  #Test AUC:
+  test_auc_rf=auc(y_test, y_pred_prob$B)
+  
+  #plot train ROC in red
+  p<-ggplot(trained_model$pred[selectedIndices, ], 
+         aes(m = M, d = obs)) + 
+    geom_roc(hjust = -0.4, 
+             vjust = 1.5,
+             color = 'red') +
+    #add test ROC in blue
+    geom_roc(hjust = -0.4,
+             vjust = 1.5, 
+             color = 'blue', 
+             data = tdf, 
+             mapping = aes(m = M, d = y_test)) +
+    #make it look prettier
+    theme_classic()+
+    coord_equal()+
+    scale_x_continuous(expand=c(0.01,0.01))+
+    scale_y_continuous(expand=c(0.01,0.01))+
+    labs(title = paste0("Test AUC = ", round(test_auc_rf,3),", train = red, test = blue"))
+  
+  print(p)
+  
+  return(invisible(tdf))
+}
+```
 
 # Let's classify
 
@@ -276,6 +326,11 @@ y_pred_nb<-predict(nb_model, newdata = x_test)
 
 # results on test set
 confusionMatrix(data = y_pred_nb , y_test )
+
+#evaluate
+eval_classifier(trained_model = nb_model,
+                x_test,
+                y_test)
 ```
 
 ## Boosted Logistic Classifier
@@ -293,6 +348,11 @@ y_pred_logitb<-predict(logitb_model, newdata = x_test)
 
 # results on test set
 confusionMatrix(data = y_pred_logitb , y_test )
+
+#evaluate
+eval_classifier(trained_model = logitb_model,
+                x_test,
+                y_test)
 ```
 
 
@@ -327,19 +387,14 @@ confusionMatrix(data = y_pred_rf , y_test )
 
 #make test data frame 
 tdf<-tibble(y_pred_rf, 
-                B=y_pred_prob_rf$B, 
-                M=y_pred_prob_rf$M, 
-                y_test=y_test)
+            B=y_pred_prob_rf$B, 
+            M=y_pred_prob_rf$M, 
+            y_test=y_test)
 
-# #base R ROC curve (testing)
-# plot.roc(y_test,
-#          y_pred_prob_rf$M)
 
 # Select a parameter setting
 selectedIndices <- rf_model$pred$mtry == 2
-# # #base R ROC curve (training)
-# plot.roc(rf_model$pred$obs[selectedIndices],
-#          rf_model$pred$M[selectedIndices])
+
 
 #plot train ROC in red
 ggplot(rf_model$pred[selectedIndices, ], 
@@ -360,9 +415,20 @@ ggplot(rf_model$pred[selectedIndices, ],
   scale_y_continuous(expand=c(0.005,0.005))
 
 #Test AUC:
-auc(y_test, y_pred_prob_rf$B)
+test_auc_rf=auc(y_test, y_pred_prob_rf$B)
 
-#confusion matrix
-confusionMatrix(data = y_pred_rf , y_test )
+# #base R ROC curve (testing)
+# plot.roc(y_test,
+#          y_pred_prob_rf$M)
+# # #base R ROC curve (training)
+# plot.roc(rf_model$pred$obs[selectedIndices],
+#          rf_model$pred$M[selectedIndices])
+```
+
+
+
+```{r}
+#eval rf
+eval_classifier(rf_model, x_test = x_test, y_test = y_test)
 ```
 
