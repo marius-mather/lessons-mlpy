@@ -15,6 +15,7 @@ knitr_fig_path("30-")
 ```{r loadLibraries}
 library(tidyverse)
 library(caret)
+library(ranger)
 library(tidymodels)
 library(AmesHousing)
 theme_set(theme_minimal())
@@ -41,27 +42,49 @@ ames_pcr <- readRDS("models/ames_pcr.Rds")
 
 
 ```{r RFoptimise}
-# # tuning grid
-# grid_search <- expand.grid(
-#   mtry = floor(dim(ameshousingFiltTrain)[2] * c(.15, .20, .25)),
-#   min.node.size = c(2,4,6),
-#   splitrule = c("variance", "extratrees")
-# )
-# # perform resampling
-# set.seed(42)
-# ames_rf <- train(
-#   log(Sale_Price) ~ ., 
-#   data = ameshousingFiltTrain, 
-#   trControl = ames_resamplingCV,
-#   method = "ranger",
-#   tuneGrid = grid_search,
-#   metric = "RMSE",
-#   num.trees = 1000,
-#   respect.unordered.factors = 'order'
-#   )
-# saveRDS(ames_rf, "models/ames_rf.Rds")
+flnm = "models/ames_rf.Rds"
 
-ames_rf <- readRDS("models/ames_rf.Rds")
+if (!file.exists(flnm)){
+  
+  
+  # tuning grid
+  grid_search <- expand.grid(
+    mtry = floor(dim(ameshousingFiltTrain)[2] * c(.15, .20, .25)),
+    min.node.size = c(2,4,6),
+    splitrule = c("variance", "extratrees")
+  )
+  # perform resampling
+  set.seed(42)
+  ames_rf <- train(
+    log(Sale_Price) ~ .,
+    data = ameshousingFiltTrain,
+    trControl = ames_resamplingCV,
+    method = "ranger",
+    tuneGrid = grid_search,
+    metric = "RMSE",
+    num.trees = 1000,
+    respect.unordered.factors = 'order'
+  )
+  saveRDS(ames_rf, flnm)
+  
+} else {
+  
+  ames_rf <- readRDS(flnm)
+  
+}
+
+summary(ames_rf)
+
+
+ames_rf$results %>%
+  filter(
+    mtry == ames_rf$bestTune$mtry,
+    min.node.size == ames_rf$bestTune$min.node.size,
+    splitrule == ames_rf$bestTune$splitrule
+  )
+
+
+
 summary(ames_rf)
 
 
@@ -81,7 +104,7 @@ ames_rf$results %>%
 
 
 ```{r ranger, cache=TRUE}
-library(ranger)
+
 ames_rfOpt <- ranger(
   formula         = Sale_Price ~ ., 
   data            = ameshousingFiltTrain, 
@@ -111,19 +134,29 @@ ames_rfOpt <- ranger(
 
 
 ```{r KNN}
-# hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
-# ames_knn <- train(
-#   Sale_Price ~ ., 
-#   data = ameshousingFiltTrain_engineered, 
-#   method = "knn", 
-#   trControl = ames_resamplingCV, 
-#   tuneGrid = hyper_grid,
-#   metric = "RMSE"
-#   )
-# ames_knn
-# saveRDS(ames_knn, "models/ames_knn.Rds")
-# 
-# ames_knn <- loadRDS("models/ames_knn.Rds")
+
+flnm = "models/ames_knn.Rds"
+
+if (!file.exists(flnm)){
+  
+  
+  hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
+  ames_knn <- train(
+    Sale_Price ~ .,
+    data = ameshousingFiltTrain_engineered,
+    method = "knn",
+    trControl = ames_resamplingCV,
+    tuneGrid = hyper_grid,
+    metric = "RMSE"
+  )
+  
+  saveRDS(ames_knn, "models/ames_knn.Rds")
+  
+} else {
+  
+ames_knn <- readRDS("models/ames_knn.Rds")
+
+}
 
 
 ames_knn
@@ -151,5 +184,8 @@ parallelplot(allResamples)
 parallelplot(allResamples , metric = "Rsquared")
 parallelplot(allResamples , metric = "RMSE")
 
-summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column()  %>% arrange(Median)
+summary(allResamples)$statistics$RMSE %>% 
+  as.data.frame() %>% 
+  rownames_to_column()  %>% 
+  arrange(Median)
 ```
