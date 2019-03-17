@@ -73,7 +73,7 @@ ames_ridge$results %>%
   filter(
     alpha == ames_ridge$bestTune$alpha,
     lambda == ames_ridge$bestTune$lambda
-    )
+  )
 
 # plot results
 plot(ames_ridge)
@@ -103,7 +103,7 @@ ames_lasso$results %>%
   filter(
     alpha == ames_lasso$bestTune$alpha,
     lambda == ames_lasso$bestTune$lambda
-    )
+  )
 
 # plot results
 plot(ames_lasso)
@@ -134,7 +134,7 @@ ames_en$results %>%
   filter(
     alpha == ames_en$bestTune$alpha,
     lambda == ames_en$bestTune$lambda
-    )
+  )
 
 # plot results
 plot(ames_en)
@@ -157,21 +157,34 @@ plot(ames_en)
 
 
 
-## Principle components regression
+## Principal components regression
 
 ```{r PCR, cache = TRUE}
 set.seed(42)
-ames_pcr <- train(
-  Sale_Price ~ .,
-  data = ameshousingFiltTrain_engineered,
-  trControl = ames_resamplingCV,
-  method = "pcr",
-  tuneGrid = param_search,
-  metric = "RMSE"
-  )
-saveRDS(ames_pcr, "models/ames_pcr.Rds")
 
-ames_pcr <- readRDS("models/ames_pcr.Rds")
+flnm = "models/ames_pcr.Rds"
+
+if (!file.exists(flnm)){
+  
+  ames_pcr <- train(
+    Sale_Price ~ .,
+    data = ameshousingFiltTrain_engineered,
+    trControl = ames_resamplingCV,
+    method = "pcr",
+    tuneGrid = param_search,
+    metric = "RMSE"
+  )
+  
+  saveRDS(ames_pcr, flnm)
+  
+} else {
+  
+  ames_pcr <- readRDS(flnm)
+} 
+
+
+
+
 
 # model with lowest RMSE
 ames_pcr$bestTune
@@ -189,18 +202,28 @@ ames_pcr$results %>%
 ## Partial Least Squares Regression.
 
 ```{r PLS, cache = TRUE}
-# set.seed(42)
-# ames_plsr <- train(
-#   Sale_Price ~ .,
-#   data = ameshousingFiltTrain_engineered,
-#   trControl = ames_resamplingCV,
-#   method = "pls",
-#   tuneGrid = param_search,
-#   metric = "RMSE"
-#   )
-# saveRDS(ames_plsr, "models/ames_plsr.Rds")
+set.seed(42)
 
-ames_plsr <- readRDS("models/ames_plsr.Rds")
+flnm = "models/ames_plsr.Rds"
+
+if (!file.exists(flnm)){
+  
+  ames_plsr <- train(
+    Sale_Price ~ .,
+    data = ameshousingFiltTrain_engineered,
+    trControl = ames_resamplingCV,
+    method = "pls",
+    tuneGrid = param_search,
+    metric = "RMSE"
+  )
+  
+  saveRDS(ames_plsr, flnm)
+  
+} else {
+  
+  ames_plsr <- readRDS(flnm)
+  
+}
 
 # model with lowest RMSE
 ames_plsr$bestTune
@@ -214,30 +237,41 @@ ames_plsr$results %>%
 
 ## MARS
 ```{r mars, cache=TRUE}
-# grid_search <- expand.grid(
-#   nprune = seq(2, 80, length.out = 10) %>% floor(),
-#   degree = 1:3
-# )
-# # perform resampling
-# set.seed(42)
-# ames_mars <- train(
-#   Sale_Price ~ ., 
-#   data = ameshousingFiltTrain_engineered, 
-#   trControl = ames_resamplingCV,
-#   method = "earth",
-#   tuneGrid = grid_search,
-#   metric = "RMSE"
-#   )
-#saveRDS(ames_mars, "data/ames_mars.Rds")
+flnm = "models/ames_mars.Rds"
 
-ames_mars <- readRDS("models/ames_mars.Rds")
+if (!file.exists(flnm)){
+
+grid_search <- expand.grid(
+  nprune = seq(2, 80, length.out = 10) %>% floor(),
+  degree = 1:3
+)
+
+# perform resampling
+set.seed(42)
+
+ames_mars <- train(
+  Sale_Price ~ .,
+  data = ameshousingFiltTrain_engineered,
+  trControl = ames_resamplingCV,
+  method = "earth",
+  tuneGrid = grid_search,
+  metric = "RMSE"
+  )
+
+saveRDS(ames_mars, flnm)
+
+} else {
+
+ames_mars <- readRDS(flnm)
+
+}
 
 # best model
 ames_mars$results %>%
   filter(
     nprune == ames_mars$bestTune$nprune,
     degree == ames_mars$bestTune$degree
-    )
+  )
 ```
 
 
@@ -247,14 +281,14 @@ ames_mars$results %>%
 ames_lm_all <- readRDS("models/ames_lm_all.Rds")
 
 allResamples <- resamples(list(
-                               "Ridge" = ames_ridge,
-                               "Lasso" = ames_lasso,
-                               "EN" = ames_en,
-                               "PLSR" = ames_plsr, 
-                               "PCR" = ames_pcr,
-                               "MARS" = ames_mars,
-                               "LM all" = ames_lm_all
-                               ))
+  "Ridge" = ames_ridge,
+  "Lasso" = ames_lasso,
+  "EN" = ames_en,
+  "PLSR" = ames_plsr, 
+  "PCR" = ames_pcr,
+  "MARS" = ames_mars,
+  "LM all" = ames_lm_all
+))
 bwplot(allResamples)
 parallelplot(allResamples)
 

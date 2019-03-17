@@ -16,7 +16,7 @@ source("../bin/chunk-options.R")
 knitr_fig_path("10-")
 ```
 
-```{r loadLibraries}
+```{r loadLibraries, warning = FALSE, message = FALSE}
 # set knitr options
 # opts_knit$set(warning = FALSE, message = FALSE)
   

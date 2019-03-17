@@ -3,6 +3,10 @@ title: "Classification"
 author: "Gordon McDonald"
 keypoints:
 - Classification attempts to predict the class to which a particular observation belongs
+- If you use caret it's cats all the way down
+objectives:
+- Learn how to build and evaluate classifiers
+questions: How to classify?
 source: Rmd
 start: 0
 teaching: 30
@@ -23,7 +27,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 # What is a classifier?
 
-A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. above, we are classifying the animals to be either *cat* or *not cat*.
+A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
 ![A classifier for cats and not cats.](images/CatNotCat.jpg)
 
@@ -144,9 +148,11 @@ library(corrplot)
 library(GGally)
 library(pROC)
 library(plotROC)
+library(lattice)
 # for machine learning
 library(caret)
 library(mlbench)
+library(e1071)
 ```
 
 Load data:
@@ -499,7 +505,6 @@ eval_classifier(svm_Linear_bc,x_test = x_test, y_test = y_test)
 # Support Vector Machine with e1071, linear kernel to plot
 
 ```{r LinearSVMAgainToPlot}
-library(e1071)
 fulldata <- data.frame("diagnosis" = y_train,x_train)
 
 #train the svm
@@ -554,5 +559,20 @@ y_pred<-predict(my.svm,x_test)
 
 confusionMatrix(y_pred, y_test)
 #note this result is the same
+```
+
+# Compare them all
+
+```{r}
+allResamples <- resamples(list("k-Nearest Neighbours" = knn_model, 
+                               "Naive Bayes" = nb_model, 
+                               "Regularised Logit" = regLogistic_model,
+                               "Boosted Logit" = logitb_model,
+                               "Decision Tree" = tree_model,
+                               "Random Forest" = rf_model,
+                               "Linear Support Vector Machine" = svm_Linear_bc
+                               ))
+
+bwplot(allResamples)
 ```
 
