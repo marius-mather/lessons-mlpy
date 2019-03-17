@@ -1,0 +1,64 @@
+---
+title: "Gradient boosting."
+author: "Darya Vanichkina"
+keypoints:
+- FIXME
+objectives:
+- FIXME
+questions:
+- FIXME
+source: Rmd
+start: 0
+teaching: 30
+exercises: 0
+---
+
+
+
+```{r loadLibraries}
+library(tidyverse)
+library(caret)
+library(tidymodels)
+library(AmesHousing)
+```
+
+```{r getData, echo = F}
+ameshousing <- 
+  AmesHousing::make_ames() 
+# remove 5 observations
+ameshousingFilt <- 
+  ameshousing %>% 
+  filter(Gr_Liv_Area <= 4000)
+set.seed(42) # so we all get the same results
+ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
+ameshousingFiltTrain <- training(ames_split)
+ameshousingFiltTest <- testing(ames_split)
+engineer_features_allames <-
+  recipe(Sale_Price ~ ., data = ameshousingFiltTrain) %>%
+  step_log(Sale_Price) %>% # log(Sale_Price)
+  step_other(all_nominal(), threshold = 0.05) %>%
+  step_nzv(all_nominal()) %>% # removes variables that are highly sparse or unbalanced
+  step_integer(matches("Qual|Cond|QC|Qu")) %>%
+  step_center(all_numeric(), -all_outcomes()) %>%
+  step_scale(all_numeric(), -all_outcomes()) %>%
+  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE)
+# Train a Data Recipe
+engineer_features_allames_prep <- prep(engineer_features_allames, training = ameshousingFiltTrain, verbose = TRUE)
+# get the transformed training dataset
+ameshousingFiltTrain_engineered <- juice(engineer_features_allames_prep)
+# apply the same transformation onto the test set (with the TRAINING parameters)
+ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data = ameshousingFiltTest)
+
+# use caret to specify cross-validation
+ames_resamplingCV <- trainControl(
+  method = "repeatedcv", 
+  number = 10, #  k = 10
+  repeats = 5, # repeat 5 times,
+  savePredictions = "final"
+  )
+```
+
+```{r gridDefine}
+param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
+
+```

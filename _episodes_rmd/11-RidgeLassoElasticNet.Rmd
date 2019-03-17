@@ -17,47 +17,57 @@ exercises: 0
 
 
 ```{r loadLibraries}
-
 library(tidyverse)
 library(caret)
 library(tidymodels)
 library(AmesHousing)
+old <- theme_set(theme_minimal())
+rm(old)
 ```
 
-```{r getData, echo = F}
-ameshousing <- 
-  AmesHousing::make_ames() %>% 
-  filter(Gr_Liv_Area <= 4000)
+```{r getData}
 
-set.seed(42) # so we all get the same results
-ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
-ameshousingFiltTrain <- training(ames_split)
-ameshousingFiltTest <- testing(ames_split)
+ameshousingFiltTrain <- readRDS("models/ameshousingFiltTrain.Rds")
+ameshousingFiltTest <- readRDS("models/ameshousingFiltTest.Rds")
+ameshousingFiltTrain_engineered <- readRDS("models/ameshousingFiltTrain_engineered.Rds")
+ameshousingFiltTest_engineered <-readRDS("models/ameshousingFiltTest_engineered.Rds")
+ames_resamplingCV <- readRDS("models/ames_resamplingCV.Rds")
+
+# ames_lm_all <- readRDS("models/ames_lm_all.Rds")
+# ames_mars <- readRDS("models/ames_mars.Rds")
+
 ```
+
+
+
+
 
 ```{r gridDefine}
-param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
-
+param_search <- expand.grid(ncomp = seq(2, 
+                                        dim(ameshousingFiltTest_engineered)[2] - 1,
+                                        length.out = 20))
 ```
 
 
 
 ## Regularised Regression. 
-
 ### Ridge (alpha = 0 )
 
 ```{r Ridge, warning=FALSE}
-lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_ridge <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
+# lambda_search  <- expand.grid( alpha = 0, lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_ridge <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_ridge, "models/ames_ridge.Rds")
+
+ames_ridge <- readRDS("models/ames_ridge.Rds")
 
 # best model
 ames_ridge$results %>%
@@ -74,17 +84,20 @@ plot(ames_ridge)
 
 
 ```{r Lasso, warning=FALSE}
-lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_lasso <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
+# lambda_search  <- expand.grid( alpha = 1, lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_lasso <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_lasso, "models/ames_lasso.Rds")
+
+ames_lasso <- readRDS("models/ames_lasso.Rds")
 
 # best model
 ames_lasso$results %>%
@@ -102,17 +115,20 @@ plot(ames_lasso)
 
 
 ```{r EN, warning=F}
-lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
-set.seed(42)
-ames_en <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain,
-  preProcess = c("zv", "center", "scale"),
-  trControl = cv,
-  method = "glmnet", 
-  tuneGrid = lambda_search,
-  metric = "RMSE"
-  )
+# lambda_search  <- expand.grid( alpha = seq(0,1,0.2), lambda = c(0.1,1, 10, 100, 1000, 10000))
+# set.seed(42)
+# ames_en <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered,
+#   preProcess = c("zv", "center", "scale"),
+#   trControl = ames_resamplingCV,
+#   method = "glmnet", 
+#   tuneGrid = lambda_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_en, "models/ames_en.Rds")
+
+ames_en <- readRDS("models/ames_en.Rds")
 
 # best model
 ames_en$results %>%
@@ -136,14 +152,34 @@ plot(ames_en)
 >
 > > ## Solution
 > > 
-> > ~~~
-> > 175 +/- 5
-> > 
-> > ~~~
-> > 
-> > {: .output}
-> {: .solution}
+> >
+> 
 {: .challenge}
+
+
+
+## Principle components regression
+
+```{r PCR, cache = TRUE}
+set.seed(42)
+ames_pcr <- train(
+  Sale_Price ~ .,
+  data = ameshousingFiltTrain_engineered,
+  trControl = ames_resamplingCV,
+  method = "pcr",
+  tuneGrid = param_search,
+  metric = "RMSE"
+  )
+saveRDS(ames_pcr, "models/ames_pcr.Rds")
+
+ames_pcr <- readRDS("models/ames_pcr.Rds")
+
+# model with lowest RMSE
+ames_pcr$bestTune
+ames_pcr$results %>%
+  filter(ncomp == as.numeric(ames_pcr$bestTune))
+
+```
 
 
 
@@ -151,15 +187,18 @@ plot(ames_en)
 ## Partial Least Squares Regression.
 
 ```{r PLS, cache = TRUE}
-set.seed(42)
-ames_plsr <- train(
-  Sale_Price ~ ., 
-  data = ameshousingFiltTrain_engineered, 
-  trControl = cv,
-  method = "pls",
-  tuneGrid = param_search,
-  metric = "RMSE"
-  )
+# set.seed(42)
+# ames_plsr <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered, 
+#   trControl = ames_resamplingCV,
+#   method = "pls",
+#   tuneGrid = param_search,
+#   metric = "RMSE"
+#   )
+# saveRDS(ames_en, "models/ames_en.Rds")
+
+ames_en <- readRDS("models/ames_en.Rds")
 
 # model with lowest RMSE
 ames_plsr$bestTune
@@ -171,64 +210,59 @@ ames_plsr$results %>%
 
 
 
+## MARS
+```{r mars, cache=TRUE}
+# grid_search <- expand.grid(
+#   nprune = seq(2, 80, length.out = 10) %>% floor(),
+#   degree = 1:3
+# )
+# # perform resampling
+# set.seed(42)
+# ames_mars <- train(
+#   Sale_Price ~ ., 
+#   data = ameshousingFiltTrain_engineered, 
+#   trControl = ames_resamplingCV,
+#   method = "earth",
+#   tuneGrid = grid_search,
+#   metric = "RMSE"
+#   )
+#saveRDS(ames_mars, "data/ames_mars.Rds")
 
-```{r}
+ames_mars <- readRDS("models/ames_mars.Rds")
+
+# best model
+ames_mars$results %>%
+  filter(
+    nprune == ames_mars$bestTune$nprune,
+    degree == ames_mars$bestTune$degree
+    )
+```
+
+
+
+
+```{r allresampes}
+ames_lm_all <- readRDS("models/ames_lm_all.Rds")
+
 allResamples <- resamples(list(
                                "Ridge" = ames_ridge,
                                "Lasso" = ames_lasso,
                                "EN" = ames_en,
                                "PLSR" = ames_plsr, 
-                               "PCR" = ames_pcr
+                               "PCR" = ames_pcr,
+                               "MARS" = ames_mars,
+                               "LM all" = ames_lm_all
                                ))
 bwplot(allResamples)
 parallelplot(allResamples)
 
 parallelplot(allResamples , metric = "Rsquared")
 parallelplot(allResamples , metric = "RMSE")
+
+summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column()  %>% arrange(Median)
+
 ```
 
 
 
-
-
-```{r KNN}
-# 1. stratified sampling with the rsample package
-set.seed(123)
-split  <- initial_split(ames, prop = 0.7, strata = "Sale_Price")
-ames_train  <- training(split)
-ames_test   <- testing(split)
-# 2. create a resampling method
-cv <- trainControl(
-  method = "repeatedcv", 
-  number = 10, 
-  repeats = 5
-  )
-# 3. create a hyperparameter grid search
-hyper_grid <- expand.grid(k = seq(2, 26, by = 2))
-# 4. execute grid search with knn model
-#    use RMSE as preferred metric
-knn_fit <- train(
-  Sale_Price ~ ., 
-  data = ames_train, 
-  method = "knn", 
-  trControl = cv, 
-  tuneGrid = hyper_grid,
-  metric = "RMSE"
-  )
-# 5. evaluate results
-# print model results
-knn_fit
-## k-Nearest Neighbors 
-## 
-## 2054 samples
-##   80 predictor
-## 
-## No pre-processing
-## Resampling: Cross-Validated (10 fold, repeated 5 times) 
-## Summary of sample sizes: 1848, 1850, 1848, 1848, 1848, 1848, ... 
-## Resampling results across tuning parameters:
-## 
-##   k   RMSE      Rsquared   MAE     
-##    2  46100.84  0.6618945  30205.06
-```
 
