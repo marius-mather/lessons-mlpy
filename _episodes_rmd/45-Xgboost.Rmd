@@ -22,43 +22,115 @@ library(tidymodels)
 library(AmesHousing)
 ```
 
-```{r getData, echo = F}
-ameshousing <- 
-  AmesHousing::make_ames() 
-# remove 5 observations
-ameshousingFilt <- 
-  ameshousing %>% 
-  filter(Gr_Liv_Area <= 4000)
-set.seed(42) # so we all get the same results
-ames_split <- initial_split(ameshousingFilt, prop = 0.7, strata = "Sale_Price")
-ameshousingFiltTrain <- training(ames_split)
-ameshousingFiltTest <- testing(ames_split)
-engineer_features_allames <-
-  recipe(Sale_Price ~ ., data = ameshousingFiltTrain) %>%
-  step_log(Sale_Price) %>% # log(Sale_Price)
-  step_other(all_nominal(), threshold = 0.05) %>%
-  step_nzv(all_nominal()) %>% # removes variables that are highly sparse or unbalanced
-  step_integer(matches("Qual|Cond|QC|Qu")) %>%
-  step_center(all_numeric(), -all_outcomes()) %>%
-  step_scale(all_numeric(), -all_outcomes()) %>%
-  step_dummy(all_nominal(), -all_outcomes(), one_hot = TRUE)
-# Train a Data Recipe
-engineer_features_allames_prep <- prep(engineer_features_allames, training = ameshousingFiltTrain, verbose = TRUE)
-# get the transformed training dataset
-ameshousingFiltTrain_engineered <- juice(engineer_features_allames_prep)
-# apply the same transformation onto the test set (with the TRAINING parameters)
-ameshousingFiltTest_engineered <- bake(engineer_features_allames_prep, new_data = ameshousingFiltTest)
+```{r getData}
+ameshousingFiltTrain <- readRDS("models/ameshousingFiltTrain.Rds")
+ameshousingFiltTest <- readRDS("models/ameshousingFiltTest.Rds")
 
-# use caret to specify cross-validation
-ames_resamplingCV <- trainControl(
-  method = "repeatedcv", 
-  number = 10, #  k = 10
-  repeats = 5, # repeat 5 times,
-  savePredictions = "final"
+ameshousingFiltTrain_engineered <- readRDS("models/ameshousingFiltTrain_engineered.Rds")
+ameshousingFiltTest_engineered <-readRDS("models/ameshousingFiltTest_engineered.Rds")
+
+ames_resamplingCV <- readRDS("models/ames_resamplingCV.Rds")
+
+# ames_lm_all <- readRDS("models/ames_lm_all.Rds")
+ames_mars <- readRDS("models/ames_mars.Rds")
+# predict(ames_mars, newdata = ameshousingFiltTest_engineered)
+
+```
+
+
+
+
+## Gradient boosting
+```{r optimisation}
+library(gbm)
+
+hyper_grid <- expand.grid(
+  shrinkage = c(.01, .1, .3),
+  interaction.depth = c(1, 3, 5),
+  n.minobsinnode = c(5, 10, 15),
+  bag.fraction = c(.65, .8, 1), 
+  optimal_trees = 0,              
+  min_RMSE = 0                   
+)
+
+# randomize data
+random_index <- sample(1:nrow(ameshousingFiltTrain), nrow(ameshousingFiltTrain))
+random_ames_train <- ameshousingFiltTrain[random_index, ]
+random_ames_train <- random_ames_train %>% select(-Utilities)
+
+
+
+gbm_optimise <- function(hyper_grid){
+for(i in 1:nrow(hyper_grid)) {
+  
+  # reproducibility
+  set.seed(42)
+  
+  # train model
+  gbm.tune <- gbm(
+    formula = Sale_Price ~ .,
+    distribution = "gaussian",
+    data = random_ames_train,
+    n.trees = 5000,
+    interaction.depth = hyper_grid$interaction.depth[i],
+    shrinkage = hyper_grid$shrinkage[i],
+    n.minobsinnode = hyper_grid$n.minobsinnode[i],
+    bag.fraction = hyper_grid$bag.fraction[i],
+    train.fraction = .75,
+    n.cores = NULL, # will use all cores by default
+    verbose = FALSE
   )
+  
+  # add min training error and trees to grid
+  hyper_grid$optimal_trees[i] <- which.min(gbm.tune$valid.error)
+  hyper_grid$min_RMSE[i] <- sqrt(min(gbm.tune$valid.error))
+}
+return(hyper_grid)
+}
+
+# saveRDS(hyper_grid, "models/gbm_hyper_grid1.Rds")
+hyper_grid1 <- read_rds("models/gbm_hyper_grid1.Rds")
+
+hyper_grid2 <- expand.grid(
+  shrinkage = c(.01, .05, .1),
+  interaction.depth = c(3, 5, 7),
+  n.minobsinnode = c(5, 7, 10),
+  bag.fraction = c(.65, .8, 1), 
+  optimal_trees = 0,             
+  min_RMSE = 0                  
+)
+
+#hyper_grid2 <- gbm_optimise(hyper_grid2)
+saveRDS(hyper_grid2, "models/gbm_hyper_grid2.Rds")
+hyper_grid2 <- read_rds("models/gbm_hyper_grid2.Rds")
+
+hyper_grid2 %>%
+  dplyr::arrange(min_RMSE) %>%
+  head(10)
 ```
 
-```{r gridDefine}
-param_search <- expand.grid(ncomp = seq(2, 219, length.out = 20))
 
+## Train final model
+
+```{r optimalGBM}
+set.seed(42)
+# train GBM model
+ames_gbm <- gbm(
+  formula = Sale_Price ~ .,
+  distribution = "gaussian",
+  data = ameshousingFiltTrain,
+  n.trees = 483,
+  interaction.depth = 5,
+  shrinkage = 0.1,
+  n.minobsinnode = 5,
+  bag.fraction = .65, 
+  train.fraction = 1,
+  n.cores = NULL, # will use all cores by default
+  verbose = FALSE
+  )  
+
+saveRDS(hyper_grid2, "models/gbm_hyper_grid2.Rds")
+hyper_grid2 <- read_rds("models/gbm_hyper_grid2.Rds")
 ```
+
+

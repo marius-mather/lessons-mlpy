@@ -33,8 +33,6 @@ ameshousingFiltTrain_engineered <- readRDS("models/ameshousingFiltTrain_engineer
 ameshousingFiltTest_engineered <-readRDS("models/ameshousingFiltTest_engineered.Rds")
 ames_resamplingCV <- readRDS("models/ames_resamplingCV.Rds")
 
-# ames_lm_all <- readRDS("models/ames_lm_all.Rds")
-# ames_mars <- readRDS("models/ames_mars.Rds")
 
 ```
 
