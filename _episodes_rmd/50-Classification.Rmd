@@ -11,6 +11,12 @@ start: 0
 teaching: 30
 exercises: 0
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      message=F,
+                      warning=F,
+                      cache=T)
+```
 
 # What is a classifier?
 
@@ -182,7 +188,7 @@ ggplot(wdbc,
 ```
 
 If we wanted to look at all possible scatterplot pairs we would do something like:
-```{r}
+```{r, message=F}
 ggpairs(wdbc, 
         columns = 2:10, 
         mapping = aes(color = diagnosis))
@@ -226,50 +232,11 @@ dim(training)
 dim(testing)
 ```
 
-```{r libraries4}
-libr2ary(caret)
-library(corrplot)
-library(data.table)
-library(ggplot2)
-library(tidyverse)
-```
 
-# Wisconsin Breast Cancer Dataset
-
-![An example of a Fine Needle Aspiration Biopsy](742_FNA1.jpg)
-
-Features are computed from a digitized image of a fine needle aspirate (FNA) of a breast mass. They describe characteristics of the cell nuclei present in the image. 
-
-## Attribute Information:
-
-1) ID number
-2) Diagnosis (M = malignant, B = benign)
-3-32)
-
-Ten real-valued features are computed for each cell nucleus, each has 
-- a *mean* across cells 
-- a *standard deviation* across cells and 
-- the *worst* value across cells:
-
-a) radius (mean of distances from center to points on the perimeter)
-b) texture (standard deviation of gray-scale values)
-c) perimeter
-d) area
-e) smoothness (local variation in radius lengths)
-f) compactness (perimeter^2 / area - 1.0)
-g) concavity (severity of concave portions of the contour)
-h) concave points (number of concave portions of the contour)
-i) symmetry
-j) fractal dimension ("coastline approximation" - 1)
-
-```{r loadData}
-wdbc2n<-fread(here::here("data/breast-cancer-wisconsin.csv"))
-wdbc<-copy(wdbcn)
-names(wdbc)
 Create respose and feature data in test and train sets
+
 ```{r}
 # create response and feature data
-
 
 features <- setdiff(names(training), c("diagnosis","id")) #makes character vector of column names except these two
 
@@ -295,7 +262,7 @@ train_control <- trainControl(
 # Let's classify
 
 ## Naive Bayes Classifier
-```{r, warning=F}
+```{r, warning=F, message=F}
 # train Naive Bayes Classifier model
 nb_model <- train(
   x = x_train,
@@ -392,10 +359,10 @@ ggplot(rf_model$pred[selectedIndices, ],
   scale_x_continuous(expand=c(0.005,0.005))+
   scale_y_continuous(expand=c(0.005,0.005))
 
-confus#Test AUC:
+#Test AUC:
 auc(y_test, y_pred_prob_rf$B)
 
 #confusion matrix
-ionMatrix(data = y_pred_rf , y_test )
+confusionMatrix(data = y_pred_rf , y_test )
 ```
 
