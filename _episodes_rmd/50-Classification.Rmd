@@ -29,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE,
 
 A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
-![A classifier for cats and not cats.](./fig/CatNotCat.jpg)
+![A classifier for cats and not cats.](https://informatics.sydney.edu.au/images/training/training_images/CatNotCat.jpg)
 
 You can have classifiers for anything you can have a yes/no answer to, e.g.
 
@@ -50,7 +50,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](./fig/CatConfusion.jpg)
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](https://informatics.sydney.edu.au/images/training/training_images/CatConfusion.jpg)
 
 ### Confusion Matrix
 
@@ -101,7 +101,7 @@ A good classifier will have high precision and high specificity, minimizing both
 
 To capture this balance, we often use a Reciever Operator Characteristic (ROC) curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis, for all possible trade-offs. A line that is diagonal from the lower left corner to the upper right corner represents a random guess at labelling each example. The higher the line is in the upper left-hand corner, the better the classifier in general. AUC computes the area under this curve. For a perfect classifier, AUC = 1, for a random guess, AUC=0.5. Objective: maximize.
 
-![A Reciever Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](./fig/CatArea.jpg)
+![A Reciever Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](https://informatics.sydney.edu.au/images/training/training_images/CatArea.jpg)
 
 
 
@@ -109,7 +109,7 @@ To capture this balance, we often use a Reciever Operator Characteristic (ROC) c
 
 Today we're going to be classifying patient's biopsy to see whether their breast tumor is malignant or benign. First, a fine needle aspirate (FNA) of a breast mass is taken. Basically they stick a needle in you and take a chunk out then put it under the microscope. It looks like this:
 
-![An example of a Fine Needle Aspiration Biopsy](./fig/742_FNA1.jpg)
+![An example of a Fine Needle Aspiration Biopsy](https://informatics.sydney.edu.au/images/training/training_images/742_FNA1.jpg)
 
 Features are computed from the digitized image, which describe the characteristics of the cell nuclei present in the image.
 
@@ -333,7 +333,7 @@ eval_classifier<-function(trained_model, x_test, y_test){
 
 This takes the nearest k things and and says what is the majority vote? E.g. in the example below we look at the seven nearest neighbours, 4 of which are cats so we say that the new example is probably a cat as well.
 
-![A way to classify a new example as a cat or not...take the average of the nearest k=7 examples. It's a cat!](./fig/CatKNN.jpg)
+![A way to classify a new example as a cat or not...take the average of the nearest k=7 examples. It's a cat!](https://informatics.sydney.edu.au/images/training/training_images/CatKNN.jpg)
 
 
 ```{r KNN, warning=F, message=F}
@@ -418,7 +418,7 @@ This is like getting everyone to guess  the number of jellybeans in the jar. You
 
 The best example I have seen is [pigeon boost](https://www.scientificamerican.com/article/using-pigeons-to-diagnose-cancer/)
 
-![A pigeon gainfully employed classifying breast tumor biopsies.](./fig/pigeon.jpg)
+![A pigeon gainfully employed classifying breast tumor biopsies.](https://informatics.sydney.edu.au/images/training/training_images/pigeon.jpg)
 
 Pigeons suck at identifying cancerous tissue but miraculously they are better than chance. So if you get a whole flock of pigeons and average the result you get a decent classifier from birds. 🐥
 
@@ -487,7 +487,7 @@ eval_classifier(rf_model, x_test = x_test, y_test = y_test)
 
 A support vector machine tries to find the data points right on the boudary between the two classes (the "support vectors") and then uses them to define a maximum margin boundary.
 
-![A linear Support Vector Machine for Cats](./fig/CatSVM.jpg)
+![A linear Support Vector Machine for Cats](https://informatics.sydney.edu.au/images/training/training_images/CatSVM.jpg)
 
 
 # Support Vector Machine with caret and e1071
