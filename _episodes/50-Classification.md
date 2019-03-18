@@ -51,25 +51,25 @@ When applying classification models, we often use a confusion matrix to evaluate
 
 ### Some common metrics
 
-#### Accuracy: 
-How often does the classifier label examples correctly? Objective: maximize. Example: 
+#### Accuracy:
+How often does the classifier label examples correctly? Objective: maximize. Example:
 $$\frac{TP+TN}{TP+TN+FP+FN} = \frac{\text{Correctly labelled examples}}{\text{All examples}}=\frac{31+52}{31+52+10+7}=83
 \%$$
 Accuracy is the opposite of the misclassification rate. So,
 $$\text{Misclassification rate} = 1 - \text{Accuracy} = \frac{\text{Incorrectly labelled examples}}{\text{All examples}} $$
 
-#### Precision: 
+#### Precision:
 What fraction of things labelled as a cat were actually cats? Objective: maximize. Example:
 
 $$\frac{TP}{TP+FP} = \frac{\text{Correctly labelled cats}}{\text{All things labelled as cats}}=\frac{31}{31+10}=76\%$$
 
-#### Sensitivity / Recall: 
-How often does the classifier label a cat as a cat? Objective: maximize. Example: 
+#### Sensitivity / Recall:
+How often does the classifier label a cat as a cat? Objective: maximize. Example:
 
 $$\frac{TP}{TP+FN} = \frac{\text{Correctly labelled cats}}{\text{All true cats}}=\frac{31}{31+7}=81\%$$
 
-#### Specificity: 
-How often does it label a not-cat as a not-cat? Objective: maximize. Example: 
+#### Specificity:
+How often does it label a not-cat as a not-cat? Objective: maximize. Example:
 
 $$\frac{TN}{TN+FP} = \frac{\text{Correctly labelled not-cats}}{\text{All true not-cats}}=\frac{52}{52+10}=84\%$$
 
@@ -86,7 +86,7 @@ $$F_1 = 2\cdot\left(\frac{1}{\frac{1}{81\%}+\frac{1}{83\%}}\right) = 82\%$$
 Define a loss function $L_i = 1$ if the $i$th example is classified incorrectly and $L_i = 0$ if it is classified correctly. If there are $N$ examples in total then the mean-square error is
 $$\text{MSE} = \frac{1}{N}\sum_i L_i = \frac{\text{Incorrectly labelled examples}}{\text{All examples}}=\text{Misclassification Rate}$$
 
-Which is actually just the misclassification rate above. 
+Which is actually just the misclassification rate above.
 
 #### AUC: Area under the curve
 
@@ -112,9 +112,9 @@ Features are computed from the digitized image, which describe the characteristi
 2) Diagnosis (M = malignant, B = benign)
 3-32)
 
-Ten real-valued features are computed for each cell nucleus, each has 
-- a *mean* across cells 
-- a *standard deviation* across cells and 
+Ten real-valued features are computed for each cell nucleus, each has
+- a *mean* across cells
+- a *standard deviation* across cells and
 - the *worst* value across cells:
 
 a) radius (mean of distances from center to points on the perimeter)
@@ -169,7 +169,7 @@ names(wdbcn)
  [5] "perimeter_mean"          "area_mean"              
  [7] "smoothness_mean"         "compactness_mean"       
  [9] "concavity_mean"          "concave.points_mean"    
-[11] "symmetry_mean"           "fractal_dimension_mean" 
+[11] "symmetry_mean"           "fractal_dimension_mean"
 [13] "radius_se"               "texture_se"             
 [15] "perimeter_se"            "area_se"                
 [17] "smoothness_se"           "compactness_se"         
@@ -226,7 +226,7 @@ summary(wdbc)
  Mean   : 30371831             Mean   :14.127   Mean   :19.29  
  3rd Qu.:  8813129             3rd Qu.:15.780   3rd Qu.:21.80  
  Max.   :911320502             Max.   :28.110   Max.   :39.28  
- perimeter_mean     area_mean      smoothness_mean   compactness_mean 
+ perimeter_mean     area_mean      smoothness_mean   compactness_mean
  Min.   : 43.79   Min.   : 143.5   Min.   :0.05263   Min.   :0.01938  
  1st Qu.: 75.17   1st Qu.: 420.3   1st Qu.:0.08637   1st Qu.:0.06492  
  Median : 86.24   Median : 551.1   Median :0.09587   Median :0.09263  
@@ -305,8 +305,8 @@ ggplot(wdbc,
 If we wanted to look at all possible scatterplot pairs we would do something like:
 
 ~~~
-ggpairs(wdbc, 
-        columns = 2:10, 
+ggpairs(wdbc,
+        columns = 2:10,
         mapping = aes(color = diagnosis))
 ~~~
 {: .language-r}
@@ -337,7 +337,7 @@ To create a classifier for predicting whether a breast cancer patient's tumor is
 
 ### Train Test Split
 
-We're going to split our data into 70% training and 30% testing. 
+We're going to split our data into 70% training and 30% testing.
 
 
 ~~~
@@ -401,10 +401,10 @@ Set up caret for 10-fold Cross Validation repeated 3 times
 ~~~
 # set up 10-fold cross validation procedure
 train_control <- trainControl(
-  method = "cv", 
+  method = "cv",
   number = 10,
   repeats = 3,
-  summaryFunction = twoClassSummary, 
+  summaryFunction = twoClassSummary,
   classProbs = T,
   savePredictions = T
 )
@@ -418,20 +418,20 @@ Make a function to evaluate our models
 
 ~~~
 eval_classifier<-function(trained_model, x_test, y_test){
-  
+
   #make predictions and probailities on the test set
   y_pred<-predict(trained_model,x_test,type = "raw")
   y_pred_prob<-predict(trained_model,x_test,type = "prob")
-  
+
   #spit out the confusion matrix on the test set
   print(confusionMatrix(data = y_pred , y_test ))
-  
-  #make test predictions data frame 
-  tdf<-tibble(y_pred, 
-              B=y_pred_prob$B, 
-              M=y_pred_prob$M, 
+
+  #make test predictions data frame
+  tdf<-tibble(y_pred,
+              B=y_pred_prob$B,
+              M=y_pred_prob$M,
               y_test=y_test)
-  
+
   # Select a parameter setting if random forest
   if (trained_model$method=="rf"){
     selectedIndices <- trained_model$pred$mtry == 2
@@ -439,22 +439,22 @@ eval_classifier<-function(trained_model, x_test, y_test){
   } else {
     selected_pred <- trained_model$pred
   }
-  
-  
+
+
   # Get the test set AUC:
   test_auc=auc(y_test, y_pred_prob$B)
-  
+
   #plot train ROC in red
-  p<-ggplot(selected_pred, 
-            aes(m = M, d = obs)) + 
-    geom_roc(hjust = -0.4, 
+  p<-ggplot(selected_pred,
+            aes(m = M, d = obs)) +
+    geom_roc(hjust = -0.4,
              vjust = 1.5,
              color = 'red') +
     #add test ROC in blue
     geom_roc(hjust = -0.4,
-             vjust = 1.5, 
-             color = 'blue', 
-             data = tdf, 
+             vjust = 1.5,
+             color = 'blue',
+             data = tdf,
              mapping = aes(m = M, d = y_test)) +
     #make it look prettier
     theme_classic()+
@@ -462,9 +462,9 @@ eval_classifier<-function(trained_model, x_test, y_test){
     scale_x_continuous(expand=c(0.01,0.01))+
     scale_y_continuous(expand=c(0.01,0.01))+
     labs(title = paste0("Test AUC = ", format(round(test_auc,3), nsmall = 3),", train = red, test = blue"))
-  
+
   print(p)
-  
+
   return(invisible(tdf))
 }
 ~~~
@@ -505,15 +505,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 102  12
          M   5  51
-                                          
+
                Accuracy : 0.9             
                  95% CI : (0.8447, 0.9407)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : 1.01e-15        
-                                          
+
                   Kappa : 0.7806          
  Mcnemar's Test P-Value : 0.1456          
-                                          
+
             Sensitivity : 0.9533          
             Specificity : 0.8095          
          Pos Pred Value : 0.8947          
@@ -522,9 +522,9 @@ Prediction   B   M
          Detection Rate : 0.6000          
    Detection Prevalence : 0.6706          
       Balanced Accuracy : 0.8814          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -557,10 +557,10 @@ nb_model <- train(
   method = "nb",
   trControl = train_control
 )
-# 
+#
 # #predict results on test set
 # y_pred_nb<-predict(nb_model, newdata = x_test)
-# 
+#
 # # results on test set
 # confusionMatrix(data = y_pred_nb , y_test )
 
@@ -580,15 +580,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 101   7
          M   6  56
-                                          
+
                Accuracy : 0.9235          
                  95% CI : (0.8728, 0.9587)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.8355          
  Mcnemar's Test P-Value : 1               
-                                          
+
             Sensitivity : 0.9439          
             Specificity : 0.8889          
          Pos Pred Value : 0.9352          
@@ -597,9 +597,9 @@ Prediction   B   M
          Detection Rate : 0.5941          
    Detection Prevalence : 0.6353          
       Balanced Accuracy : 0.9164          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -607,7 +607,7 @@ Prediction   B   M
 
 ## Regularized Logistic  Classifier
 
-This fits a logistic regression to the probability of recieving a class label of 1 or 0. Regularisation (hopefully) stops it from overfitting. 
+This fits a logistic regression to the probability of recieving a class label of 1 or 0. Regularisation (hopefully) stops it from overfitting.
 
 
 
@@ -706,15 +706,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 101   6
          M   6  57
-                                         
+
                Accuracy : 0.9294         
                  95% CI : (0.8799, 0.963)
     No Information Rate : 0.6294         
     P-Value [Acc > NIR] : <2e-16         
-                                         
+
                   Kappa : 0.8487         
  Mcnemar's Test P-Value : 1              
-                                         
+
             Sensitivity : 0.9439         
             Specificity : 0.9048         
          Pos Pred Value : 0.9439         
@@ -723,9 +723,9 @@ Prediction   B   M
          Detection Rate : 0.5941         
    Detection Prevalence : 0.6294         
       Balanced Accuracy : 0.9243         
-                                         
+
        'Positive' Class : B              
-                                         
+
 ~~~
 {: .output}
 
@@ -739,8 +739,8 @@ A decision tree 🌳 picks the best split in the data greedily for each feature 
 ~~~
 tree_model <- train(x = x_train,
                   y = y_train,
-                  method="rpart", 
-                  preProc=c("center", "scale"), 
+                  method="rpart",
+                  preProc=c("center", "scale"),
                   trControl=train_control)
 
 #eval tree
@@ -757,15 +757,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 101   9
          M   6  54
-                                          
+
                Accuracy : 0.9118          
                  95% CI : (0.8586, 0.9498)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.809           
  Mcnemar's Test P-Value : 0.6056          
-                                          
+
             Sensitivity : 0.9439          
             Specificity : 0.8571          
          Pos Pred Value : 0.9182          
@@ -774,9 +774,9 @@ Prediction   B   M
          Detection Rate : 0.5941          
    Detection Prevalence : 0.6471          
       Balanced Accuracy : 0.9005          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -798,7 +798,7 @@ Prediction   B   M
 
 A random decision tree is where you make a decision tree but only train it on either (a) a random sample of the available data or (b) a random sample of the available features or (c) both.
 
-A random forest is a whole bunch of these averaged together. 
+A random forest is a whole bunch of these averaged together.
 
 Turns out these do pretty good and are used all over the place. But because they're the average of so many different models it's hard to get an understanding about it. It's basically a black box that predicts well.
 
@@ -806,8 +806,8 @@ Turns out these do pretty good and are used all over the place. But because they
 ~~~
 rf_model <- train(x = x_train,
                   y = y_train,
-                  method="rf", 
-                  preProc=c("center", "scale"), 
+                  method="rf",
+                  preProc=c("center", "scale"),
                   trControl=train_control)
 
 #eval rf
@@ -824,15 +824,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 102   5
          M   5  58
-                                          
+
                Accuracy : 0.9412          
                  95% CI : (0.8945, 0.9714)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.8739          
  Mcnemar's Test P-Value : 1               
-                                          
+
             Sensitivity : 0.9533          
             Specificity : 0.9206          
          Pos Pred Value : 0.9533          
@@ -841,9 +841,9 @@ Prediction   B   M
          Detection Rate : 0.6000          
    Detection Prevalence : 0.6294          
       Balanced Accuracy : 0.9370          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -880,15 +880,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 107   2
          M   0  61
-                                          
+
                Accuracy : 0.9882          
                  95% CI : (0.9581, 0.9986)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.9746          
  Mcnemar's Test P-Value : 0.4795          
-                                          
+
             Sensitivity : 1.0000          
             Specificity : 0.9683          
          Pos Pred Value : 0.9817          
@@ -897,9 +897,9 @@ Prediction   B   M
          Detection Rate : 0.6294          
    Detection Prevalence : 0.6412          
       Balanced Accuracy : 0.9841          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -949,15 +949,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 107   2
          M   0  61
-                                          
+
                Accuracy : 0.9882          
                  95% CI : (0.9581, 0.9986)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.9746          
  Mcnemar's Test P-Value : 0.4795          
-                                          
+
             Sensitivity : 1.0000          
             Specificity : 0.9683          
          Pos Pred Value : 0.9817          
@@ -966,9 +966,9 @@ Prediction   B   M
          Detection Rate : 0.6294          
    Detection Prevalence : 0.6412          
       Balanced Accuracy : 0.9841          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -1019,15 +1019,15 @@ Confusion Matrix and Statistics
 Prediction   B   M
          B 104   2
          M   3  61
-                                          
+
                Accuracy : 0.9706          
                  95% CI : (0.9327, 0.9904)
     No Information Rate : 0.6294          
     P-Value [Acc > NIR] : <2e-16          
-                                          
+
                   Kappa : 0.9372          
  Mcnemar's Test P-Value : 1               
-                                          
+
             Sensitivity : 0.9720          
             Specificity : 0.9683          
          Pos Pred Value : 0.9811          
@@ -1036,9 +1036,9 @@ Prediction   B   M
          Detection Rate : 0.6118          
    Detection Prevalence : 0.6235          
       Balanced Accuracy : 0.9701          
-                                          
+
        'Positive' Class : B               
-                                          
+
 ~~~
 {: .output}
 
@@ -1053,8 +1053,8 @@ Prediction   B   M
 
 
 ~~~
-allResamples <- resamples(list("k-Nearest Neighbours" = knn_model, 
-                               "Naive Bayes" = nb_model, 
+allResamples <- resamples(list("k-Nearest Neighbours" = knn_model,
+                               "Naive Bayes" = nb_model,
                                "Regularised Logit" = regLogistic_model,
                                "Boosted Logit" = logitb_model,
                                "Decision Tree" = tree_model,
