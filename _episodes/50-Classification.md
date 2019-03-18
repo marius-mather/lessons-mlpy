@@ -6,8 +6,7 @@ author: "Gordon McDonald"
 keypoints:
 - Classification attempts to predict the class to which a particular observation belongs
 - If you use caret it's cats all the way down
-objectives:
-- Learn how to build and evaluate classifiers
+objectives: Learn how to build and evaluate classifiers
 questions: How to classify?
 source: Rmd
 start: 0
@@ -23,7 +22,7 @@ exercises: 0
 
 A classifier is some kind of rule / black box / widget that you can feed a new example and it will spit out whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
-![A classifier for cats and not cats.](images/CatNotCat.jpg)
+![A classifier for cats and not cats.](../fig/50-CatNotCat.jpg)
 
 You can have classifiers for anything you can have a yes/no answer to, e.g.
 
@@ -44,7 +43,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](images/CatConfusion.jpg)
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](../fig/50-CatConfusion.jpg)
 
 ### Confusion Matrix
 
@@ -95,7 +94,7 @@ A good classifier will have high precision and high specificity, minimizing both
 
 To capture this balance, we often use a Reciever Operator Characteristic (ROC) curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis, for all possible trade-offs. A line that is diagonal from the lower left corner to the upper right corner represents a random guess at labelling each example. The higher the line is in the upper left-hand corner, the better the classifier in general. AUC computes the area under this curve. For a perfect classifier, AUC = 1, for a random guess, AUC=0.5. Objective: maximize.
 
-![A Reciever Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](images/CatArea.jpg)
+![A Reciever Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](../fig/50-CatArea.jpg)
 
 
 
@@ -103,7 +102,7 @@ To capture this balance, we often use a Reciever Operator Characteristic (ROC) c
 
 Today we're going to be classifying patient's biopsy to see whether their breast tumor is malignant or benign. First, a fine needle aspirate (FNA) of a breast mass is taken. Basically they stick a needle in you and take a chunk out then put it under the microscope. It looks like this:
 
-![An example of a Fine Needle Aspiration Biopsy](images/742_FNA1.jpg)
+![An example of a Fine Needle Aspiration Biopsy](../fig/50-742_FNA1.jpg)
 
 Features are computed from the digitized image, which describe the characteristics of the cell nuclei present in the image.
 
@@ -148,6 +147,7 @@ library(lattice)
 library(caret)
 library(mlbench)
 library(e1071)
+library(LiblineaR)
 ~~~
 {: .language-r}
 
@@ -476,7 +476,7 @@ eval_classifier<-function(trained_model, x_test, y_test){
 
 This takes the nearest k things and and says what is the majority vote? E.g. in the example below we look at the seven nearest neighbours, 4 of which are cats so we say that the new example is probably a cat as well.
 
-![A way to classify a new example as a cat or not...take the average of the nearest k=7 examples. It's a cat!](images/CatKNN.jpg)
+![A way to classify a new example as a cat or not...take the average of the nearest k=7 examples. It's a cat!](../fig/50-CatKNN.jpg)
 
 
 
@@ -619,26 +619,7 @@ regLogistic_model <- train(
   method = "regLogistic",
   trControl = train_control
 )
-~~~
-{: .language-r}
 
-
-
-~~~
-1 package is needed for this model and is not installed. (LiblineaR). Would you like to try to install it now?
-~~~
-{: .output}
-
-
-
-~~~
-Error: Required package is missing
-~~~
-{: .error}
-
-
-
-~~~
 #evaluate
 eval_classifier(trained_model = regLogistic_model,
                 x_test,
@@ -649,23 +630,41 @@ eval_classifier(trained_model = regLogistic_model,
 
 
 ~~~
-Error in predict(trained_model, x_test, type = "raw"): object 'regLogistic_model' not found
+Confusion Matrix and Statistics
+
+          Reference
+Prediction   B   M
+         B 105   4
+         M   2  59
+                                          
+               Accuracy : 0.9647          
+                 95% CI : (0.9248, 0.9869)
+    No Information Rate : 0.6294          
+    P-Value [Acc > NIR] : <2e-16          
+                                          
+                  Kappa : 0.9238          
+ Mcnemar's Test P-Value : 0.6831          
+                                          
+            Sensitivity : 0.9813          
+            Specificity : 0.9365          
+         Pos Pred Value : 0.9633          
+         Neg Pred Value : 0.9672          
+             Prevalence : 0.6294          
+         Detection Rate : 0.6176          
+   Detection Prevalence : 0.6412          
+      Balanced Accuracy : 0.9589          
+                                          
+       'Positive' Class : B               
+                                          
 ~~~
-{: .error}
+{: .output}
 
-
+<img src="../fig/rmd-50-RegLogistic-1.png" title="plot of chunk RegLogistic" alt="plot of chunk RegLogistic" width="612" style="display: block; margin: auto;" />
 
 ~~~
-plot(regLogistic_model)
+# plot(regLogistic_model)
 ~~~
 {: .language-r}
-
-
-
-~~~
-Error in plot(regLogistic_model): object 'regLogistic_model' not found
-~~~
-{: .error}
 
 ## Boosted Logistic Classifier
 
@@ -675,7 +674,7 @@ This is like getting everyone to guess  the number of jellybeans in the jar. You
 
 The best example I have seen is [pigeon boost](https://www.scientificamerican.com/article/using-pigeons-to-diagnose-cancer/)
 
-![A pigeon gainfully employed classifying breast tumor biopsies.](images/pigeon.jpg)
+![A pigeon gainfully employed classifying breast tumor biopsies.](../fig/50-pigeon.jpg)
 
 Pigeons suck at identifying cancerous tissue but miraculously they are better than chance. So if you get a whole flock of pigeons and average the result you get a decent classifier from birds. 🐥
 
@@ -785,14 +784,12 @@ Prediction   B   M
 
 ~~~
 #plot the decision tree
-plot(tree_model$finalModel, uniform=TRUE,
-   main="Classification Tree for Cats",
-   sub="Just joking its actually cancer again")
-text(tree_model$finalModel, use.n=TRUE, all=TRUE, cex=.8)
+# plot(tree_model$finalModel, uniform=TRUE,
+#    main="Classification Tree for Cats",
+#    sub="Just joking its actually cancer again")
+# text(tree_model$finalModel, use.n=TRUE, all=TRUE, cex=.8)
 ~~~
 {: .language-r}
-
-<img src="../fig/rmd-50-DecisionTree-2.png" title="plot of chunk DecisionTree" alt="plot of chunk DecisionTree" width="612" style="display: block; margin: auto;" />
 
 
 
@@ -856,7 +853,7 @@ Prediction   B   M
 
 A support vector machine tries to find the data points right on the boudary between the two classes (the "support vectors") and then uses them to define a maximum margin boundary.
 
-![A linear Support Vector Machine for Cats](images/CatSVM.jpg)
+![A linear Support Vector Machine for Cats](../fig/50-CatSVM.jpg)
 
 
 # Support Vector Machine with caret and e1071
@@ -1002,16 +999,11 @@ my.svm <- svm(diagnosis ~ .,
 cm_train<-colMeans(x_train[,-c("radius_mean","concave.points_worst")])
 
 #plot!
-plot(my.svm,
-     data = fulldata,
-     formula = radius_mean~concave.points_worst,
-     slice = as.list(cm_train))
-~~~
-{: .language-r}
+# plot(my.svm,
+#      data = fulldata,
+#      formula = radius_mean~concave.points_worst,
+#      slice = as.list(cm_train))
 
-<img src="../fig/rmd-50-SVMRadial-1.png" title="plot of chunk SVMRadial" alt="plot of chunk SVMRadial" width="612" style="display: block; margin: auto;" />
-
-~~~
 y_pred<-predict(my.svm,x_test)
 
 confusionMatrix(y_pred, y_test)
@@ -1069,27 +1061,10 @@ allResamples <- resamples(list("k-Nearest Neighbours" = knn_model,
                                "Random Forest" = rf_model,
                                "Linear Support Vector Machine" = svm_Linear_bc
                                ))
+
+bwplot(allResamples, scale = "free")
 ~~~
 {: .language-r}
 
-
-
-~~~
-Error in resamples(list(`k-Nearest Neighbours` = knn_model, `Naive Bayes` = nb_model, : object 'regLogistic_model' not found
-~~~
-{: .error}
-
-
-
-~~~
-bwplot(allResamples)
-~~~
-{: .language-r}
-
-
-
-~~~
-Error in bwplot(allResamples): object 'allResamples' not found
-~~~
-{: .error}
+<img src="../fig/rmd-50-unnamed-chunk-2-1.png" title="plot of chunk unnamed-chunk-2" alt="plot of chunk unnamed-chunk-2" width="612" style="display: block; margin: auto;" />
 

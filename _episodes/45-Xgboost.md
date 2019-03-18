@@ -556,3 +556,79 @@ summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column
 {: .output}
 
 
+
+~~~
+evalPerf <- function(testdata, model){
+ontest <- predict(model, newdata = testdata)
+prediction <-  data.frame(t(data.frame(postResample(testdata$Sale_Price, ontest))))
+prediction$model <- deparse(substitute(model))
+
+return(prediction)
+}
+
+tmp <- evalPerf(testdata = ameshousingFiltTest_engineered, model = ames_lm_all)
+~~~
+{: .language-r}
+
+
+
+~~~
+Warning in predict.lm(modelFit, newdata): prediction from a rank-deficient
+fit may be misleading
+~~~
+{: .error}
+
+
+
+~~~
+for (i in list(ames_ridge, 
+               ames_lasso, 
+               ames_en, 
+               ames_plsr,  
+               ames_pcr, 
+               ames_mars,
+               ames_rf, 
+               ames_knn, 
+               ames_xgb_4caret))
+     {
+       tmp <- rbind(tmp, evalPerf(testdata = ameshousingFiltTest_engineered, model = i))}
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in eval(predvars, data, env): object 'MS_SubClass_One_and_Half_Story_Finished_All_Ages' not found
+~~~
+{: .error}
+
+
+
+~~~
+lapply(list(ames_ridge, 
+               ames_lasso, 
+               ames_en, 
+               ames_plsr,  
+               ames_pcr, 
+               ames_mars,
+               ames_rf, 
+               ames_knn, 
+               ames_xgb_4caret),
+       evalPerf(model = df, testdata = ameshousingFiltTest_engineered))
+~~~
+{: .language-r}
+
+
+
+~~~
+Error in UseMethod("predict"): no applicable method for 'predict' applied to an object of class "function"
+~~~
+{: .error}
+
+
+
+~~~
+#plot(ameshousingFiltTest_engineered$Sale_Price, ames_lm_all_test)
+~~~
+{: .language-r}
+

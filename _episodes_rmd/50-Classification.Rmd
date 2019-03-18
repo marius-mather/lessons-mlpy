@@ -573,6 +573,6 @@ allResamples <- resamples(list("k-Nearest Neighbours" = knn_model,
                                "Linear Support Vector Machine" = svm_Linear_bc
                                ))
 
-bwplot(a# llResamples, scale = "free")
+bwplot(allResamples, scale = "free")
 ```
 
