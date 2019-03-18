@@ -153,6 +153,7 @@ library(lattice)
 library(caret)
 library(mlbench)
 library(e1071)
+library(LiblineaR)
 ```
 
 Load data:
