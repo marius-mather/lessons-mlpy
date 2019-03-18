@@ -263,3 +263,44 @@ summary(allResamples)$statistics$RMSE %>% as.data.frame() %>% rownames_to_column
 ```
 
 
+```{r MoT}
+
+evalPerf <- function(testdata, model){
+ontest <- predict(model, newdata = testdata)
+prediction <-  data.frame(t(data.frame(postResample(testdata$Sale_Price, ontest))))
+prediction$model <- deparse(substitute(model))
+
+return(prediction)
+}
+
+tmp <- evalPerf(testdata = ameshousingFiltTest_engineered, model = ames_lm_all)
+
+for (i in list(ames_ridge, 
+               ames_lasso, 
+               ames_en, 
+               ames_plsr,  
+               ames_pcr, 
+               ames_mars,
+               ames_rf, 
+               ames_knn, 
+               ames_xgb_4caret))
+     {
+       tmp <- rbind(tmp, evalPerf(testdata = ameshousingFiltTest_engineered, model = i))}
+
+lapply(list(ames_ridge, 
+               ames_lasso, 
+               ames_en, 
+               ames_plsr,  
+               ames_pcr, 
+               ames_mars,
+               ames_rf, 
+               ames_knn, 
+               ames_xgb_4caret),
+       evalPerf(model = df, testdata = ameshousingFiltTest_engineered))
+
+
+
+#plot(ameshousingFiltTest_engineered$Sale_Price, ames_lm_all_test)
+
+```
+
