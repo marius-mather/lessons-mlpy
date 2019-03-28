@@ -1,3 +1,3 @@
 # Readme
 
-This is a repository for Sydney Informatics Hub's lesson materials for the "Machine learning using R workshop".
+This is a repository for Sydney Informatics Hub's lesson materials for the "Machine learning using python workshop".
