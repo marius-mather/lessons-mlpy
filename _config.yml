@@ -13,7 +13,7 @@ port: 4100
 carpentry: "si"
 
 # Overall title for pages.
-title: "Machine learning in R"
+title: "Machine learning in python"
 series_name: "Sydney Informatics Hub Workshop"
 
 # What kind of thing is this ("workshop" or "lesson" or "series")?
@@ -30,8 +30,8 @@ kind: "lesson"
 bash: "no"
 git: "no"
 editor: "no"
-python: "no"
-R: "yes"
+python: "yes"
+R: "no"
 sqlite: "no"
 openrefine: "no"
 
@@ -51,7 +51,7 @@ email: "sih.training@sydney.edu.au"
 sih_site: "https://informatics.sydney.edu.au"
 sih_github: "https://github.com/Sydney-Informatics-Hub"
 sih_pages: "https://sydney-informatics-hub.github.io"
-series_home: "https://pages.github.sydney.edu.au/informatics/lessons-mlr/" #edit if you want to point to series landing page
+series_home: "https://pages.github.sydney.edu.au/informatics/lessons-mlpy/" #edit if you want to point to series landing page
 training_home: "https://informatics.sydney.edu.au/training/" # edit if you want to point somewhere else except for SIH
 
 # Carpentries sites
