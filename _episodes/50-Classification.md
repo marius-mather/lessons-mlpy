@@ -456,8 +456,12 @@ Plot mean radius of cell nucleii vs. mean concavity, coloured by diagnosis:
 _ = sns.lmplot('radius_mean','concavity_mean',data=wdbc, hue='diagnosis')
 ```
 
+    /Applications/anaconda3/lib/python3.7/site-packages/scipy/stats/stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
+      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
-![png](../fig/50-Classification_17_0.png)
+
+
+![png](../fig/50-Classification_17_1.png)
 
 
 If we wanted to look at all possible scatterplot pairs we would do something like:
@@ -700,7 +704,7 @@ cf_rlc = LogisticRegression(random_state=74, solver='lbfgs', multi_class='ovr')
 fit_rlc = cf_rlc.fit(features_train, outcome_train)
 ```
 
-    /Users/darya/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:758: ConvergenceWarning: lbfgs failed to converge. Increase the number of iterations.
+    /Applications/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:758: ConvergenceWarning: lbfgs failed to converge. Increase the number of iterations.
       "of iterations.", ConvergenceWarning)
 
 
@@ -852,7 +856,7 @@ cf_svm = svm.LinearSVC()
 fit_svm = cf_svm.fit(features_train, outcome_train)
 ```
 
-    /Users/darya/anaconda3/lib/python3.7/site-packages/sklearn/svm/base.py:931: ConvergenceWarning: Liblinear failed to converge, increase the number of iterations.
+    /Applications/anaconda3/lib/python3.7/site-packages/sklearn/svm/base.py:922: ConvergenceWarning: Liblinear failed to converge, increase the number of iterations.
       "the number of iterations.", ConvergenceWarning)
 
 
@@ -937,43 +941,43 @@ comparison_stats.round(decimals=3)
     <tr>
       <th>k Nearest Neighbours</th>
       <td>0.0818713</td>
-      <td>0.866667</td>
-      <td>0.958333</td>
-      <td>0.969306</td>
+      <td>0.861111</td>
+      <td>0.959596</td>
+      <td>0.966821</td>
     </tr>
     <tr>
       <th>Naive Bayes</th>
-      <td>0.0701754</td>
-      <td>0.893333</td>
-      <td>0.958333</td>
-      <td>0.983472</td>
+      <td>0.0526316</td>
+      <td>0.888889</td>
+      <td>0.989899</td>
+      <td>0.993406</td>
     </tr>
     <tr>
       <th>Regularised Logistic Classifier</th>
-      <td>0.0701754</td>
-      <td>0.906667</td>
-      <td>0.947917</td>
-      <td>0.990278</td>
+      <td>0.0467836</td>
+      <td>0.902778</td>
+      <td>0.989899</td>
+      <td>0.996493</td>
     </tr>
     <tr>
       <th>Decision Tree</th>
-      <td>0.0935673</td>
-      <td>0.853333</td>
-      <td>0.947917</td>
-      <td>0.900625</td>
+      <td>0.0877193</td>
+      <td>0.902778</td>
+      <td>0.919192</td>
+      <td>0.910985</td>
     </tr>
     <tr>
       <th>Random Forest</th>
-      <td>0.0409357</td>
-      <td>0.92</td>
-      <td>0.989583</td>
-      <td>0.986667</td>
+      <td>0.0467836</td>
+      <td>0.902778</td>
+      <td>0.989899</td>
+      <td>0.991582</td>
     </tr>
     <tr>
       <th>Support Vector Machine</th>
-      <td>0.0935673</td>
-      <td>0.8</td>
-      <td>0.989583</td>
+      <td>0.0760234</td>
+      <td>0.902778</td>
+      <td>0.939394</td>
       <td>NaN</td>
     </tr>
   </tbody>

@@ -474,23 +474,23 @@ qsub -v PARAM=45 /home/dvanichkina/scratch_sih/darya/gbm/optimise2.pbs
 
 After all of this finishes running, the optimal parameter values we obtain are:
 ```
-0.9152866034224022 	 {'min_samples_split': 10, 'max_depth': 6, 'subsample': 0.65, 'min_samples_leaf': 5, 'learning_rate': 0.051, 'n_estimators': 285}
+0.918410561940631 	 {'learning_rate': 0.051, 'n_estimators': 280, 'min_samples_split': 35, 'max_depth': 7, 'subsample': 0.8, 'min_samples_leaf': 1}
 ```
 
 Let's fit this model locally:
 
 
 ```python
-param_test = {'n_estimators': [285]}
+param_test = {'n_estimators': [280]}
 
 ames_gbm = GridSearchCV(estimator=GradientBoostingRegressor(
         loss='ls',
         learning_rate=0.051, 
-        min_samples_split=10, 
-        min_samples_leaf=5,
-        max_depth=6, 
+        min_samples_split=35, 
+        min_samples_leaf=1,
+        max_depth=7, 
         max_features='sqrt', 
-        subsample=0.65,   
+        subsample=0.8,   
         random_state=42),
     param_grid=param_test, 
     n_jobs=4, 
@@ -508,8 +508,8 @@ print(ames_gbm.best_params_)
 print(ames_gbm.best_score_)
 ```
 
-    {'n_estimators': 285}
-    0.9150282245306741
+    {'n_estimators': 280}
+    0.9182771422480472
 
 
 ***
@@ -750,7 +750,7 @@ results.round(3)
   <tbody>
     <tr>
       <th>Ames_GBM</th>
-      <td>10468.188</td>
+      <td>8375.174</td>
     </tr>
   </tbody>
 </table>
@@ -770,9 +770,9 @@ Lasso|20365.80
 PLSR|20072.891
 PCR|19106.227
 OLS| 18810.89
-RF|16942.96
+RF|12635.18
 XGBoost | 12009.142
-GBM | 10468.188
+GBM | 8375.174
 
 
 
@@ -823,7 +823,7 @@ results.round(3)
   <tbody>
     <tr>
       <th>Ames_GBM</th>
-      <td>23436.206</td>
+      <td>23317.975</td>
     </tr>
   </tbody>
 </table>
@@ -840,9 +840,9 @@ Elastic net|52482.808
 PLSR|51509.933
 Ridge|47670.165
 kNN|36781.78
-RF|27444.85
+RF|27149.50
 MARS|24262.447
-GBM | 23436.206
+GBM | 23317.975
 XGBoost|22795.258
 
 

@@ -64,18 +64,6 @@ for file in cached_files:
         f.close()
 ```
 
-
-```python
-list(np.arange(3,11,1))
-```
-
-
-
-
-    [3, 4, 5, 6, 7, 8, 9, 10]
-
-
-
 ## Random Forest
 In random forest, each tree in the ensemble is built from a bootstrap sample from the training set. In addition, when splitting a node during the construction of the tree, the split that is chosen is the best split among a random subset of the features. The scikit-learn implementation combines classifiers by averaging their probabilistic prediction, instead of letting each classifier vote for a single class.
 
@@ -92,11 +80,11 @@ param_grid = {"n_estimators": list(np.arange(10,160,10)),
 This was optimised on the HPC (we'll see some sample scripts for this in the next session), and the best outcome of this ended up being:
 
 ```
-{'max_depth': 9, 'min_samples_split': 0.005, 
-'max_features': 'auto', 'n_estimators': 150}
+{'max_depth': 10, 'n_estimators': 140, 
+'max_features': 'auto', 'min_samples_split': 2}
 
 # best score
-0.8735794018428228
+0.8770534214301398 
 ```
 
 
@@ -105,9 +93,9 @@ This was optimised on the HPC (we'll see some sample scripts for this in the nex
 from sklearn.ensemble import RandomForestRegressor
 
 ames_RF = Pipeline([
-    ('estimator', RandomForestRegressor(n_estimators=150, 
-                                       max_depth = 9,
-                                       min_samples_split = 0.005,
+    ('estimator', RandomForestRegressor(n_estimators=140, 
+                                       max_depth = 10,
+                                       min_samples_split = 2,
                                        max_features = 'auto'))
     #('estimator', GridSearchCV(RandomForestRegressor(), param_grid, scoring='r2', cv=10))
 ])
@@ -115,25 +103,24 @@ ames_RF = Pipeline([
 
 
 ## Toggle comment below to build model
-ames_RF.fit(ames_train_X, ames_train_y)
-pickle.dump(ames_RF, open('models/ames_rforest.pickle', 'wb'))
+#ames_RF.fit(ames_train_X, ames_train_y)
+#pickle.dump(ames_RF, open('models/ames_rforest.pickle', 'wb'))
 with open('models/ames_rforest.pickle', 'rb') as f:
     ames_RF = pickle.load(f)
 ```
 
 
 ```python
-best_RF = ames_RF.named_steps.estimator.best_estimator_
+best_RF = ames_RF.named_steps['estimator']
 print(best_RF)
 ```
 
-    Pipeline(memory=None,
-         steps=[('estimator', RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=9,
+    RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=10,
                max_features='auto', max_leaf_nodes=None,
                min_impurity_decrease=0.0, min_impurity_split=None,
-               min_samples_leaf=1, min_samples_split=0.005,
-               min_weight_fraction_leaf=0.0, n_estimators=150, n_jobs=None,
-               oob_score=False, random_state=None, verbose=0, warm_start=False))])
+               min_samples_leaf=1, min_samples_split=2,
+               min_weight_fraction_leaf=0.0, n_estimators=140, n_jobs=None,
+               oob_score=False, random_state=None, verbose=0, warm_start=False)
 
 
 > ## Challenge 1
@@ -147,6 +134,39 @@ print(best_RF)
 > > 
 > > 1.
 > > 2. 
+> > {: .output}
+> {: .solution}
+{: .challenge}
+
+> ## Challenge 2
+>
+> Explore values of n_estimators from 80 to 150 in increments of 1 (as a group. Don't forget to set random_state to be 42!). 
+> Who is able to get the best results? Are they better than the above?
+> 
+> {: .source}
+>
+> > ## Solution
+> > 
+> > ~~~
+> > 
+> > param_test = {'n_estimators': [V1, V2, V3],
+> >             'max_depth': [10],
+> >             'min_samples_split': [2],
+> >             'max_features': ['sqrt']}
+> > 
+> > 
+> > ames_rf = GridSearchCV(estimator=RandomForestRegressor(random_state=42),
+> >    param_grid=param_test,
+> >    n_jobs=4,
+> >    iid=False,
+> >    cv=10)
+> > 
+> > ames_rf.fit(ames_train_X, ames_train_y)
+> > 
+> > print(ames_rf.best_score_,"\t",ames_rf.best_params_)
+> > 
+> > ~~~
+> > 
 > > {: .output}
 > {: .solution}
 {: .challenge}
@@ -173,7 +193,7 @@ def plot_coefficients(model, labels):
 
 
 ```python
-plot_coefficients(best_RF, predictors)
+plot_coefficients(ames_RF.named_steps['estimator'], predictors)
 plt.show()
 ```
 
@@ -293,7 +313,7 @@ results.round(2)
     </tr>
     <tr>
       <th>Random Forest</th>
-      <td>16942.96</td>
+      <td>12635.18</td>
     </tr>
     <tr>
       <th>k Nearest Neighbours</th>
@@ -364,7 +384,7 @@ results.round(2)
     </tr>
     <tr>
       <th>Random Forest</th>
-      <td>27444.85</td>
+      <td>27149.50</td>
     </tr>
     <tr>
       <th>k Nearest Neighbours</th>

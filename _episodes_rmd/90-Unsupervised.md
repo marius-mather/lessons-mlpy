@@ -11,7 +11,7 @@ exercises: 0
 
 
 
-# Unsupervised learning
+## Unsupervised learning
 
 
 ```python
@@ -55,6 +55,81 @@ iris = sns.load_dataset('iris')
 iris.head()
 ```
 
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sepal_length</th>
+      <th>sepal_width</th>
+      <th>petal_length</th>
+      <th>petal_width</th>
+      <th>species</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5.1</td>
+      <td>3.5</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>setosa</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4.9</td>
+      <td>3.0</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>setosa</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4.7</td>
+      <td>3.2</td>
+      <td>1.3</td>
+      <td>0.2</td>
+      <td>setosa</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4.6</td>
+      <td>3.1</td>
+      <td>1.5</td>
+      <td>0.2</td>
+      <td>setosa</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5.0</td>
+      <td>3.6</td>
+      <td>1.4</td>
+      <td>0.2</td>
+      <td>setosa</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
 There are three species (our target label)
 
 
@@ -63,21 +138,40 @@ iris['species'].unique()
 ```
 
 
+
+
+    array(['setosa', 'versicolor', 'virginica'], dtype=object)
+
+
+
+
 ```python
 iris_features = iris.iloc[:,0:4]
 iris_target = iris.iloc[:,4]
 print(iris_features.head())
 ```
 
+       sepal_length  sepal_width  petal_length  petal_width
+    0           5.1          3.5           1.4          0.2
+    1           4.9          3.0           1.4          0.2
+    2           4.7          3.2           1.3          0.2
+    3           4.6          3.1           1.5          0.2
+    4           5.0          3.6           1.4          0.2
+
+
 
 ```python
 _ = sns.scatterplot(x='petal_length',y='sepal_width', data=iris, hue=iris_target)
 ```
 
+
+![png](../fig/90-Unsupervised_7_0.png)
+
+
 > ## Challenge 1
 >
 > 1. Take a few moments to explore the Iris dataset. What can you learn? Which species do you think will be easier to separate?
-> 
+>
 {: .challenge}
 
 ## K-means clustering
@@ -108,6 +202,10 @@ _ = plt.xlabel('petal_length')
 _ = plt.ylabel('sepal_width')
 ```
 
+
+![png](../fig/90-Unsupervised_13_0.png)
+
+
 ### Try 3 clusters
 
 
@@ -122,6 +220,10 @@ _ = plt.scatter(iris['petal_length'], iris['sepal_width'], c=labels_k3, cmap='vi
 _ = plt.xlabel('petal_length')
 _ = plt.ylabel('sepal_width')
 ```
+
+
+![png](../fig/90-Unsupervised_16_0.png)
+
 
 > ## Challenge 2
 >
@@ -156,12 +258,20 @@ _ = plt.xlabel('Number of clusters')
 ```
 
 
+![png](../fig/90-Unsupervised_20_0.png)
+
+
+
 ```python
 # look for elbow. Also known as Scree plot
 _ = plt.plot(k_range, sum_squared_distances)
 _ = plt.ylabel('WCSS') #within cluster sum of squared distances
 _ = plt.xlabel('Number of clusters')
 ```
+
+
+![png](../fig/90-Unsupervised_21_0.png)
+
 
 ## Hierarchical Clustering
 
@@ -177,6 +287,10 @@ plt.show()
 ```
 
 
+![png](../fig/90-Unsupervised_23_0.png)
+
+
+
 ```python
 model_hclust = AgglomerativeClustering(n_clusters=3, linkage='ward')
 iris_hc = model_hclust.fit(iris_features_sc)
@@ -190,12 +304,20 @@ _ = plt.xlabel('petal_length')
 _ = plt.ylabel('sepal_width')
 ```
 
+
+![png](../fig/90-Unsupervised_25_0.png)
+
+
 ### plotting data
 
 
 ```python
 _ = sns.clustermap(iris_features, method='ward')
 ```
+
+
+![png](../fig/90-Unsupervised_27_0.png)
+
 
 ## Principal Component Analysis (PCA)
 
@@ -204,7 +326,7 @@ _ = sns.clustermap(iris_features, method='ward')
 nPCs = 3
 PCnames = ['PC1','PC2','PC3']
 iris_pca = PCA(n_components=nPCs).fit(iris_features)
-iris_reduced = model_pca.fit_transform(iris_features)
+iris_reduced = iris_pca.fit_transform(iris_features)
 ```
 
 
@@ -212,6 +334,10 @@ iris_reduced = model_pca.fit_transform(iris_features)
 iris_PC_df = pd.DataFrame(iris_reduced, columns = PCnames)
 _ = sns.scatterplot(x='PC1',y='PC2', data=iris_PC_df, hue=iris_target)
 ```
+
+
+![png](../fig/90-Unsupervised_30_0.png)
+
 
 ### Eigenvalues
 
@@ -227,6 +353,10 @@ plt.xlabel('Principal Component')
 plt.xticks(x, PCnames)
 _ = plt.show()
 ```
+
+
+![png](../fig/90-Unsupervised_32_0.png)
+
 
 
 ```python
@@ -246,9 +376,17 @@ _ = plt.show()
 ```
 
 
+![png](../fig/90-Unsupervised_34_0.png)
+
+
+
 ```python
 _ = sns.scatterplot(x='PC2',y='PC3', data=iris_PC_df, hue=iris_target)
 ```
+
+
+![png](../fig/90-Unsupervised_35_0.png)
+
 
 ## t-SNE
 
@@ -263,3 +401,7 @@ iris_tsne = model_tsne.fit_transform(iris_features)
 iris_TSNE_df = pd.DataFrame(iris_tsne, columns = ['Dim1','Dim2'])
 _ = sns.scatterplot(x='Dim1',y='Dim2', data=iris_TSNE_df, hue=iris_target)
 ```
+
+
+![png](../fig/90-Unsupervised_38_0.png)
+

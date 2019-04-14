@@ -229,12 +229,6 @@ ames_ols_GrLivArea_Age = LinearRegression()
 ames_ols_GrLivArea_Age.fit(ames_train_X[['Gr_Liv_Area','Age']], ames_train_y)
 ```
 
-    /Users/darya/anaconda3/lib/python3.7/site-packages/sklearn/preprocessing/data.py:625: DataConversionWarning: Data with input dtype uint8, int64, float64 were all converted to float64 by StandardScaler.
-      return self.partial_fit(X, y)
-    /Users/darya/anaconda3/lib/python3.7/site-packages/sklearn/base.py:465: DataConversionWarning: Data with input dtype uint8, int64, float64 were all converted to float64 by StandardScaler.
-      return self.fit(X, y, **fit_params).transform(X)
-
-
 
 
 
@@ -349,6 +343,69 @@ compare.sort_values('Test RMSE')
 ```
 
 
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Test RMSE</th>
+      <th>Test R2</th>
+      <th>Test MAE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>GrLivArea_Age</th>
+      <td>61910.789</td>
+      <td>0.364</td>
+      <td>29520.827</td>
+    </tr>
+    <tr>
+      <th>All</th>
+      <td>64792.914</td>
+      <td>0.303</td>
+      <td>16436.269</td>
+    </tr>
+    <tr>
+      <th>Second_Flr_SF</th>
+      <td>75173.157</td>
+      <td>0.062</td>
+      <td>51792.088</td>
+    </tr>
+    <tr>
+      <th>GrLivArea</th>
+      <td>76804.438</td>
+      <td>0.021</td>
+      <td>39238.397</td>
+    </tr>
+    <tr>
+      <th>GrLivArea Second_Flr_SF</th>
+      <td>106083.367</td>
+      <td>-0.868</td>
+      <td>38218.077</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
 ```python
 # lets explore the coefficients
 print(ameshousingClean.columns.get_loc('Gr_Liv_Area'))
@@ -391,157 +448,3 @@ print(ameshousingClean.columns.get_loc('Second_Flr_SF'))
 # save OLS model to pickle
 pickle.dump(ames_ols_all, open('models/ames_ols_all.pickle', 'wb'))
 ```
-
-
-```python
-# Import CSV mtcars
-data = pd.read_csv('https://gist.githubusercontent.com/ZeccaLehn/4e06d2575eb9589dbe8c365d61cb056c/raw/64f1660f38ef523b2a1a13be77b002b98665cdfe/mtcars.csv')
-# Edit element of column header
-data.rename(columns={'Unnamed: 0':'brand'}, inplace=True)
-
-
-
-ameshousingClean = ameshousingClean.drop('Sale_Price_quartile', axis = 1)
-
-# Create variables for the training and test sets 
-ames_train = ameshousingClean.loc[index_train,:].copy()
-ames_test =  ameshousingClean.loc[index_test,:].copy()
-```
-
-
-```python
-data = pd.read_csv('https://raw.githubusercontent.com/tidyverse/ggplot2/master/data-raw/mpg.csv')
-data.head()
-
-sns.lmplot(
-    data = data,
-    x = 'cty', y = 'hwy', hue = 'drv'
-)
-```
-
-
-
-
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>manufacturer</th>
-      <th>model</th>
-      <th>displ</th>
-      <th>year</th>
-      <th>cyl</th>
-      <th>trans</th>
-      <th>drv</th>
-      <th>cty</th>
-      <th>hwy</th>
-      <th>fl</th>
-      <th>class</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>audi</td>
-      <td>a4</td>
-      <td>1.8</td>
-      <td>1999</td>
-      <td>4</td>
-      <td>auto(l5)</td>
-      <td>f</td>
-      <td>18</td>
-      <td>29</td>
-      <td>p</td>
-      <td>compact</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>audi</td>
-      <td>a4</td>
-      <td>1.8</td>
-      <td>1999</td>
-      <td>4</td>
-      <td>manual(m5)</td>
-      <td>f</td>
-      <td>21</td>
-      <td>29</td>
-      <td>p</td>
-      <td>compact</td>
-    </tr>
-    <tr>
-      <th>2</th>
-      <td>audi</td>
-      <td>a4</td>
-      <td>2.0</td>
-      <td>2008</td>
-      <td>4</td>
-      <td>manual(m6)</td>
-      <td>f</td>
-      <td>20</td>
-      <td>31</td>
-      <td>p</td>
-      <td>compact</td>
-    </tr>
-    <tr>
-      <th>3</th>
-      <td>audi</td>
-      <td>a4</td>
-      <td>2.0</td>
-      <td>2008</td>
-      <td>4</td>
-      <td>auto(av)</td>
-      <td>f</td>
-      <td>21</td>
-      <td>30</td>
-      <td>p</td>
-      <td>compact</td>
-    </tr>
-    <tr>
-      <th>4</th>
-      <td>audi</td>
-      <td>a4</td>
-      <td>2.8</td>
-      <td>1999</td>
-      <td>6</td>
-      <td>auto(l5)</td>
-      <td>f</td>
-      <td>16</td>
-      <td>26</td>
-      <td>p</td>
-      <td>compact</td>
-    </tr>
-  </tbody>
-</table>
-</div>
-
-
-
-
-```python
-
-```
-
-
-
-
-    <seaborn.axisgrid.FacetGrid at 0x1c1fa51e80>
-
-
-
-
-![png](../fig/10-LinReg_25_1.png)
-
