@@ -19,7 +19,7 @@ exercises: 0
 
 A classifier is some kind of rule / black box / widget that you can feed a new observation/data/record and it will decide whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
-![A classifier for cats and not cats](../fig/50-CatNotCat.jpg)
+![A classifier for cats and not cats]("../fig/50-CatNotCat.jpg")
 
 You can have classifiers for anything you can have a yes/no answer to, e.g.
 
@@ -40,7 +40,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](../fig/50-CatConfusion.jpg)
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.]("../fig/50-CatConfusion.jpg")
 
 ### Confusion Matrix
 
@@ -48,8 +48,46 @@ When applying classification models, we often use a confusion matrix to evaluate
 
 ### Some common metrics
 
-![50-classificationMetrics.png](../fig/50-classificationMetrics.png)
+#### Accuracy: 
+How often does the classifier label examples correctly? Objective: maximize. Example: 
 
+$$\frac{TP+TN}{TP+TN+FP+FN} = \frac{\text{Correctly labelled examples}}{\text{All examples}}=\frac{31+52}{31+52+10+7}=83
+\%$$
+
+Accuracy is the opposite of the misclassification rate. So,
+
+$$\text{Misclassification rate} = 1 - \text{Accuracy} = \frac{\text{Incorrectly labelled examples}}{\text{All examples}} $$
+
+#### Precision: 
+What fraction of things labelled as a cat were actually cats? Objective: maximize. Example:
+
+$$\frac{TP}{TP+FP} = \frac{\text{Correctly labelled cats}}{\text{All things labelled as cats}}=\frac{31}{31+10}=76\%$$
+
+#### Sensitivity / Recall: 
+How often does the classifier label a cat as a cat? Objective: maximize. Example: 
+
+$$\frac{TP}{TP+FN} = \frac{\text{Correctly labelled cats}}{\text{All true cats}}=\frac{31}{31+7}=81\%$$
+
+#### Specificity: 
+How often does it label a not-cat as a not-cat? Objective: maximize. Example: 
+
+$$\frac{TN}{TN+FP} = \frac{\text{Correctly labelled not-cats}}{\text{All true not-cats}}=\frac{52}{52+10}=84\%$$
+
+#### F1-score:
+
+This is a commonly used overall measure of classifier performance (but not the only one and not always the best depending upon the problem). It is defined as the harmonic mean of precision and sensitivity;
+
+$$\frac{1}{F_1} = \frac{1}{2}\left(\frac{1}{\text{Precision}}+\frac{1}{\text{Sensitivity}}\right) $$
+So that
+$$F_1 = 2\cdot\left(\frac{1}{\frac{1}{81\%}+\frac{1}{83\%}}\right) = 82\%$$
+
+#### Mean-square error (MSE)
+
+Define a loss function $L_i = 1$ if the $i$th example is classified incorrectly and $L_i = 0$ if it is classified correctly. If there are $N$ examples in total then the mean-square error is
+
+$$\text{MSE} = \frac{1}{N}\sum_i L_i = \frac{\text{Incorrectly labelled examples}}{\text{All examples}}=\text{Misclassification Rate}$$
+
+Which is actually just the misclassification rate above. 
 
 #### AUC: Area under the curve
 
@@ -108,7 +146,7 @@ from sklearn import model_selection
 from sklearn.utils.multiclass import unique_labels
 #from sklearn.cross_validation import train_test_split
 %matplotlib inline
-sns.set(font_scale = 1.6)
+sns.set(font_scale = 1.5)
 ```
 
 ### Load Data
@@ -123,11 +161,23 @@ Fix the problem of whitespace in column names by replacing with underscores
 
 
 ```python
-#print(wdbc.columns)
+print(wdbc.columns)
 #wdbc.rename(columns=lambda x: x.strip())
 wdbc.columns = wdbc.columns.str.replace(' ', '_', regex=True)
 #print(wdbc.columns)
 ```
+
+    Index(['id', 'diagnosis', 'radius_mean', 'texture_mean', 'perimeter_mean',
+           'area_mean', 'smoothness_mean', 'compactness_mean', 'concavity_mean',
+           'concave points_mean', 'symmetry_mean', 'fractal_dimension_mean',
+           'radius_se', 'texture_se', 'perimeter_se', 'area_se', 'smoothness_se',
+           'compactness_se', 'concavity_se', 'concave points_se', 'symmetry_se',
+           'fractal_dimension_se', 'radius_worst', 'texture_worst',
+           'perimeter_worst', 'area_worst', 'smoothness_worst',
+           'compactness_worst', 'concavity_worst', 'concave points_worst',
+           'symmetry_worst', 'fractal_dimension_worst', 'Unnamed: 32'],
+          dtype='object')
+
 
 Recode diagnosis into integers
 
@@ -201,6 +251,185 @@ wdbc.count()
 
 
 ```python
+wdbc.drop(columns='Unnamed:_32', inplace=True)
+wdbc.drop(columns='id', inplace=True)
+wdbc.head()
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>diagnosis</th>
+      <th>radius_mean</th>
+      <th>texture_mean</th>
+      <th>perimeter_mean</th>
+      <th>area_mean</th>
+      <th>smoothness_mean</th>
+      <th>compactness_mean</th>
+      <th>concavity_mean</th>
+      <th>concave_points_mean</th>
+      <th>symmetry_mean</th>
+      <th>...</th>
+      <th>radius_worst</th>
+      <th>texture_worst</th>
+      <th>perimeter_worst</th>
+      <th>area_worst</th>
+      <th>smoothness_worst</th>
+      <th>compactness_worst</th>
+      <th>concavity_worst</th>
+      <th>concave_points_worst</th>
+      <th>symmetry_worst</th>
+      <th>fractal_dimension_worst</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>M</td>
+      <td>17.99</td>
+      <td>10.38</td>
+      <td>122.80</td>
+      <td>1001.0</td>
+      <td>0.11840</td>
+      <td>0.27760</td>
+      <td>0.3001</td>
+      <td>0.14710</td>
+      <td>0.2419</td>
+      <td>...</td>
+      <td>25.38</td>
+      <td>17.33</td>
+      <td>184.60</td>
+      <td>2019.0</td>
+      <td>0.1622</td>
+      <td>0.6656</td>
+      <td>0.7119</td>
+      <td>0.2654</td>
+      <td>0.4601</td>
+      <td>0.11890</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>M</td>
+      <td>20.57</td>
+      <td>17.77</td>
+      <td>132.90</td>
+      <td>1326.0</td>
+      <td>0.08474</td>
+      <td>0.07864</td>
+      <td>0.0869</td>
+      <td>0.07017</td>
+      <td>0.1812</td>
+      <td>...</td>
+      <td>24.99</td>
+      <td>23.41</td>
+      <td>158.80</td>
+      <td>1956.0</td>
+      <td>0.1238</td>
+      <td>0.1866</td>
+      <td>0.2416</td>
+      <td>0.1860</td>
+      <td>0.2750</td>
+      <td>0.08902</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>M</td>
+      <td>19.69</td>
+      <td>21.25</td>
+      <td>130.00</td>
+      <td>1203.0</td>
+      <td>0.10960</td>
+      <td>0.15990</td>
+      <td>0.1974</td>
+      <td>0.12790</td>
+      <td>0.2069</td>
+      <td>...</td>
+      <td>23.57</td>
+      <td>25.53</td>
+      <td>152.50</td>
+      <td>1709.0</td>
+      <td>0.1444</td>
+      <td>0.4245</td>
+      <td>0.4504</td>
+      <td>0.2430</td>
+      <td>0.3613</td>
+      <td>0.08758</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>M</td>
+      <td>11.42</td>
+      <td>20.38</td>
+      <td>77.58</td>
+      <td>386.1</td>
+      <td>0.14250</td>
+      <td>0.28390</td>
+      <td>0.2414</td>
+      <td>0.10520</td>
+      <td>0.2597</td>
+      <td>...</td>
+      <td>14.91</td>
+      <td>26.50</td>
+      <td>98.87</td>
+      <td>567.7</td>
+      <td>0.2098</td>
+      <td>0.8663</td>
+      <td>0.6869</td>
+      <td>0.2575</td>
+      <td>0.6638</td>
+      <td>0.17300</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>M</td>
+      <td>20.29</td>
+      <td>14.34</td>
+      <td>135.10</td>
+      <td>1297.0</td>
+      <td>0.10030</td>
+      <td>0.13280</td>
+      <td>0.1980</td>
+      <td>0.10430</td>
+      <td>0.1809</td>
+      <td>...</td>
+      <td>22.54</td>
+      <td>16.67</td>
+      <td>152.20</td>
+      <td>1575.0</td>
+      <td>0.1374</td>
+      <td>0.2050</td>
+      <td>0.4000</td>
+      <td>0.1625</td>
+      <td>0.2364</td>
+      <td>0.07678</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 31 columns</p>
+</div>
+
+
+
+
+```python
 wdbc.describe()
 ```
 
@@ -225,7 +454,6 @@ wdbc.describe()
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>id</th>
       <th>radius_mean</th>
       <th>texture_mean</th>
       <th>perimeter_mean</th>
@@ -235,7 +463,9 @@ wdbc.describe()
       <th>concavity_mean</th>
       <th>concave_points_mean</th>
       <th>symmetry_mean</th>
+      <th>fractal_dimension_mean</th>
       <th>...</th>
+      <th>radius_worst</th>
       <th>texture_worst</th>
       <th>perimeter_worst</th>
       <th>area_worst</th>
@@ -245,13 +475,12 @@ wdbc.describe()
       <th>concave_points_worst</th>
       <th>symmetry_worst</th>
       <th>fractal_dimension_worst</th>
-      <th>Unnamed:_32</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th>count</th>
-      <td>5.690000e+02</td>
+      <td>569.000000</td>
       <td>569.000000</td>
       <td>569.000000</td>
       <td>569.000000</td>
@@ -271,11 +500,10 @@ wdbc.describe()
       <td>569.000000</td>
       <td>569.000000</td>
       <td>569.000000</td>
-      <td>0.0</td>
+      <td>569.000000</td>
     </tr>
     <tr>
       <th>mean</th>
-      <td>3.037183e+07</td>
       <td>14.127292</td>
       <td>19.289649</td>
       <td>91.969033</td>
@@ -285,7 +513,9 @@ wdbc.describe()
       <td>0.088799</td>
       <td>0.048919</td>
       <td>0.181162</td>
+      <td>0.062798</td>
       <td>...</td>
+      <td>16.269190</td>
       <td>25.677223</td>
       <td>107.261213</td>
       <td>880.583128</td>
@@ -295,11 +525,9 @@ wdbc.describe()
       <td>0.114606</td>
       <td>0.290076</td>
       <td>0.083946</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>std</th>
-      <td>1.250206e+08</td>
       <td>3.524049</td>
       <td>4.301036</td>
       <td>24.298981</td>
@@ -309,7 +537,9 @@ wdbc.describe()
       <td>0.079720</td>
       <td>0.038803</td>
       <td>0.027414</td>
+      <td>0.007060</td>
       <td>...</td>
+      <td>4.833242</td>
       <td>6.146258</td>
       <td>33.602542</td>
       <td>569.356993</td>
@@ -319,11 +549,9 @@ wdbc.describe()
       <td>0.065732</td>
       <td>0.061867</td>
       <td>0.018061</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>min</th>
-      <td>8.670000e+03</td>
       <td>6.981000</td>
       <td>9.710000</td>
       <td>43.790000</td>
@@ -333,7 +561,9 @@ wdbc.describe()
       <td>0.000000</td>
       <td>0.000000</td>
       <td>0.106000</td>
+      <td>0.049960</td>
       <td>...</td>
+      <td>7.930000</td>
       <td>12.020000</td>
       <td>50.410000</td>
       <td>185.200000</td>
@@ -343,11 +573,9 @@ wdbc.describe()
       <td>0.000000</td>
       <td>0.156500</td>
       <td>0.055040</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>25%</th>
-      <td>8.692180e+05</td>
       <td>11.700000</td>
       <td>16.170000</td>
       <td>75.170000</td>
@@ -357,7 +585,9 @@ wdbc.describe()
       <td>0.029560</td>
       <td>0.020310</td>
       <td>0.161900</td>
+      <td>0.057700</td>
       <td>...</td>
+      <td>13.010000</td>
       <td>21.080000</td>
       <td>84.110000</td>
       <td>515.300000</td>
@@ -367,11 +597,9 @@ wdbc.describe()
       <td>0.064930</td>
       <td>0.250400</td>
       <td>0.071460</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>50%</th>
-      <td>9.060240e+05</td>
       <td>13.370000</td>
       <td>18.840000</td>
       <td>86.240000</td>
@@ -381,7 +609,9 @@ wdbc.describe()
       <td>0.061540</td>
       <td>0.033500</td>
       <td>0.179200</td>
+      <td>0.061540</td>
       <td>...</td>
+      <td>14.970000</td>
       <td>25.410000</td>
       <td>97.660000</td>
       <td>686.500000</td>
@@ -391,11 +621,9 @@ wdbc.describe()
       <td>0.099930</td>
       <td>0.282200</td>
       <td>0.080040</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>75%</th>
-      <td>8.813129e+06</td>
       <td>15.780000</td>
       <td>21.800000</td>
       <td>104.100000</td>
@@ -405,7 +633,9 @@ wdbc.describe()
       <td>0.130700</td>
       <td>0.074000</td>
       <td>0.195700</td>
+      <td>0.066120</td>
       <td>...</td>
+      <td>18.790000</td>
       <td>29.720000</td>
       <td>125.400000</td>
       <td>1084.000000</td>
@@ -415,11 +645,9 @@ wdbc.describe()
       <td>0.161400</td>
       <td>0.317900</td>
       <td>0.092080</td>
-      <td>NaN</td>
     </tr>
     <tr>
       <th>max</th>
-      <td>9.113205e+08</td>
       <td>28.110000</td>
       <td>39.280000</td>
       <td>188.500000</td>
@@ -429,7 +657,9 @@ wdbc.describe()
       <td>0.426800</td>
       <td>0.201200</td>
       <td>0.304000</td>
+      <td>0.097440</td>
       <td>...</td>
+      <td>36.040000</td>
       <td>49.540000</td>
       <td>251.200000</td>
       <td>4254.000000</td>
@@ -439,11 +669,10 @@ wdbc.describe()
       <td>0.291000</td>
       <td>0.663800</td>
       <td>0.207500</td>
-      <td>NaN</td>
     </tr>
   </tbody>
 </table>
-<p>8 rows × 32 columns</p>
+<p>8 rows × 30 columns</p>
 </div>
 
 
@@ -456,12 +685,61 @@ Plot mean radius of cell nucleii vs. mean concavity, coloured by diagnosis:
 _ = sns.lmplot('radius_mean','concavity_mean',data=wdbc, hue='diagnosis')
 ```
 
-    /Applications/anaconda3/lib/python3.7/site-packages/scipy/stats/stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
+
+![png](../fig/50-Classification_18_0.png)
 
 
 
-![png](../fig/50-Classification_17_1.png)
+```python
+wdbc.dtypes
+```
+
+
+
+
+    diagnosis                   object
+    radius_mean                float64
+    texture_mean               float64
+    perimeter_mean             float64
+    area_mean                  float64
+    smoothness_mean            float64
+    compactness_mean           float64
+    concavity_mean             float64
+    concave_points_mean        float64
+    symmetry_mean              float64
+    fractal_dimension_mean     float64
+    radius_se                  float64
+    texture_se                 float64
+    perimeter_se               float64
+    area_se                    float64
+    smoothness_se              float64
+    compactness_se             float64
+    concavity_se               float64
+    concave_points_se          float64
+    symmetry_se                float64
+    fractal_dimension_se       float64
+    radius_worst               float64
+    texture_worst              float64
+    perimeter_worst            float64
+    area_worst                 float64
+    smoothness_worst           float64
+    compactness_worst          float64
+    concavity_worst            float64
+    concave_points_worst       float64
+    symmetry_worst             float64
+    fractal_dimension_worst    float64
+    dtype: object
+
+
+
+
+```python
+catVars = wdbc.select_dtypes(include = ['object']).columns
+numericVars = wdbc.select_dtypes(exclude = ['object']).columns
+print(catVars)
+```
+
+    Index(['diagnosis'], dtype='object')
 
 
 If we wanted to look at all possible scatterplot pairs we would do something like:
@@ -469,7 +747,8 @@ If we wanted to look at all possible scatterplot pairs we would do something lik
 
 ```python
 _ = sns.pairplot(data=wdbc,
-                 vars=wdbc.columns[2:10],
+                 #vars=wdbc.columns[1:10],
+                 vars=numericVars[:10],
                  hue='diagnosis',
                  palette={'M':'k','B':'b'},
                  diag_kind='kde',
@@ -477,28 +756,15 @@ _ = sns.pairplot(data=wdbc,
 ```
 
 
-![png](../fig/50-Classification_19_0.png)
+![png](../fig/50-Classification_22_0.png)
 
 
 But it's easier to look at a correlation plot:
 
 
 ```python
-catVars = wdbc.select_dtypes(include = ['object']).columns
-numericVars = wdbc.select_dtypes(exclude = ['object']).columns
-```
-
-
-```python
-print(catVars)
-```
-
-    Index(['diagnosis'], dtype='object')
-
-
-
-```python
-corr = wdbc[numericVars[1:-1]].corr() # excluding id & Unnamed_32
+#corr = wdbc[numericVars[1:-1]].corr() # excluding id & Unnamed_32
+corr = wdbc.corr()
 
 # Generate a mask for the upper triangle
 mask = np.zeros_like(corr, dtype=np.bool)
@@ -508,11 +774,13 @@ mask[np.triu_indices_from(mask)] = True
 cmap = sns.diverging_palette(220, 10, as_cmap=True)
 
 # Draw the heatmap with the mask and correct aspect ratio
+sns.set(rc={'figure.figsize':(12,8)})
+sns.set(font_scale = 1.2)
 _ = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0., square=True, linewidths=.5)
 ```
 
 
-![png](../fig/50-Classification_23_0.png)
+![png](../fig/50-Classification_24_0.png)
 
 
 ## Prepare Data
@@ -523,9 +791,9 @@ To create a classifier for predicting whether a breast cancer patient's tumor is
 ```python
 # remove id, diagnosis, and Unnamed
 predictors = wdbc.columns.values.tolist()
-predictors.remove('id')
+#predictors.remove('id')
 predictors.remove('diagnosis')
-predictors.remove('Unnamed:_32')
+#predictors.remove('Unnamed:_32')
 print(predictors)
 ```
 
@@ -550,7 +818,7 @@ rs = np.random.RandomState(33)
 
 
 ```python
-features_train, features_test, outcome_train, outcome_test = model_selection.train_test_split(wdbc[predictors],wdbc['diagnosis'], test_size=0.3)
+features_train, features_test, outcome_train, outcome_test = model_selection.train_test_split(wdbc[predictors],wdbc['diagnosis'], train_size=0.7, test_size=0.3)
 ```
 
 How many examples do we have in the training and testing sets?
@@ -579,6 +847,23 @@ features_test.shape
 
 
 
+### Standardize data ranges
+
+
+```python
+StSc = StandardScaler()
+features_train_sc = StSc.fit_transform(features_train)
+features_test_sc  = StSc.transform(features_test)
+```
+
+### Recode outcome
+
+
+```python
+outcome_true = outcome_test.astype("category").cat.codes.values # code into 0's and 1's
+# which is 1 which is 0?
+```
+
 # Classifiers
 
 ## k-Nearest Neighbours Classifier
@@ -596,15 +881,15 @@ Train KNN classifier
 ```python
 from sklearn.neighbors import KNeighborsClassifier
 cf_knn= KNeighborsClassifier(n_neighbors=6)
-fit_knn = cf_knn.fit(features_train, outcome_train)
+fit_knn = cf_knn.fit(features_train_sc, outcome_train)
 ```
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_knn.predict(features_test)
-outcome_pred_prob = cf_knn.predict_proba(features_test)
+outcome_pred_class = cf_knn.predict(features_test_sc)
+outcome_pred_prob = cf_knn.predict_proba(features_test_sc)
 outcome_pred_prob1 = [p[1] for p in outcome_pred_prob] # hopefully close to 1 for true 1's
 ```
 
@@ -615,16 +900,16 @@ So how well did the classifier do?
 ```python
 conf_mat = confusion_matrix(outcome_test, outcome_pred_class)
 classes  = unique_labels(outcome_test, outcome_pred_class)
+sns.set(rc={'figure.figsize':(8,6)})
 _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=classes)
 ```
 
 
-![png](../fig/50-Classification_42_0.png)
+![png](../fig/50-Classification_47_0.png)
 
 
 
 ```python
-outcome_true = outcome_test.astype("category").cat.codes.values # code into 0's and 1's
 fpr, tpr, _ = roc_curve(outcome_true, outcome_pred_prob1)
 AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
 
@@ -641,7 +926,7 @@ plot_ROC(fpr, tpr, AUC)
 ```
 
 
-![png](../fig/50-Classification_43_0.png)
+![png](../fig/50-Classification_48_0.png)
 
 
 #### EXERCISE: 
@@ -665,14 +950,14 @@ Train Naive Bayes classifier
 ```python
 from sklearn.naive_bayes import GaussianNB
 cf_gnb = GaussianNB()
-fit_gnb = cf_gnb.fit(features_train, outcome_train)
+fit_gnb = cf_gnb.fit(features_train_sc, outcome_train)
 ```
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_gnb.predict(features_test)
+outcome_pred_class = cf_gnb.predict(features_test_sc)
 ```
 
 ### Classifier Diagnostics
@@ -687,7 +972,20 @@ _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=
 ```
 
 
-![png](../fig/50-Classification_51_0.png)
+![png](../fig/50-Classification_56_0.png)
+
+
+
+```python
+outcome_pred_prob = cf_gnb.predict_proba(features_test_sc)
+outcome_pred_prob1 = [p[1] for p in outcome_pred_prob] # hopefully close to 1 for true 1's
+fpr, tpr, _ = roc_curve(outcome_true, outcome_pred_prob1)
+AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
+plot_ROC(fpr, tpr, AUC)
+```
+
+
+![png](../fig/50-Classification_57_0.png)
 
 
 ## Regularized Logistic Classifier
@@ -701,19 +999,15 @@ Train Regularized Logistic classifier
 ```python
 from sklearn.linear_model import LogisticRegression
 cf_rlc = LogisticRegression(random_state=74, solver='lbfgs', multi_class='ovr')
-fit_rlc = cf_rlc.fit(features_train, outcome_train)
+fit_rlc = cf_rlc.fit(features_train_sc, outcome_train)
 ```
-
-    /Applications/anaconda3/lib/python3.7/site-packages/sklearn/linear_model/logistic.py:758: ConvergenceWarning: lbfgs failed to converge. Increase the number of iterations.
-      "of iterations.", ConvergenceWarning)
-
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_rlc.predict(features_test)
-outcome_pred_prob = cf_rlc.predict_proba(features_test)
+outcome_pred_class = cf_rlc.predict(features_test_sc)
+outcome_pred_prob = cf_rlc.predict_proba(features_test_sc)
 outcome_pred_prob1 = [p[1] for p in outcome_pred_prob] # hopefully close to 1 for true 1's
 ```
 
@@ -728,19 +1022,18 @@ _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=
 ```
 
 
-![png](../fig/50-Classification_57_0.png)
+![png](../fig/50-Classification_63_0.png)
 
 
 
 ```python
-outcome_true = outcome_test.astype("category").cat.codes.values # code into 0's and 1's
 fpr, tpr, _ = roc_curve(outcome_true, outcome_pred_prob1)
 AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
 plot_ROC(fpr, tpr, AUC)
 ```
 
 
-![png](../fig/50-Classification_58_0.png)
+![png](../fig/50-Classification_64_0.png)
 
 
 ## Decision Trees
@@ -754,15 +1047,15 @@ Train Decision Tree classifier
 ```python
 from sklearn.tree import DecisionTreeClassifier
 cf_dtc = DecisionTreeClassifier()
-fit_dtc = cf_dtc.fit(features_train, outcome_train)
+fit_dtc = cf_dtc.fit(features_train_sc, outcome_train)
 ```
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_dtc.predict(features_test)
-outcome_pred_prob = cf_dtc.predict_proba(features_test)
+outcome_pred_class = cf_dtc.predict(features_test_sc)
+outcome_pred_prob = cf_dtc.predict_proba(features_test_sc)
 outcome_pred_prob1 = [p[1] for p in outcome_pred_prob] # hopefully close to 1 for true 1's
 ```
 
@@ -777,19 +1070,18 @@ _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=
 ```
 
 
-![png](../fig/50-Classification_64_0.png)
+![png](../fig/50-Classification_70_0.png)
 
 
 
 ```python
-outcome_true = outcome_test.astype("category").cat.codes.values # code into 0's and 1's
 fpr, tpr, _ = roc_curve(outcome_true, outcome_pred_prob1)
 AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
 plot_ROC(fpr, tpr, AUC)
 ```
 
 
-![png](../fig/50-Classification_65_0.png)
+![png](../fig/50-Classification_71_0.png)
 
 
 ## Random Forest Classifier
@@ -802,16 +1094,16 @@ Turns out these do pretty good and are used all over the place. But because they
 
 ```python
 from sklearn.ensemble import RandomForestClassifier
-cf_rfc = RandomForestClassifier(n_estimators=100, max_depth=2, random_state=0)
-fit_rfc = cf_rfc.fit(features_train, outcome_train)
+cf_rfc = RandomForestClassifier(n_estimators=100, max_depth=5, random_state=0)
+fit_rfc = cf_rfc.fit(features_train_sc, outcome_train)
 ```
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_rfc.predict(features_test)
-outcome_pred_prob = cf_rfc.predict_proba(features_test)
+outcome_pred_class = cf_rfc.predict(features_test_sc)
+outcome_pred_prob = cf_rfc.predict_proba(features_test_sc)
 outcome_pred_prob1 = [p[1] for p in outcome_pred_prob] # hopefully close to 1 for true 1's
 ```
 
@@ -826,20 +1118,22 @@ _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=
 ```
 
 
-![png](../fig/50-Classification_71_0.png)
+![png](../fig/50-Classification_77_0.png)
 
 
 
 ```python
-outcome_true = outcome_test.astype("category").cat.codes.values # code into 0's and 1's
 fpr, tpr, _ = roc_curve(outcome_true, outcome_pred_prob1)
 AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
 plot_ROC(fpr, tpr, AUC)
 ```
 
 
-![png](../fig/50-Classification_72_0.png)
+![png](../fig/50-Classification_78_0.png)
 
+
+#### EXERCISE: 
+What max_depth is ideal?
 
 ## Support Vector Machine
 A support vector machine tries to find the data points right on the boundary between the two classes (the "support vectors") and then uses them to define a maximum margin boundary.
@@ -853,18 +1147,14 @@ Train SVM
 ```python
 from sklearn import svm
 cf_svm = svm.LinearSVC()
-fit_svm = cf_svm.fit(features_train, outcome_train)
+fit_svm = cf_svm.fit(features_train_sc, outcome_train)
 ```
-
-    /Applications/anaconda3/lib/python3.7/site-packages/sklearn/svm/base.py:922: ConvergenceWarning: Liblinear failed to converge, increase the number of iterations.
-      "the number of iterations.", ConvergenceWarning)
-
 
 Use trained classifier to predict outcome for test-set
 
 
 ```python
-outcome_pred_class = cf_svm.predict(features_test)
+outcome_pred_class = cf_svm.predict(features_test_sc)
 ```
 
 SVM DOESN'T CALCULATE PROBABILITIES!
@@ -880,26 +1170,26 @@ _ = sns.heatmap(conf_mat, annot=True, fmt="d", xticklabels=classes, yticklabels=
 ```
 
 
-![png](../fig/50-Classification_79_0.png)
+![png](../fig/50-Classification_86_0.png)
 
 
 # Compare all the classifiers
 
 
 ```python
-evaluations = ['Error rate', 'Sensitivity', 'Specificity', 'AUC']
+evaluations = ['Misclassification rate', 'Sensitivity', 'Specificity', 'AUC']
 pretrained_models = {'k Nearest Neighbours':cf_knn, 'Naive Bayes':cf_gnb, 'Regularised Logistic Classifier':cf_rlc, 'Decision Tree':cf_dtc, 'Random Forest':cf_rfc, 'Support Vector Machine':cf_svm}
 comparison_stats = pd.DataFrame(index = pretrained_models.keys(), columns=evaluations)
 for method, model in pretrained_models.items():
-    outcome_pred_class = model.predict(features_test)
+    outcome_pred_class = model.predict(features_test_sc)
     if method in ['Support Vector Machine']:
         AUC = float('nan')
     else:
-        outcome_pred_prob = model.predict_proba(features_test)
+        outcome_pred_prob = model.predict_proba(features_test_sc)
         outcome_pred_prob1 = [p[1] for p in outcome_pred_prob]
         AUC = roc_auc_score(outcome_true, outcome_pred_prob1)
     conf_mat = confusion_matrix(outcome_test, outcome_pred_class)
-    comparison_stats.loc[method,'Error rate']  = 1. - accuracy_score(outcome_test, outcome_pred_class)
+    comparison_stats.loc[method,'Misclassification rate']  = 1. - accuracy_score(outcome_test, outcome_pred_class)
     comparison_stats.loc[method,'Sensitivity'] = conf_mat[1,1]/np.sum(conf_mat[1,:])
     comparison_stats.loc[method,'Specificity'] = conf_mat[0,0]/np.sum(conf_mat[0,:])
     comparison_stats.loc[method,'AUC'] = AUC
@@ -931,7 +1221,7 @@ comparison_stats.round(decimals=3)
   <thead>
     <tr style="text-align: right;">
       <th></th>
-      <th>Error rate</th>
+      <th>Misclassification rate</th>
       <th>Sensitivity</th>
       <th>Specificity</th>
       <th>AUC</th>
@@ -940,44 +1230,44 @@ comparison_stats.round(decimals=3)
   <tbody>
     <tr>
       <th>k Nearest Neighbours</th>
-      <td>0.0818713</td>
-      <td>0.861111</td>
-      <td>0.959596</td>
-      <td>0.966821</td>
+      <td>0.0233918</td>
+      <td>0.934426</td>
+      <td>1</td>
+      <td>0.993815</td>
     </tr>
     <tr>
       <th>Naive Bayes</th>
-      <td>0.0526316</td>
-      <td>0.888889</td>
-      <td>0.989899</td>
-      <td>0.993406</td>
+      <td>0.0409357</td>
+      <td>0.967213</td>
+      <td>0.954545</td>
+      <td>0.991207</td>
     </tr>
     <tr>
       <th>Regularised Logistic Classifier</th>
-      <td>0.0467836</td>
-      <td>0.902778</td>
-      <td>0.989899</td>
-      <td>0.996493</td>
+      <td>0.0292398</td>
+      <td>0.983607</td>
+      <td>0.963636</td>
+      <td>0.99687</td>
     </tr>
     <tr>
       <th>Decision Tree</th>
-      <td>0.0877193</td>
-      <td>0.902778</td>
-      <td>0.919192</td>
-      <td>0.910985</td>
+      <td>0.0760234</td>
+      <td>0.901639</td>
+      <td>0.936364</td>
+      <td>0.919001</td>
     </tr>
     <tr>
       <th>Random Forest</th>
-      <td>0.0467836</td>
-      <td>0.902778</td>
-      <td>0.989899</td>
-      <td>0.991582</td>
+      <td>0.0409357</td>
+      <td>0.967213</td>
+      <td>0.954545</td>
+      <td>0.990611</td>
     </tr>
     <tr>
       <th>Support Vector Machine</th>
-      <td>0.0760234</td>
-      <td>0.902778</td>
-      <td>0.939394</td>
+      <td>0.0467836</td>
+      <td>0.967213</td>
+      <td>0.945455</td>
       <td>NaN</td>
     </tr>
   </tbody>
