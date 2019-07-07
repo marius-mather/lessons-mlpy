@@ -15,6 +15,7 @@ You need to be comfortable using python.
 > **OWN LAPTOP REQUIRED**.
 {: .prereq}
 
+{% include syllabus.html %}
 
 {% include links.md %}
 
