@@ -184,7 +184,7 @@ K-means looks for a fixed number (k) of clusters in a dataset. The K-means algor
 - allocates every data point to the nearest cluster, while keeping the centroids as small as possible.
 - performs iterative (repetitive) calculations to optimize the positions of the centroids
 
-### scale data
+### Scale data
 
 
 ```python
@@ -257,11 +257,6 @@ One of the trickier tasks in clustering is identifying the appropriate number of
 
 
 ```python
-
-```
-
-
-```python
 from scipy.spatial.distance import cdist
 
 k_range = np.arange(2,12)
@@ -284,7 +279,7 @@ _ = plt.xlabel('Number of clusters')
 ```
 
 
-![png](../fig/90-Unsupervised_21_0.png)
+![png](../fig/90-Unsupervised_20_0.png)
 
 
 
@@ -296,7 +291,7 @@ _ = plt.xlabel('Number of clusters')
 ```
 
 
-![png](../fig/90-Unsupervised_22_0.png)
+![png](../fig/90-Unsupervised_21_0.png)
 
 
 ## Hierarchical Clustering
@@ -315,7 +310,7 @@ plt.show()
 ```
 
 
-![png](../fig/90-Unsupervised_24_0.png)
+![png](../fig/90-Unsupervised_23_0.png)
 
 
 
@@ -333,10 +328,10 @@ _ = plt.ylabel('sepal_width')
 ```
 
 
-![png](../fig/90-Unsupervised_26_0.png)
+![png](../fig/90-Unsupervised_25_0.png)
 
 
-### plotting data
+### Potting data
 
 
 ```python
@@ -344,7 +339,7 @@ _ = sns.clustermap(iris_features, method='ward')
 ```
 
 
-![png](../fig/90-Unsupervised_28_0.png)
+![png](../fig/90-Unsupervised_27_0.png)
 
 
 > ## Challenge
@@ -380,7 +375,7 @@ _ = sns.scatterplot(x='PC1',y='PC2', data=iris_PC_df, hue=iris_target)
 ```
 
 
-![png](../fig/90-Unsupervised_32_0.png)
+![png](../fig/90-Unsupervised_31_0.png)
 
 
 ### Eigenvalues
@@ -399,7 +394,7 @@ _ = plt.show()
 ```
 
 
-![png](../fig/90-Unsupervised_34_0.png)
+![png](../fig/90-Unsupervised_33_0.png)
 
 
 
@@ -420,7 +415,7 @@ _ = plt.show()
 ```
 
 
-![png](../fig/90-Unsupervised_36_0.png)
+![png](../fig/90-Unsupervised_35_0.png)
 
 
 
@@ -429,7 +424,7 @@ _ = sns.scatterplot(x='PC2',y='PC3', data=iris_PC_df, hue=iris_target)
 ```
 
 
-![png](../fig/90-Unsupervised_37_0.png)
+![png](../fig/90-Unsupervised_36_0.png)
 
 
 If you need to generate more/better visualisations and explration of your PCA outcome, R has much better "out of the box" visualisations to help you understand what is going on. See [here](https://pages.github.sydney.edu.au/informatics/lessons-mlr/90-Unsupervised/index.html) for our code for doing this on the iris dataset.
@@ -447,10 +442,5 @@ _ = sns.scatterplot(x='Dim1',y='Dim2', data=iris_TSNE_df, hue=iris_target)
 ```
 
 
-![png](../fig/90-Unsupervised_40_0.png)
+![png](../fig/90-Unsupervised_39_0.png)
 
-
-
-```python
-
-```

@@ -22,6 +22,7 @@ bibliography: references.bib
 
 
 ```python
+websiterendering = True
 # when delivering live coding, these libraries and code in this cell have already been loaded
 import matplotlib.pyplot as plt
 import numpy as np
@@ -136,13 +137,13 @@ ames_RF = Pipeline([
     #('estimator', GridSearchCV(RandomForestRegressor(), param_grid, scoring='r2', cv=10))
 ])
 
-
-
-## Toggle comment below to build model
-#ames_RF.fit(ames_train_X, ames_train_y)
-#pickle.dump(ames_RF, open('models/ames_RF.pickle', 'wb'))
-with open('models/ames_RF.pickle', 'rb') as f:
-    ames_RF = pickle.load(f)
+if websiterendering:
+    with open('models/ames_RF.pickle', 'rb') as f:
+        ames_RF = pickle.load(f)
+else:
+    # STUDENTS: execute the line of code below
+    ames_RF.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_RF, open('models/ames_RF.pickle', 'wb'))
     
 #best_RF = ames_RF.named_steps.estimator.best_estimator_
 #print(best_RF)
@@ -150,7 +151,7 @@ with open('models/ames_RF.pickle', 'rb') as f:
 
 
 ```python
-ames_RF['estimator']
+ames_RF.named_steps['estimator']
 ```
 
 
@@ -196,7 +197,7 @@ def plot_coefficients(model, labels):
 
 
 ```python
-plot_coefficients(ames_RF['estimator'], predictors)
+plot_coefficients(ames_RF.named_steps['estimator'], predictors)
 plt.show()
 ```
 
@@ -236,20 +237,24 @@ ames_kNN = Pipeline([
 ])
 
 
-## Toggle comment below to build model
-# ames_kNN.fit(ames_train_X, ames_train_y)
-# pickle.dump(ames_kNN, open('models/ames_knn.pickle', 'wb'))
-with open('models/ames_knn.pickle', 'rb') as f:
-    ames_kNN = pickle.load(f)
+if websiterendering:
+    with open('models/ames_knn.pickle', 'rb') as f:
+        ames_kNN = pickle.load(f)
+else:
+    # STUDENTS: RUN THE LINE BELOW ONLY:
+    ames_kNN.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_kNN, open('models/ames_knn.pickle', 'wb'))
 
+    
+    
 print(ames_kNN.named_steps['estimator'].best_estimator_)
 print(ames_kNN.named_steps['estimator'].best_score_)
 ```
 
     KNeighborsRegressor(algorithm='auto', leaf_size=30, metric='minkowski',
-                        metric_params=None, n_jobs=None, n_neighbors=7, p=2,
+                        metric_params=None, n_jobs=None, n_neighbors=8, p=2,
                         weights='uniform')
-    0.7810186506203685
+    0.777542140008902
 
 
 ## Compare Models
@@ -291,58 +296,58 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
   </thead>
   <tbody>
     <tr>
-      <th>RF</th>
-      <td>17099.214</td>
-      <td>0.955</td>
-      <td>11062.209</td>
-    </tr>
-    <tr>
       <th>OLS</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
-      <th>PCR</th>
-      <td>19106.227</td>
-      <td>0.944</td>
-      <td>11995.822</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>20072.891</td>
-      <td>0.938</td>
-      <td>12450.140</td>
+      <th>RF</th>
+      <td>16038.217</td>
+      <td>0.959</td>
+      <td>10884.483</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>20365.796</td>
-      <td>0.936</td>
-      <td>12266.462</td>
-    </tr>
-    <tr>
-      <th>MARS</th>
-      <td>20980.471</td>
-      <td>0.933</td>
-      <td>14240.862</td>
-    </tr>
-    <tr>
-      <th>ENet</th>
-      <td>21292.160</td>
-      <td>0.931</td>
-      <td>12706.575</td>
+      <td>16480.809</td>
+      <td>0.957</td>
+      <td>11448.829</td>
     </tr>
     <tr>
       <th>Ridge</th>
-      <td>21330.847</td>
-      <td>0.930</td>
-      <td>12951.372</td>
+      <td>16497.181</td>
+      <td>0.957</td>
+      <td>11462.724</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>16524.567</td>
+      <td>0.957</td>
+      <td>11602.496</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>16752.591</td>
+      <td>0.955</td>
+      <td>11765.495</td>
+    </tr>
+    <tr>
+      <th>ENet</th>
+      <td>17041.271</td>
+      <td>0.954</td>
+      <td>11799.798</td>
+    </tr>
+    <tr>
+      <th>MARS</th>
+      <td>19172.923</td>
+      <td>0.942</td>
+      <td>13498.476</td>
     </tr>
     <tr>
       <th>kNN</th>
-      <td>32778.022</td>
-      <td>0.836</td>
-      <td>20021.304</td>
+      <td>31651.974</td>
+      <td>0.841</td>
+      <td>20155.938</td>
     </tr>
   </tbody>
 </table>
@@ -387,66 +392,61 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
   </thead>
   <tbody>
     <tr>
-      <th>MARS</th>
-      <td>24262.447</td>
-      <td>0.902</td>
-      <td>15162.366</td>
-    </tr>
-    <tr>
-      <th>RF</th>
-      <td>27185.647</td>
-      <td>0.877</td>
-      <td>16619.358</td>
-    </tr>
-    <tr>
-      <th>kNN</th>
-      <td>36781.781</td>
-      <td>0.775</td>
-      <td>23913.011</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>47670.165</td>
-      <td>0.623</td>
-      <td>15758.453</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>51509.933</td>
-      <td>0.560</td>
-      <td>15751.082</td>
-    </tr>
-    <tr>
       <th>ENet</th>
-      <td>52482.808</td>
-      <td>0.543</td>
-      <td>15590.977</td>
+      <td>19801.125</td>
+      <td>0.933</td>
+      <td>13317.465</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>59592.173</td>
-      <td>0.411</td>
-      <td>15672.588</td>
+      <td>19864.493</td>
+      <td>0.933</td>
+      <td>13120.146</td>
     </tr>
     <tr>
-      <th>PCR</th>
-      <td>64658.779</td>
-      <td>0.306</td>
-      <td>16238.705</td>
+      <th>Ridge</th>
+      <td>20024.975</td>
+      <td>0.932</td>
+      <td>13270.709</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>20113.237</td>
+      <td>0.931</td>
+      <td>13372.746</td>
     </tr>
     <tr>
       <th>OLS</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>20988.955</td>
+      <td>0.925</td>
+      <td>13957.143</td>
+    </tr>
+    <tr>
+      <th>MARS</th>
+      <td>23226.020</td>
+      <td>0.908</td>
+      <td>15355.804</td>
+    </tr>
+    <tr>
+      <th>RF</th>
+      <td>27382.699</td>
+      <td>0.872</td>
+      <td>16858.700</td>
+    </tr>
+    <tr>
+      <th>kNN</th>
+      <td>34498.941</td>
+      <td>0.797</td>
+      <td>22983.686</td>
     </tr>
   </tbody>
 </table>
 </div>
 
 
-
-
-```python
-
-```

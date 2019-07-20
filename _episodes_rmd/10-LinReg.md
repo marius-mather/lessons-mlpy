@@ -48,8 +48,6 @@ from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 
 from sklearn.metrics import mean_squared_error, r2_score,  mean_absolute_error
 from sklearn.linear_model import LinearRegression, LassoCV, RidgeCV, ElasticNetCV
-
-
 ```
 
 Define some functions to help us one hot encode variables, group together infrequently occuring cases, and create a "none of this feature" column.
@@ -75,7 +73,13 @@ def none_of_this_feature(df, column = 'column'):
 
 ```python
 # you don't need to reload the data
+# this is just here to make the note generation work
 ameshousingClean = pd.read_csv('data/AmesHousingClean.csv')
+ameshousingClean = ameshousingClean.loc[ameshousingClean['Gr_Liv_Area'] <= 4000, :]
+#
+#
+#
+#
 
 # But DO copy-paste the below code to proceed to the challenge
 # step 1
@@ -149,6 +153,9 @@ Now we can use scikit-learn's train-test split to split the data into a training
 ```python
 index_train, index_test  = train_test_split(np.array(ameshousingClean.index), train_size=0.7, test_size = 0.3, 
                                             stratify = np.array(ameshousingClean['Sale_Price_quartile']), random_state=42)
+#
+#
+## get rid of the quartile column so we're not using it to predict sale price
 ameshousingClean = ameshousingClean.drop('Sale_Price_quartile', axis = 1)
 
 # Create variables for the training and test sets 
@@ -163,8 +170,8 @@ print(ames_train.shape)
 print(ames_test.shape)
 ```
 
-    (2051, 287)
-    (879, 287)
+    (2047, 287)
+    (878, 287)
 
 
 Get a list of predictor names and make numpy matrices of the data:
@@ -250,7 +257,8 @@ ames_ols_GrLivArea_Age.fit(ames_train_X[['Gr_Liv_Area','Age']], ames_train_y)
 
 
 
-    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
+    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None,
+             normalize=False)
 
 
 
@@ -317,33 +325,33 @@ compare_train.sort_values('RMSE')
   <tbody>
     <tr>
       <th>:</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
       <th>[Gr_Liv_Area, Age]</th>
-      <td>50897.025</td>
-      <td>0.603</td>
-      <td>29818.203</td>
-    </tr>
-    <tr>
-      <th>Gr_Liv_Area</th>
-      <td>64884.161</td>
-      <td>0.355</td>
-      <td>40056.146</td>
-    </tr>
-    <tr>
-      <th>Second_Flr_SF</th>
-      <td>78956.645</td>
-      <td>0.046</td>
-      <td>53158.416</td>
+      <td>42838.016</td>
+      <td>0.709</td>
+      <td>29175.241</td>
     </tr>
     <tr>
       <th>[Gr_Liv_Area, Second_Flr_SF]</th>
-      <td>79609.931</td>
-      <td>0.030</td>
-      <td>38615.494</td>
+      <td>54774.347</td>
+      <td>0.524</td>
+      <td>36413.963</td>
+    </tr>
+    <tr>
+      <th>Gr_Liv_Area</th>
+      <td>57157.444</td>
+      <td>0.481</td>
+      <td>39045.817</td>
+    </tr>
+    <tr>
+      <th>Second_Flr_SF</th>
+      <td>78064.434</td>
+      <td>0.033</td>
+      <td>53060.044</td>
     </tr>
   </tbody>
 </table>
@@ -388,34 +396,34 @@ compare.sort_values('RMSE')
   </thead>
   <tbody>
     <tr>
-      <th>GrLivArea_Age</th>
-      <td>61910.789</td>
-      <td>0.364</td>
-      <td>29520.827</td>
+      <th>:</th>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
     </tr>
     <tr>
-      <th>All</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
+      <th>[Gr_Liv_Area, Age]</th>
+      <td>39888.647</td>
+      <td>0.729</td>
+      <td>27876.134</td>
+    </tr>
+    <tr>
+      <th>[Gr_Liv_Area, Second_Flr_SF]</th>
+      <td>49934.445</td>
+      <td>0.575</td>
+      <td>35199.582</td>
+    </tr>
+    <tr>
+      <th>Gr_Liv_Area</th>
+      <td>55373.269</td>
+      <td>0.477</td>
+      <td>37740.468</td>
     </tr>
     <tr>
       <th>Second_Flr_SF</th>
-      <td>75173.157</td>
-      <td>0.062</td>
-      <td>51792.088</td>
-    </tr>
-    <tr>
-      <th>GrLivArea</th>
-      <td>76804.438</td>
-      <td>0.021</td>
-      <td>39238.397</td>
-    </tr>
-    <tr>
-      <th>GrLivArea Second_Flr_SF</th>
-      <td>106083.367</td>
-      <td>-0.868</td>
-      <td>38218.077</td>
+      <td>73795.736</td>
+      <td>0.071</td>
+      <td>51293.938</td>
     </tr>
   </tbody>
 </table>

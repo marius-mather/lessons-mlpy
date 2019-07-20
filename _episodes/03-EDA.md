@@ -736,7 +736,7 @@ sns.barplot(missingNo.values, missingNo.index, ax = ax)
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x11aa922b0>
+    <matplotlib.axes._subplots.AxesSubplot at 0x1b35a3b80f0>
 
 
 
@@ -832,7 +832,7 @@ sns.pairplot(
 
 
 
-    <seaborn.axisgrid.PairGrid at 0x11b11fc50>
+    <seaborn.axisgrid.PairGrid at 0x1b35a780320>
 
 
 
@@ -848,15 +848,19 @@ sns.pairplot(
     vars = numericVars[np.append(np.arange(11, 22), 33)])
 ```
 
+    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
+      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
 
 
-    <seaborn.axisgrid.PairGrid at 0x121468780>
+
+
+    <seaborn.axisgrid.PairGrid at 0x1b35faec5c0>
 
 
 
 
-![png](../fig/03-EDA_31_1.png)
+![png](../fig/03-EDA_31_2.png)
 
 
 Of the numeric variables, which ones are the most correlated (with Sale price, and, more critically, with each other)?
@@ -903,7 +907,7 @@ sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, square=True)
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x126708358>
+    <matplotlib.axes._subplots.AxesSubplot at 0x1b36778da58>
 
 
 
@@ -922,7 +926,7 @@ sns.lmplot(
 
 
 
-    <seaborn.axisgrid.FacetGrid at 0x11b1bfb38>
+    <seaborn.axisgrid.FacetGrid at 0x1b36779bbe0>
 
 
 
@@ -943,10 +947,10 @@ Can you see any outliers in the data? Arguably, the five points on the right, wt
 
 
 ```python
-ameshousingCleanFiltered = ameshousingClean.loc[ameshousingClean['Gr_Liv_Area'] <= 4000, :]
+ameshousingClean = ameshousingClean.loc[ameshousingClean['Gr_Liv_Area'] <= 4000, :]
 ```
 
-> This next 2 plots do not need to be demonstrated in class, but are here as notes
+> The next 2 plots do not need to be demonstrated in class, but are here as notes
 
 You can also use violin and box plots to explore the relationship between categorical variables and the Outcome
 
@@ -957,20 +961,24 @@ f, ax = plt.subplots(figsize = (20, 10))
 sns.violinplot(
     x = 'Overall_Qual',
     y = 'Sale_Price',
-    data = ameshousingCleanFiltered,
+    data = ameshousingClean,
     ax = ax
 )
 ```
 
+    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
+      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x12291ce10>
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1b3680342b0>
 
 
 
 
-![png](../fig/03-EDA_40_1.png)
+![png](../fig/03-EDA_40_2.png)
 
 
 
@@ -980,7 +988,7 @@ f, ax = plt.subplots(figsize = (20, 10))
 sns.boxplot(
     x = 'Overall_Qual',
     y = 'Sale_Price',
-    data = ameshousingCleanFiltered,
+    data = ameshousingClean,
     ax = ax
 )
 ```
@@ -988,7 +996,7 @@ sns.boxplot(
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x122adadd8>
+    <matplotlib.axes._subplots.AxesSubplot at 0x1b367fa2940>
 
 
 
@@ -1001,21 +1009,25 @@ sns.boxplot(
 # DO INCLUDE this one though
 f, ax = plt.subplots(figsize = (20, 10))
 sns.distplot(
-    ameshousingCleanFiltered['Sale_Price'],
+    ameshousingClean['Sale_Price'],
     kde = False,
     ax = ax
 )
 ```
 
+    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
+      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
 
 
-    <matplotlib.axes._subplots.AxesSubplot at 0x131132fd0>
+
+
+    <matplotlib.axes._subplots.AxesSubplot at 0x1b3698ab550>
 
 
 
 
-![png](../fig/03-EDA_42_1.png)
+![png](../fig/03-EDA_42_2.png)
 
 
 Explore different ways of transforming the Sale Price.
@@ -1024,7 +1036,7 @@ Explore different ways of transforming the Sale Price.
 ```python
 # raw data
 sm.qqplot(
-    ameshousingCleanFiltered['Sale_Price'],
+    ameshousingClean['Sale_Price'],
     line = 's'
 )
 ```
@@ -1044,7 +1056,7 @@ sm.qqplot(
 ```python
 # sqrt transformation
 sm.qqplot(
-    np.sqrt(ameshousingCleanFiltered['Sale_Price']),
+    np.sqrt(ameshousingClean['Sale_Price']),
     line = 's'
 )
 ```
@@ -1064,7 +1076,7 @@ sm.qqplot(
 ```python
 # log transform
 sm.qqplot(
-    np.log(ameshousingCleanFiltered['Sale_Price']),
+    np.log(ameshousingClean['Sale_Price']),
     line = 's'
 )
 ```
@@ -1084,7 +1096,7 @@ sm.qqplot(
 ```python
 # log10 transform
 sm.qqplot(
-    np.log10(ameshousingCleanFiltered['Sale_Price']),
+    np.log10(ameshousingClean['Sale_Price']),
     line = 's'
 )
 ```

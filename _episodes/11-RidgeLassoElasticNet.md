@@ -23,6 +23,7 @@ bibliography: references.bib
 
 ```python
 # when delivering live coding, these libraries have already been loaded
+websiterendering = True
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,6 +56,8 @@ for file in cached_files:
         objectname = file.replace('models/', '').replace('.pickle', '')
         exec(objectname + " = pickle.load(f)")
         f.close()
+        
+
 ```
 
 
@@ -118,11 +121,13 @@ ames_ridge = Pipeline([
 ])
 
 
-## Toggle comment below to build model
-# ames_ridge.fit(ames_train_X, ames_train_y)
-# pickle.dump(ames_ridge, open('models/ames_ridge.pickle', 'wb'))
-with open('models/ames_ridge.pickle', 'rb') as f:
-    ames_ridge = pickle.load(f)
+if websiterendering:
+    with open('models/ames_ridge.pickle', 'rb') as f:
+        ames_ridge = pickle.load(f)
+else:
+    # STUDENTS: RUN THE LINE BELOW ONLY:
+    ames_ridge.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_ridge, open('models/ames_ridge.pickle', 'wb'))
 ```
 
 
@@ -132,7 +137,7 @@ best_alpha_ridge = ames_ridge.named_steps.estimator.alpha_
 print(best_alpha_ridge)
 ```
 
-    458.922033222583
+    205.67327400112214
 
 
 
@@ -144,7 +149,7 @@ alphas.index(best_alpha_ridge)
 
 
 
-    18
+    17
 
 
 
@@ -157,15 +162,14 @@ ames_lasso = Pipeline([
     ('estimator', LassoCV(alphas=alphas, cv=10)),
 ])
 
-ames_lasso.fit(ames_train_X, ames_train_y)
 
-## Toggle comment below to build model
-# ames_lasso.fit(ames_train_X, ames_train_y)
-# pickle.dump(ames_lasso, open('models/ames_lasso.pickle', 'wb'))
-with open('models/ames_lasso.pickle', 'rb') as f:
-    ames_lasso = pickle.load(f)
-    
-    
+if websiterendering:
+    with open('models/ames_lasso.pickle', 'rb') as f:
+        ames_lasso = pickle.load(f)
+else:
+    # STUDENTS: RUN THE LINE BELOW ONLY:
+    ames_lasso.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_lasso, open('models/ames_lasso.pickle', 'wb'))
 ```
 
 
@@ -207,11 +211,13 @@ ames_enet = Pipeline([
     ('estimator', GridSearchCV(ElasticNet(), parametersGrid, scoring='r2', cv=10)),
 ])
 
-## Toggle comment below to build model
-ames_enet.fit(ames_train_X, ames_train_y)
-pickle.dump(ames_enet, open('models/ames_enet.pickle', 'wb'))
-with open('models/ames_enet.pickle', 'rb') as f:
-    ames_enet = pickle.load(f)
+if websiterendering:
+    with open('models/ames_enet.pickle', 'rb') as f:
+        ames_enet = pickle.load(f)
+else:
+    # STUDENTS: RUN ONLY THE LINE OF CODE BELOW
+    ames_enet.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_enet, open('models/ames_enet.pickle', 'wb'))
 ```
 
 
@@ -285,27 +291,27 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   <tbody>
     <tr>
       <th>OLS</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>21330.847</td>
-      <td>0.930</td>
-      <td>12951.372</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>20365.796</td>
-      <td>0.936</td>
-      <td>12266.462</td>
+      <td>16480.809</td>
+      <td>0.957</td>
+      <td>11448.829</td>
+    </tr>
+    <tr>
+      <th>Ridge</th>
+      <td>16497.181</td>
+      <td>0.957</td>
+      <td>11462.724</td>
     </tr>
     <tr>
       <th>ENet</th>
-      <td>21292.160</td>
-      <td>0.931</td>
-      <td>12706.575</td>
+      <td>17041.271</td>
+      <td>0.954</td>
+      <td>11799.798</td>
     </tr>
   </tbody>
 </table>
@@ -350,28 +356,28 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   </thead>
   <tbody>
     <tr>
-      <th>OLS</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>47670.165</td>
-      <td>0.623</td>
-      <td>15758.453</td>
+      <th>ENet</th>
+      <td>19801.125</td>
+      <td>0.933</td>
+      <td>13317.465</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>59592.173</td>
-      <td>0.411</td>
-      <td>15672.588</td>
+      <td>19864.493</td>
+      <td>0.933</td>
+      <td>13120.146</td>
     </tr>
     <tr>
-      <th>ENet</th>
-      <td>52482.808</td>
-      <td>0.543</td>
-      <td>15590.977</td>
+      <th>Ridge</th>
+      <td>20024.975</td>
+      <td>0.932</td>
+      <td>13270.709</td>
+    </tr>
+    <tr>
+      <th>OLS</th>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
     </tr>
   </tbody>
 </table>
@@ -476,19 +482,20 @@ ames_pcr = GridSearchCV(pipe, param_grid, iid=False, cv=5,
                       return_train_score=False)
 
 
-
-## Toggle comment below to build model
-ames_pcr.fit(ames_train_X, ames_train_y)
-pickle.dump(ames_pcr, open('models/ames_pcr.pickle', 'wb'))
-#with open('models/ames_pcr.pickle', 'rb') as f:
-#    ames_pcr = pickle.load(f)
+if websiterendering:
+    with open('models/ames_pcr.pickle', 'rb') as f:
+        ames_pcr = pickle.load(f)
+else:
+    # STUDENTS: RUN THE ONE LINE BELOW
+    ames_pcr.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_pcr, open('models/ames_pcr.pickle', 'wb'))
     
 print("Best parameter (CV score=%0.3f):" % ames_pcr.best_score_)
 print(ames_pcr.best_params_)
 ```
 
-    Best parameter (CV score=0.884):
-    {'pca__n_components': 249}
+    Best parameter (CV score=0.916):
+    {'pca__n_components': 220}
 
 
 
@@ -499,7 +506,7 @@ print(ames_train_X.shape)
 print(numcomp)
 ```
 
-    (2051, 286)
+    (2047, 286)
     [1, 8, 16, 23, 30, 38, 45, 52, 59, 67, 74, 81, 89, 96, 103, 111, 118, 125, 133, 140, 147, 154, 162, 169, 176, 184, 191, 198, 206, 213, 220, 228, 235, 242, 249, 257, 264, 271, 279, 286]
 
 
@@ -541,33 +548,33 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   <tbody>
     <tr>
       <th>OLS</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>21330.847</td>
-      <td>0.930</td>
-      <td>12951.372</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>20365.796</td>
-      <td>0.936</td>
-      <td>12266.462</td>
+      <td>16480.809</td>
+      <td>0.957</td>
+      <td>11448.829</td>
     </tr>
     <tr>
-      <th>ENet</th>
-      <td>21292.160</td>
-      <td>0.931</td>
-      <td>12706.575</td>
+      <th>Ridge</th>
+      <td>16497.181</td>
+      <td>0.957</td>
+      <td>11462.724</td>
     </tr>
     <tr>
       <th>PCR</th>
-      <td>19106.227</td>
-      <td>0.944</td>
-      <td>11995.822</td>
+      <td>16752.591</td>
+      <td>0.955</td>
+      <td>11765.495</td>
+    </tr>
+    <tr>
+      <th>ENet</th>
+      <td>17041.271</td>
+      <td>0.954</td>
+      <td>11799.798</td>
     </tr>
   </tbody>
 </table>
@@ -612,34 +619,34 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   </thead>
   <tbody>
     <tr>
-      <th>OLS</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>47670.165</td>
-      <td>0.623</td>
-      <td>15758.453</td>
+      <th>ENet</th>
+      <td>19801.125</td>
+      <td>0.933</td>
+      <td>13317.465</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>59592.173</td>
-      <td>0.411</td>
-      <td>15672.588</td>
+      <td>19864.493</td>
+      <td>0.933</td>
+      <td>13120.146</td>
     </tr>
     <tr>
-      <th>ENet</th>
-      <td>52482.808</td>
-      <td>0.543</td>
-      <td>15590.977</td>
+      <th>Ridge</th>
+      <td>20024.975</td>
+      <td>0.932</td>
+      <td>13270.709</td>
+    </tr>
+    <tr>
+      <th>OLS</th>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
     </tr>
     <tr>
       <th>PCR</th>
-      <td>64658.779</td>
-      <td>0.306</td>
-      <td>16238.705</td>
+      <td>20988.955</td>
+      <td>0.925</td>
+      <td>13957.143</td>
     </tr>
   </tbody>
 </table>
@@ -679,11 +686,13 @@ ames_plsr = GridSearchCV(pipe, param_grid, iid=False, cv=5,
                       return_train_score=False)
 
 
-## Toggle comment below to build model
-ames_plsr.fit(ames_train_X, ames_train_y)
-pickle.dump(ames_plsr, open('models/ames_plsr.pickle', 'wb'))
-with open('models/ames_plsr.pickle', 'rb') as f:
-    ames_plsr = pickle.load(f)
+if websiterendering:
+    with open('models/ames_plsr.pickle', 'rb') as f:
+        ames_plsr = pickle.load(f)
+else:
+    # STUDENTS: EXECUTE THE CODE BELOW
+    ames_plsr.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_plsr, open('models/ames_plsr.pickle', 'wb'))
     
 
 ```
@@ -739,39 +748,39 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   <tbody>
     <tr>
       <th>OLS</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
-    </tr>
-    <tr>
-      <th>PCR</th>
-      <td>19106.227</td>
-      <td>0.944</td>
-      <td>11995.822</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>20072.891</td>
-      <td>0.938</td>
-      <td>12450.140</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>20365.796</td>
-      <td>0.936</td>
-      <td>12266.462</td>
-    </tr>
-    <tr>
-      <th>ENet</th>
-      <td>21292.160</td>
-      <td>0.931</td>
-      <td>12706.575</td>
+      <td>16480.809</td>
+      <td>0.957</td>
+      <td>11448.829</td>
     </tr>
     <tr>
       <th>Ridge</th>
-      <td>21330.847</td>
-      <td>0.930</td>
-      <td>12951.372</td>
+      <td>16497.181</td>
+      <td>0.957</td>
+      <td>11462.724</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>16524.567</td>
+      <td>0.957</td>
+      <td>11602.496</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>16752.591</td>
+      <td>0.955</td>
+      <td>11765.495</td>
+    </tr>
+    <tr>
+      <th>ENet</th>
+      <td>17041.271</td>
+      <td>0.954</td>
+      <td>11799.798</td>
     </tr>
   </tbody>
 </table>
@@ -816,46 +825,48 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   </thead>
   <tbody>
     <tr>
-      <th>Ridge</th>
-      <td>47670.165</td>
-      <td>0.623</td>
-      <td>15758.453</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>51509.933</td>
-      <td>0.560</td>
-      <td>15751.082</td>
-    </tr>
-    <tr>
       <th>ENet</th>
-      <td>52482.808</td>
-      <td>0.543</td>
-      <td>15590.977</td>
+      <td>19801.125</td>
+      <td>0.933</td>
+      <td>13317.465</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>59592.173</td>
-      <td>0.411</td>
-      <td>15672.588</td>
+      <td>19864.493</td>
+      <td>0.933</td>
+      <td>13120.146</td>
     </tr>
     <tr>
-      <th>PCR</th>
-      <td>64658.779</td>
-      <td>0.306</td>
-      <td>16238.705</td>
+      <th>Ridge</th>
+      <td>20024.975</td>
+      <td>0.932</td>
+      <td>13270.709</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>20113.237</td>
+      <td>0.931</td>
+      <td>13372.746</td>
     </tr>
     <tr>
       <th>OLS</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>20988.955</td>
+      <td>0.925</td>
+      <td>13957.143</td>
     </tr>
   </tbody>
 </table>
 </div>
 
 
+
+## MARS - Multivariate adaptive regression splines
 
 
 ```python
@@ -866,7 +877,7 @@ from pyearth import Earth
 
 
 ```python
-# Define a pipeline to search for the best number of components in PLSR
+# Define a pipeline to optimise MARS parameters
 mars = Earth()
 max_degree = [1,2,3]
 
@@ -877,12 +888,14 @@ ames_mars = GridSearchCV(pipe, param_grid, iid=False, cv=5,
                       return_train_score=False)
 
 
-## Toggle comment below to build model
-#ames_mars.fit(ames_train_X, ames_train_y)
-#pickle.dump(ames_mars, open('models/ames_mars.pickle', 'wb'))
-with open('models/ames_mars.pickle', 'rb') as f:
-    ames_mars = pickle.load(f)
     
+if websiterendering:
+    with open('models/ames_mars.pickle', 'rb') as f:
+        ames_mars = pickle.load(f)
+else:
+    # STUDENTS: RUN THE LINE BELOW ONLY
+    ames_mars.fit(ames_train_X, ames_train_y)
+    pickle.dump(ames_mars, open('models/ames_mars.pickle', 'wb'))
 
 ```
 
@@ -924,45 +937,45 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   <tbody>
     <tr>
       <th>OLS</th>
-      <td>18810.886</td>
-      <td>0.946</td>
-      <td>11761.208</td>
-    </tr>
-    <tr>
-      <th>PCR</th>
-      <td>19106.227</td>
-      <td>0.944</td>
-      <td>11995.822</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>20072.891</td>
-      <td>0.938</td>
-      <td>12450.140</td>
+      <td>15757.714</td>
+      <td>0.961</td>
+      <td>10931.668</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>20365.796</td>
-      <td>0.936</td>
-      <td>12266.462</td>
-    </tr>
-    <tr>
-      <th>MARS</th>
-      <td>20980.471</td>
-      <td>0.933</td>
-      <td>14240.862</td>
-    </tr>
-    <tr>
-      <th>ENet</th>
-      <td>21292.160</td>
-      <td>0.931</td>
-      <td>12706.575</td>
+      <td>16480.809</td>
+      <td>0.957</td>
+      <td>11448.829</td>
     </tr>
     <tr>
       <th>Ridge</th>
-      <td>21330.847</td>
-      <td>0.930</td>
-      <td>12951.372</td>
+      <td>16497.181</td>
+      <td>0.957</td>
+      <td>11462.724</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>16524.567</td>
+      <td>0.957</td>
+      <td>11602.496</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>16752.591</td>
+      <td>0.955</td>
+      <td>11765.495</td>
+    </tr>
+    <tr>
+      <th>ENet</th>
+      <td>17041.271</td>
+      <td>0.954</td>
+      <td>11799.798</td>
+    </tr>
+    <tr>
+      <th>MARS</th>
+      <td>19172.923</td>
+      <td>0.942</td>
+      <td>13498.476</td>
     </tr>
   </tbody>
 </table>
@@ -1007,46 +1020,46 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
   </thead>
   <tbody>
     <tr>
-      <th>MARS</th>
-      <td>24262.447</td>
-      <td>0.902</td>
-      <td>15162.366</td>
-    </tr>
-    <tr>
-      <th>Ridge</th>
-      <td>47670.165</td>
-      <td>0.623</td>
-      <td>15758.453</td>
-    </tr>
-    <tr>
-      <th>PLSR</th>
-      <td>51509.933</td>
-      <td>0.560</td>
-      <td>15751.082</td>
-    </tr>
-    <tr>
       <th>ENet</th>
-      <td>52482.808</td>
-      <td>0.543</td>
-      <td>15590.977</td>
+      <td>19801.125</td>
+      <td>0.933</td>
+      <td>13317.465</td>
     </tr>
     <tr>
       <th>Lasso</th>
-      <td>59592.173</td>
-      <td>0.411</td>
-      <td>15672.588</td>
+      <td>19864.493</td>
+      <td>0.933</td>
+      <td>13120.146</td>
     </tr>
     <tr>
-      <th>PCR</th>
-      <td>64658.779</td>
-      <td>0.306</td>
-      <td>16238.705</td>
+      <th>Ridge</th>
+      <td>20024.975</td>
+      <td>0.932</td>
+      <td>13270.709</td>
+    </tr>
+    <tr>
+      <th>PLSR</th>
+      <td>20113.237</td>
+      <td>0.931</td>
+      <td>13372.746</td>
     </tr>
     <tr>
       <th>OLS</th>
-      <td>64792.914</td>
-      <td>0.303</td>
-      <td>16436.269</td>
+      <td>20541.485</td>
+      <td>0.928</td>
+      <td>13346.733</td>
+    </tr>
+    <tr>
+      <th>PCR</th>
+      <td>20988.955</td>
+      <td>0.925</td>
+      <td>13957.143</td>
+    </tr>
+    <tr>
+      <th>MARS</th>
+      <td>23226.020</td>
+      <td>0.908</td>
+      <td>15355.804</td>
     </tr>
   </tbody>
 </table>
