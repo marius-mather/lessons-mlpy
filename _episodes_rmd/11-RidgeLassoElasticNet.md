@@ -56,8 +56,6 @@ for file in cached_files:
         objectname = file.replace('models/', '').replace('.pickle', '')
         exec(objectname + " = pickle.load(f)")
         f.close()
-        
-
 ```
 
 
@@ -77,17 +75,17 @@ warnings.warn = warn
 
 
 ## A similar function has already been defined, but it's better to re copy paste here
-def assess_model_fit(listOfModels,
-                     listOfMethodNamesAsStrings, 
+def assess_model_fit(models,
+                     model_labels, 
                      datasetX, 
                      datasetY):
-    columns= ['RMSE', 'R2', 'MAE']
-    rows=listOfMethodNamesAsStrings
-    results=pd.DataFrame(0.0, columns=columns, index=rows)
-    for i, method in enumerate(listOfModels):
-        tmp_dataset_X=datasetX
-        # while we build the model and predict on the log10Transformed sale price, we display the error in dollars
-        # as that makes more sense
+    columns = ['RMSE', 'R2', 'MAE']
+    rows = model_labels
+    results = pd.DataFrame(0.0, columns=columns, index=rows)
+    for i, method in enumerate(models):
+        tmp_dataset_X = datasetX
+        # while we build the model and predict on the log10Transformed 
+        # sale price, we display the error in dollars as that makes more sense
         y_pred=10**(method.predict(tmp_dataset_X))
         results.iloc[i,0] = np.sqrt(mean_squared_error(10**(datasetY), y_pred))
         results.iloc[i,1] = r2_score(10**(datasetY), y_pred)
@@ -195,6 +193,32 @@ alphas.index(best_alpha_lasso)
 
 
 
+
+```python
+len(alphas)
+```
+
+
+
+
+    20
+
+
+
+
+```python
+lasso_cv = ames_lasso.named_steps['estimator']
+lasso_mse_means = lasso_cv.mse_path_.mean(axis=1)
+
+fig, ax = plt.subplots()
+ax.plot(lasso_cv.alphas, lasso_mse_means, label='MSE')
+ax.set_xlabel("alpha");
+```
+
+
+![png](../fig/11-RidgeLassoElasticNet_12_0.png)
+
+
 ## Elastic net: combining L1 and L2 regularisation
 
 
@@ -235,6 +259,26 @@ print(best_params_enet.alpha)
     0.06723066163876137
 
 
+
+```python
+# Visualise the tuning performance
+enet_cv = ames_enet.named_steps['estimator']
+enet_results = pd.DataFrame.from_dict(enet_cv.cv_results_)
+tune_results = enet_results.pivot(
+    index='param_l1_ratio', 
+    columns='param_alpha',
+    values='mean_test_score')
+
+fig, ax = plt.subplots()
+tune_results.plot(ax=ax, cmap=plt.cm.viridis)
+ax.set_xlabel("Mixing proportion")
+ax.set_ylabel('R squared on cross validation');
+```
+
+
+![png](../fig/11-RidgeLassoElasticNet_17_0.png)
+
+
 > ## Challenge 1
 >
 > 1. Look at the coefficients for the model above. What was the balance between L1 (Lasso) and L2 (Ridge) regression?
@@ -256,8 +300,8 @@ print(best_params_enet.alpha)
 
 ```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', "ENet"], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet],
+                 model_labels =['OLS','Ridge', 'Lasso', "ENet"], 
                  datasetX=ames_train_X,
                  datasetY=ames_train_y).sort_values("RMSE")
 ```
@@ -322,8 +366,8 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
 
 ```python
 # Compare with the test data!
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', "ENet"], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet],
+                 model_labels =['OLS','Ridge', 'Lasso', "ENet"], 
                  datasetX=ames_test_X,
                  datasetY=ames_test_y).sort_values("RMSE")
 ```
@@ -390,17 +434,13 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
 
 ```python
 def plot_coefficients(model, labels):
-    coef = model.coef_
-
-    table = pd.Series(coef.ravel(), index = labels).sort_values(ascending=True, inplace=False)
-    
-    reference = pd.Series(np.abs(coef.ravel()), index = labels).sort_values(ascending=False, inplace=False)
-    reference = reference.iloc[:20]
-    table = table[reference.index]
-    table = table.sort_values(ascending=True, inplace=False)
+    table = pd.Series(model.coef_, index = labels)
+    # Get the largest 20 values (by absolute value)
+    table = table[table.abs().nlargest(20).index].sort_values()
 
     fig, ax = fig, ax = plt.subplots()
-    table.T.plot(kind='barh', edgecolor='black', width=0.7, linewidth=.8, alpha=0.9, ax=ax)
+    table.T.plot(kind='barh', edgecolor='black', width=0.7, 
+                 linewidth=.8, alpha=0.9, ax=ax)
     ax.tick_params(axis=u'y', length=0) 
     ax.set_title('Estimated coefficients (twenty largest in absolute value)', fontsize=14)
     sns.despine()
@@ -414,7 +454,7 @@ plt.show()
 ```
 
 
-![png](../fig/11-RidgeLassoElasticNet_20_0.png)
+![png](../fig/11-RidgeLassoElasticNet_23_0.png)
 
 
 
@@ -424,7 +464,7 @@ plt.show()
 ```
 
 
-![png](../fig/11-RidgeLassoElasticNet_21_0.png)
+![png](../fig/11-RidgeLassoElasticNet_24_0.png)
 
 
 
@@ -434,7 +474,7 @@ plt.show()
 ```
 
 
-![png](../fig/11-RidgeLassoElasticNet_22_0.png)
+![png](../fig/11-RidgeLassoElasticNet_25_0.png)
 
 
 
@@ -444,7 +484,7 @@ plt.show()
 ```
 
 
-![png](../fig/11-RidgeLassoElasticNet_23_0.png)
+![png](../fig/11-RidgeLassoElasticNet_26_0.png)
 
 
 > ## Challenge 2
@@ -512,9 +552,28 @@ print(numcomp)
 
 
 ```python
+# Visualise the tuning performance
+pcr_results = pd.DataFrame.from_dict(ames_pcr.cv_results_)
+
+fig, ax = plt.subplots()
+# R^2 is invalid for some values and needs to be filtered out
+(pcr_results.query('mean_test_score > 0')
+ .plot(x='param_pca__n_components', y='mean_test_score', 
+       ax=ax)
+)
+ax.set_xlabel("Number of components")
+ax.set_ylabel('R squared on cross validation');
+```
+
+
+![png](../fig/11-RidgeLassoElasticNet_31_0.png)
+
+
+
+```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR'], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr],
+                 model_labels = ['OLS','Ridge', 'Lasso', 'ENet', 'PCR'], 
                  datasetX=ames_train_X,
                  datasetY=ames_train_y).sort_values("RMSE")
 ```
@@ -566,9 +625,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>16752.591</td>
+      <td>16764.468</td>
       <td>0.955</td>
-      <td>11765.495</td>
+      <td>11776.527</td>
     </tr>
     <tr>
       <th>ENet</th>
@@ -585,8 +644,8 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
 
 ```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR'], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet', 'PCR'], 
                  datasetX=ames_test_X,
                  datasetY=ames_test_y).sort_values("RMSE")
 ```
@@ -644,9 +703,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>20988.955</td>
-      <td>0.925</td>
-      <td>13957.143</td>
+      <td>21165.295</td>
+      <td>0.924</td>
+      <td>14049.317</td>
     </tr>
   </tbody>
 </table>
@@ -693,8 +752,6 @@ else:
     # STUDENTS: EXECUTE THE CODE BELOW
     ames_plsr.fit(ames_train_X, ames_train_y)
     pickle.dump(ames_plsr, open('models/ames_plsr.pickle', 'wb'))
-    
-
 ```
 
 
@@ -712,9 +769,28 @@ ames_plsr.best_params_
 
 
 ```python
+# Visualise the tuning performance
+plsr_results = pd.DataFrame.from_dict(ames_plsr.cv_results_)
+
+fig, ax = plt.subplots()
+plsr_results.plot(
+    x='param_plsr__n_components', 
+    y='mean_test_score', 
+    ax=ax
+)
+ax.set_xlabel("Number of components")
+ax.set_ylabel('R squared on cross validation');
+```
+
+
+![png](../fig/11-RidgeLassoElasticNet_38_0.png)
+
+
+
+```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR'], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR'], 
                  datasetX=ames_train_X,
                  datasetY=ames_train_y).sort_values("RMSE")
 ```
@@ -772,9 +848,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>16752.591</td>
+      <td>16764.468</td>
       <td>0.955</td>
-      <td>11765.495</td>
+      <td>11776.527</td>
     </tr>
     <tr>
       <th>ENet</th>
@@ -791,8 +867,8 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
 
 ```python
 # What was the RMSE on the test data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR'], 
+assess_model_fit(models= [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR'], 
                  datasetX=ames_test_X,
                  datasetY=ames_test_y).sort_values("RMSE")
 ```
@@ -856,9 +932,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>20988.955</td>
-      <td>0.925</td>
-      <td>13957.143</td>
+      <td>21165.295</td>
+      <td>0.924</td>
+      <td>14049.317</td>
     </tr>
   </tbody>
 </table>
@@ -896,14 +972,32 @@ else:
     # STUDENTS: RUN THE LINE BELOW ONLY
     ames_mars.fit(ames_train_X, ames_train_y)
     pickle.dump(ames_mars, open('models/ames_mars.pickle', 'wb'))
-
 ```
 
 
 ```python
+# Visualise the tuning performance
+mars_results = pd.DataFrame.from_dict(ames_mars.cv_results_)
+
+fig, ax = plt.subplots()
+mars_results.plot(
+    x='param_mars__max_degree', 
+    y='mean_test_score', 
+    ax=ax
+)
+ax.set_xlabel("Maximum degree")
+ax.set_ylabel('R squared on cross validation');
+```
+
+
+![png](../fig/11-RidgeLassoElasticNet_44_0.png)
+
+
+
+```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR','MARS'], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR','MARS'], 
                  datasetX=ames_train_X,
                  datasetY=ames_train_y).sort_values("RMSE")
 ```
@@ -961,9 +1055,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>16752.591</td>
+      <td>16764.468</td>
       <td>0.955</td>
-      <td>11765.495</td>
+      <td>11776.527</td>
     </tr>
     <tr>
       <th>ENet</th>
@@ -986,8 +1080,8 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
 
 ```python
 # What was the RMSE on the test data?
-assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars],
-                 listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR','MARS'], 
+assess_model_fit(models = [ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet', 'PCR','PLSR','MARS'], 
                  datasetX=ames_test_X,
                  datasetY=ames_test_y).sort_values("RMSE")
 ```
@@ -1051,9 +1145,9 @@ assess_model_fit(listOfModels = [ames_ols_all, ames_ridge, ames_lasso, ames_enet
     </tr>
     <tr>
       <th>PCR</th>
-      <td>20988.955</td>
-      <td>0.925</td>
-      <td>13957.143</td>
+      <td>21165.295</td>
+      <td>0.924</td>
+      <td>14049.317</td>
     </tr>
     <tr>
       <th>MARS</th>
