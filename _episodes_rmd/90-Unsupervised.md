@@ -165,7 +165,7 @@ print(iris_features.head())
 
 
 ```python
-_ = sns.scatterplot(x='petal_length',y='sepal_width', data=iris, hue=iris_target)
+sns.scatterplot(x='petal_length',y='sepal_width', data=iris, hue=iris_target);
 ```
 
 
@@ -201,9 +201,9 @@ labels_k2 = model_kmeans_k2.fit_predict(iris_features_sc)
 
 
 ```python
-_ = plt.scatter(iris['petal_length'], iris['sepal_width'], c=labels_k2, cmap='viridis', edgecolor='k')
-_ = plt.xlabel('petal_length')
-_ = plt.ylabel('sepal_width')
+plt.scatter(iris['petal_length'], iris['sepal_width'], c=labels_k2, cmap='viridis', edgecolor='k')
+plt.xlabel('petal_length')
+plt.ylabel('sepal_width');
 ```
 
 
@@ -221,9 +221,9 @@ labels_k3 = model_kmeans_k3.fit_predict(iris_features_sc)
 
 
 ```python
-_ = plt.scatter(iris['petal_length'], iris['sepal_width'], c=labels_k3, cmap='viridis', edgecolor='k')
-_ = plt.xlabel('petal_length')
-_ = plt.ylabel('sepal_width')
+plt.scatter(iris['petal_length'], iris['sepal_width'], c=labels_k3, cmap='viridis', edgecolor='k')
+plt.xlabel('petal_length')
+plt.ylabel('sepal_width');
 
 #for index, row in iris.iterrows():
 #    plt.annotate(row['species'][:2], row['petal_length'], row['petal_width'])
@@ -273,9 +273,9 @@ for i, k in enumerate(k_range):
 
 ```python
 # Look for maximum
-_ = plt.plot(k_range, silhouette_avgs)
-_ = plt.ylabel('Average Silhouette score') 
-_ = plt.xlabel('Number of clusters')
+plt.plot(k_range, silhouette_avgs)
+plt.ylabel('Average Silhouette score') 
+plt.xlabel('Number of clusters');
 ```
 
 
@@ -285,9 +285,9 @@ _ = plt.xlabel('Number of clusters')
 
 ```python
 # look for elbow. Also known as Scree plot
-_ = plt.plot(k_range, sum_squared_distances)
-_ = plt.ylabel('WCSS') #within cluster sum of squared distances
-_ = plt.xlabel('Number of clusters')
+plt.plot(k_range, sum_squared_distances)
+plt.ylabel('WCSS') #within cluster sum of squared distances
+plt.xlabel('Number of clusters');
 ```
 
 
@@ -303,9 +303,9 @@ The first step is to compute the distance between each sample, for which we will
 linked = linkage(iris_features_sc, method='ward')
 
 dendrogram(linked,  
-            orientation='top',
-            distance_sort='descending',
-            show_leaf_counts=True)
+           orientation='top',
+           distance_sort='descending',
+           show_leaf_counts=True)
 plt.show()
 ```
 
@@ -322,9 +322,12 @@ iris_hc = model_hclust.fit(iris_features_sc)
 
 
 ```python
-_ = plt.scatter(iris['petal_length'], iris['sepal_width'], c=model_hclust.labels_, cmap='viridis', edgecolor='k')
-_ = plt.xlabel('petal_length')
-_ = plt.ylabel('sepal_width')
+plt.scatter(iris['petal_length'], iris['sepal_width'], 
+            c=model_hclust.labels_, 
+            cmap='viridis', 
+            edgecolor='k')
+plt.xlabel('petal_length')
+plt.ylabel('sepal_width');
 ```
 
 
@@ -335,7 +338,7 @@ _ = plt.ylabel('sepal_width')
 
 
 ```python
-_ = sns.clustermap(iris_features, method='ward')
+sns.clustermap(iris_features, method='ward');
 ```
 
 
@@ -371,7 +374,7 @@ iris_reduced = iris_pca.fit_transform(iris_features)
 
 ```python
 iris_PC_df = pd.DataFrame(iris_reduced, columns = PCnames)
-_ = sns.scatterplot(x='PC1',y='PC2', data=iris_PC_df, hue=iris_target)
+sns.scatterplot(x='PC1',y='PC2', data=iris_PC_df, hue=iris_target);
 ```
 
 
@@ -390,7 +393,7 @@ plt.bar(x, iris_eig)
 plt.ylabel('Percentage of explained variance')
 plt.xlabel('Principal Component')
 plt.xticks(x, PCnames)
-_ = plt.show()
+plt.show();
 ```
 
 
@@ -400,18 +403,27 @@ _ = plt.show()
 
 ```python
 iris_comp = iris_pca.components_
-#print(iris_comp)
+iris_comp
 ```
 
 
+
+
+    array([[ 0.36138659, -0.08452251,  0.85667061,  0.3582892 ],
+           [ 0.65658877,  0.73016143, -0.17337266, -0.07548102],
+           [-0.58202985,  0.59791083,  0.07623608,  0.54583143]])
+
+
+
+
 ```python
-origin = [0], [0] # origin point
 for pc in np.arange(nPCs):
-    plt.plot([0,iris_comp[pc,0]], [0,iris_comp[pc,1]], label=PCnames[pc])
+    plt.plot([0, iris_comp[pc, 0]], [0,iris_comp[pc,1]], 
+             label=PCnames[pc])
 plt.xlabel(iris_features.columns[0])
 plt.ylabel(iris_features.columns[1])
 plt.legend()
-_ = plt.show()
+plt.show();
 ```
 
 
@@ -420,25 +432,26 @@ _ = plt.show()
 
 
 ```python
-_ = sns.scatterplot(x='PC2',y='PC3', data=iris_PC_df, hue=iris_target)
+sns.scatterplot(x='PC2',y='PC3', data=iris_PC_df, hue=iris_target);
 ```
 
 
 ![png](../fig/90-Unsupervised_36_0.png)
 
 
-If you need to generate more/better visualisations and explration of your PCA outcome, R has much better "out of the box" visualisations to help you understand what is going on. See [here](https://pages.github.sydney.edu.au/informatics/lessons-mlr/90-Unsupervised/index.html) for our code for doing this on the iris dataset.
+If you need to generate more/better visualisations and exploration of your PCA outcome, R has much better "out of the box" visualisations to help you understand what is going on. See [here](https://pages.github.sydney.edu.au/informatics/lessons-mlr/90-Unsupervised/index.html) for our code for doing this on the iris dataset.
 
 
 ```python
-model_tsne = TSNE(n_components=2, perplexity=25)
+model_tsne = TSNE(n_components=2, perplexity=25, random_state=42)
 iris_tsne = model_tsne.fit_transform(iris_features)
 ```
 
 
 ```python
 iris_TSNE_df = pd.DataFrame(iris_tsne, columns = ['Dim1','Dim2'])
-_ = sns.scatterplot(x='Dim1',y='Dim2', data=iris_TSNE_df, hue=iris_target)
+sns.scatterplot(x='Dim1',y='Dim2', data=iris_TSNE_df, 
+                hue=iris_target);
 ```
 
 

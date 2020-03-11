@@ -733,15 +733,14 @@ Now generate a correlation plot to visualise this relationship
 ```python
 corr = ameshousingClean[numericVars].corr()
 
-# Generate a mask for the upper triangle
-mask = np.zeros_like(corr, dtype=np.bool)
-mask[np.triu_indices_from(mask)] = True
-
-# Generate a custom diverging colormap
-cmap = sns.diverging_palette(220, 10, as_cmap=True)
-
 # Draw the heatmap with the mask and correct aspect ratio
-sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, square=True);
+fig, ax = plt.subplots(figsize=(10, 10))
+sns.heatmap(corr,
+            cmap=plt.cm.BrBG, 
+            vmin=-0.5, vmax=0.5, 
+            square=True,
+            xticklabels=True, yticklabels=True,
+            ax=ax);
 ```
 
 
