@@ -63,7 +63,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.]("50-CatConfusion.jpg")
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](fig/50-CatConfusion.jpg)
 
 ### Confusion Matrix
 
@@ -79,7 +79,7 @@ A good classifier will have high precision and high specificity, minimizing both
 
 To capture this balance, we often use a Receiver Operator Characteristic (ROC) curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis, for all possible trade-offs. A line that is diagonal from the lower left corner to the upper right corner represents a random guess at labelling each example. The higher the line is in the upper left-hand corner, the better the classifier in general. AUC computes the area under this curve. For a perfect classifier, AUC = 1, for a random guess, AUC=0.5. Objective: maximize.
 
-![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](50-CatArea.jpg)
+![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](fig/50-CatArea.jpg)
 
 
 # Pima Indians Diabetes
@@ -186,15 +186,17 @@ print(diabetes.info())
     <class 'pandas.core.frame.DataFrame'>
     RangeIndex: 768 entries, 0 to 767
     Data columns (total 9 columns):
-    Pregnancies                 768 non-null int64
-    Glucose                     768 non-null int64
-    BloodPressure               768 non-null int64
-    SkinThickness               768 non-null int64
-    Insulin                     768 non-null int64
-    BMI                         768 non-null float64
-    DiabetesPedigreeFunction    768 non-null float64
-    Age                         768 non-null int64
-    Outcome                     768 non-null int64
+     #   Column                    Non-Null Count  Dtype  
+    ---  ------                    --------------  -----  
+     0   Pregnancies               768 non-null    int64  
+     1   Glucose                   768 non-null    int64  
+     2   BloodPressure             768 non-null    int64  
+     3   SkinThickness             768 non-null    int64  
+     4   Insulin                   768 non-null    int64  
+     5   BMI                       768 non-null    float64
+     6   DiabetesPedigreeFunction  768 non-null    float64
+     7   Age                       768 non-null    int64  
+     8   Outcome                   768 non-null    int64  
     dtypes: float64(2), int64(7)
     memory usage: 54.1 KB
     None
@@ -429,20 +431,11 @@ diabetes.describe()
 _ = sns.countplot(x="Pregnancies",
                 hue="Outcome", 
                 data=diabetes)
-
 ```
 
 
 ![png](../fig/50-Classification_19_0.png)
 
-
-If we wanted to look at all possible scatterplot pairs we would do something like:
-
-
-```python
-#catVars = diabetes.select_dtypes(include = ['object']).columns
-numVars = diabetes.select_dtypes(exclude = ['object']).columns
-```
 
 
 ```python
@@ -462,6 +455,8 @@ If we wanted to look at all possible scatterplot pairs we would do something lik
 
 
 ```python
+numVars = diabetes.select_dtypes(exclude = ['object']).columns
+
 _ = sns.pairplot(data=diabetes,
                  vars=numVars,
                  hue='Outcome',
@@ -472,18 +467,14 @@ _ = sns.pairplot(data=diabetes,
                  markers=["o", "d"])
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\statsmodels\nonparametric\kde.py:488: RuntimeWarning: invalid value encountered in true_divide
-      binned = fast_linbin(X, a, b, gridsize) / (delta * nobs)
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\statsmodels\nonparametric\kdetools.py:34: RuntimeWarning: invalid value encountered in double_scalars
-      FAC1 = 2*(np.pi*bw/RANGE)**2
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\numpy\core\fromnumeric.py:83: RuntimeWarning: invalid value encountered in reduce
-      return ufunc.reduce(obj, axis, dtype, out, **passkwargs)
+    /opt/anaconda3/lib/python3.7/site-packages/seaborn/distributions.py:288: UserWarning: Data must have variance to compute a kernel density estimate.
+      warnings.warn(msg, UserWarning)
+    /opt/anaconda3/lib/python3.7/site-packages/seaborn/distributions.py:288: UserWarning: Data must have variance to compute a kernel density estimate.
+      warnings.warn(msg, UserWarning)
 
 
 
-![png](../fig/50-Classification_24_1.png)
+![png](../fig/50-Classification_22_1.png)
 
 
 Generate a boxplot by possible prediction variables. Which do you hypothesize would me it easiest for us to separate the data?
@@ -497,26 +488,15 @@ diabetes2['PatientID'] = range(1, len(diabetes2) + 1)
 # melt that dataframe
 diabetes2 = diabetes2.melt(id_vars=['PatientID','Outcome'])
 
-grid = sns.axisgrid.FacetGrid(diabetes2[diabetes2.variable.isin(numVars[1:5])], 
+grid = sns.axisgrid.FacetGrid(diabetes2[diabetes2.variable.isin(numVars[:5])], 
                               col='variable', 
                               # y axis scale different for each boxplot
                               sharey=False)
-grid.map(sns.boxplot, 'Outcome','value')
+grid.map(sns.boxplot, 'Outcome', 'value', order=[0, 1]);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\seaborn\axisgrid.py:715: UserWarning: Using the boxplot function without specifying `order` is likely to produce an incorrect plot.
-      warnings.warn(warning)
 
-
-
-
-
-    <seaborn.axisgrid.FacetGrid at 0x1fb26d55ef0>
-
-
-
-
-![png](../fig/50-Classification_26_2.png)
+![png](../fig/50-Classification_24_0.png)
 
 
 
@@ -525,22 +505,11 @@ grid = sns.axisgrid.FacetGrid(diabetes2[diabetes2.variable.isin(numVars[5:])],
                               col='variable', 
                                # y axis scale different for each boxplot
                               sharey=False)
-grid.map(sns.boxplot, 'Outcome','value')
+grid.map(sns.boxplot, 'Outcome','value', order=[0, 1]);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\seaborn\axisgrid.py:715: UserWarning: Using the boxplot function without specifying `order` is likely to produce an incorrect plot.
-      warnings.warn(warning)
 
-
-
-
-
-    <seaborn.axisgrid.FacetGrid at 0x1fb28cdc128>
-
-
-
-
-![png](../fig/50-Classification_27_2.png)
+![png](../fig/50-Classification_25_0.png)
 
 
 Make a correlation plot betwee all numeric variables
@@ -560,11 +529,11 @@ cmap = sns.diverging_palette(10,260, as_cmap=True)
 # Draw the heatmap with the mask and correct aspect ratio
 sns.set(rc={'figure.figsize':(12,8)})
 sns.set(font_scale = 1.2)
-_ = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0., square=True, linewidths=.5)
+sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0., square=True, linewidths=.5);
 ```
 
 
-![png](../fig/50-Classification_29_0.png)
+![png](../fig/50-Classification_27_0.png)
 
 
 ## Prepare Data
@@ -631,11 +600,11 @@ cmap = sns.diverging_palette(10,260, as_cmap=True)
 # Draw the heatmap with the mask and correct aspect ratio
 sns.set(rc={'figure.figsize':(12,8)})
 sns.set(font_scale = 1.2)
-_ = sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0., square=True, linewidths=.5)
+sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, center=0., square=True, linewidths=.5);
 ```
 
 
-![png](../fig/50-Classification_36_0.png)
+![png](../fig/50-Classification_34_0.png)
 
 
 ***
@@ -649,7 +618,14 @@ We’re going to split our data into 70% training and 30% testing sets.
 
 
 ```python
-features_train, features_test, outcome_train, outcome_test = train_test_split(diabetes[diabetes.columns.difference(['Outcome'])],diabetes['Outcome'], train_size=0.7, test_size=0.3, random_state = 42, stratify = diabetes['Outcome'])
+features_train, features_test, outcome_train, outcome_test = train_test_split(
+    diabetes[diabetes.columns.difference(['Outcome'])],
+    diabetes['Outcome'], 
+    train_size=0.7, 
+    test_size=0.3, 
+    random_state = 42, 
+    stratify = diabetes['Outcome']
+)
 ```
 
 How many examples do we have in the training and testing sets?
@@ -1135,25 +1111,22 @@ features_train_sc = StSc.transform(features_train_imp)
 features_test_sc  = StSc.transform(features_test_imp)
 ```
 
-### Recode outcome
+### Check outcome
 
 
 ```python
-training_true = outcome_train.astype("category").cat.codes.values
-test_true = outcome_test.astype("category").cat.codes.values 
-# code into 0's and 1's
 # 0 is normal 
 # 1 is diabetes
-print((test_true == 0).sum())
-print((test_true != 0).sum())
+print((outcome_test == 0).sum())
+print((outcome_test != 0).sum())
 
 # 
-print((training_true == 0).sum())
-print((training_true != 0).sum())
+print((outcome_train == 0).sum())
+print((outcome_train != 0).sum())
 
 # is our train/test balanced?
-print((test_true != 0).sum()/(test_true == 0).sum())
-print((training_true != 0).sum()/(training_true == 0).sum())
+print((outcome_test != 0).sum() / (outcome_test == 0).sum())
+print((outcome_train != 0).sum() / (outcome_train == 0).sum())
 ```
 
     150
@@ -1195,7 +1168,6 @@ cf_knn_gscv = GridSearchCV(cf_knn,
                            cv=5,
                            # use f1 as error metric
                            scoring = 'f1',
-                           iid = False,
                            return_train_score=True)
 
 fit_knn = cf_knn_gscv.fit(features_train_sc, outcome_train)
@@ -1206,264 +1178,179 @@ Explore the [documentation](https://scikit-learn.org/stable/modules/model_evalua
 
 ```python
 # Look at the cross-validation results
-fit_knn.cv_results_
+knn_results = pd.DataFrame.from_dict(fit_knn.cv_results_)
+knn_results.head()
 ```
 
 
 
 
-    {'mean_fit_time': array([0.00039911, 0.00060048, 0.00059729, 0.00099225, 0.00020218,
-            0.00079856, 0.00040102, 0.00079627, 0.00059185, 0.00039887,
-            0.00059872, 0.00039883, 0.00039983, 0.00039868, 0.00039711,
-            0.00059347, 0.00039892, 0.        , 0.00059261, 0.00039926,
-            0.00040622, 0.000598  , 0.00039868, 0.00039859, 0.00040059,
-            0.00059786, 0.00060039, 0.00060005, 0.00019803, 0.00040698,
-            0.        , 0.        , 0.00059757, 0.00059619, 0.00039921,
-            0.00059586, 0.00059886, 0.00059705, 0.00059824, 0.00039744,
-            0.00019975, 0.00059919, 0.00079737, 0.        , 0.00079565,
-            0.        , 0.00081515, 0.00079618, 0.00039067, 0.00039997]),
-     'std_fit_time': array([4.88811327e-04, 4.90661488e-04, 4.87714990e-04, 1.47814904e-05,
-            4.04357910e-04, 3.99289343e-04, 4.91155606e-04, 3.98150158e-04,
-            4.83450909e-04, 4.88519238e-04, 4.88850385e-04, 4.88461041e-04,
-            4.89687710e-04, 4.88285916e-04, 4.86359563e-04, 4.84644053e-04,
-            4.88578005e-04, 0.00000000e+00, 4.83944769e-04, 4.88989510e-04,
-            4.97660950e-04, 4.88267103e-04, 4.88286335e-04, 4.88169115e-04,
-            4.90628743e-04, 4.88149953e-04, 4.90232532e-04, 4.89954981e-04,
-            3.96060944e-04, 4.98659648e-04, 0.00000000e+00, 0.00000000e+00,
-            4.87921408e-04, 4.86815210e-04, 4.88928244e-04, 4.86523040e-04,
-            4.88970720e-04, 4.87882723e-04, 4.88503725e-04, 4.86781240e-04,
-            3.99494171e-04, 4.89244066e-04, 7.45168817e-04, 0.00000000e+00,
-            3.97996738e-04, 0.00000000e+00, 4.07834057e-04, 3.98105189e-04,
-            4.78652113e-04, 4.89864762e-04]),
-     'mean_score_time': array([0.00119696, 0.001195  , 0.00140681, 0.00099778, 0.00138593,
-            0.00119476, 0.00158777, 0.00119824, 0.00120673, 0.00138149,
-            0.00119605, 0.00159268, 0.00119805, 0.00159593, 0.00218749,
-            0.00161009, 0.00160699, 0.00199261, 0.00139832, 0.00159464,
-            0.00139399, 0.00139518, 0.00159602, 0.00159483, 0.00159278,
-            0.00139689, 0.00159602, 0.00159316, 0.00199318, 0.00159612,
-            0.00199509, 0.00199447, 0.00179391, 0.0013948 , 0.00160131,
-            0.00159473, 0.00139384, 0.00199375, 0.00179067, 0.001788  ,
-            0.00200334, 0.00179076, 0.00259061, 0.00199485, 0.00199361,
-            0.00199351, 0.00179572, 0.00219336, 0.00199757, 0.00199389]),
-     'std_score_time': array([3.99184551e-04, 3.99357750e-04, 4.81781800e-04, 2.00044412e-06,
-            4.96154895e-04, 3.99824201e-04, 4.83192120e-04, 3.97511756e-04,
-            3.94811740e-04, 4.85410311e-04, 3.95944674e-04, 4.86130148e-04,
-            3.99247412e-04, 4.88188537e-04, 4.00182982e-04, 4.87633094e-04,
-            4.93462356e-04, 4.49493324e-06, 4.81542781e-04, 4.89862650e-04,
-            4.87490998e-04, 4.88657601e-04, 4.88558435e-04, 4.88558971e-04,
-            4.90594660e-04, 4.89105636e-04, 4.88364512e-04, 4.91195680e-04,
-            1.85292809e-06, 4.84417238e-04, 6.21719590e-07, 3.35687941e-06,
-            3.97826741e-04, 4.90337551e-04, 4.95091518e-04, 4.86826368e-04,
-            4.88874175e-04, 6.30656281e-04, 4.03023590e-04, 3.96450959e-04,
-            1.09398541e-05, 3.96782672e-04, 1.19856015e-03, 5.22348936e-07,
-            1.75398312e-05, 2.47128649e-06, 3.99762778e-04, 3.96435101e-04,
-            1.40813170e-05, 1.67911690e-06]),
-     'param_n_neighbors': masked_array(data=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
-                        17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-                        31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44,
-                        45, 46, 47, 48, 49, 50],
-                  mask=[False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False, False, False,
-                        False, False, False, False, False, False, False, False,
-                        False, False],
-            fill_value='?',
-                 dtype=object),
-     'params': [{'n_neighbors': 1},
-      {'n_neighbors': 2},
-      {'n_neighbors': 3},
-      {'n_neighbors': 4},
-      {'n_neighbors': 5},
-      {'n_neighbors': 6},
-      {'n_neighbors': 7},
-      {'n_neighbors': 8},
-      {'n_neighbors': 9},
-      {'n_neighbors': 10},
-      {'n_neighbors': 11},
-      {'n_neighbors': 12},
-      {'n_neighbors': 13},
-      {'n_neighbors': 14},
-      {'n_neighbors': 15},
-      {'n_neighbors': 16},
-      {'n_neighbors': 17},
-      {'n_neighbors': 18},
-      {'n_neighbors': 19},
-      {'n_neighbors': 20},
-      {'n_neighbors': 21},
-      {'n_neighbors': 22},
-      {'n_neighbors': 23},
-      {'n_neighbors': 24},
-      {'n_neighbors': 25},
-      {'n_neighbors': 26},
-      {'n_neighbors': 27},
-      {'n_neighbors': 28},
-      {'n_neighbors': 29},
-      {'n_neighbors': 30},
-      {'n_neighbors': 31},
-      {'n_neighbors': 32},
-      {'n_neighbors': 33},
-      {'n_neighbors': 34},
-      {'n_neighbors': 35},
-      {'n_neighbors': 36},
-      {'n_neighbors': 37},
-      {'n_neighbors': 38},
-      {'n_neighbors': 39},
-      {'n_neighbors': 40},
-      {'n_neighbors': 41},
-      {'n_neighbors': 42},
-      {'n_neighbors': 43},
-      {'n_neighbors': 44},
-      {'n_neighbors': 45},
-      {'n_neighbors': 46},
-      {'n_neighbors': 47},
-      {'n_neighbors': 48},
-      {'n_neighbors': 49},
-      {'n_neighbors': 50}],
-     'split0_test_score': array([0.57142857, 0.55072464, 0.62790698, 0.56338028, 0.61728395,
-            0.54794521, 0.62650602, 0.59459459, 0.65060241, 0.54794521,
-            0.6       , 0.61333333, 0.60759494, 0.52941176, 0.58666667,
-            0.55072464, 0.52777778, 0.51515152, 0.60273973, 0.57142857,
-            0.58666667, 0.54285714, 0.60273973, 0.6       , 0.62162162,
-            0.56338028, 0.60526316, 0.55882353, 0.60273973, 0.55072464,
-            0.56338028, 0.56716418, 0.58333333, 0.57575758, 0.55882353,
-            0.58461538, 0.57971014, 0.58823529, 0.58823529, 0.57575758,
-            0.6       , 0.55384615, 0.57971014, 0.5625    , 0.60606061,
-            0.58064516, 0.59375   , 0.6031746 , 0.61538462, 0.57142857]),
-     'split1_test_score': array([0.64      , 0.47457627, 0.64102564, 0.52307692, 0.61971831,
-            0.54545455, 0.58333333, 0.58823529, 0.5915493 , 0.54545455,
-            0.6       , 0.55882353, 0.58333333, 0.55882353, 0.55555556,
-            0.57575758, 0.57971014, 0.58461538, 0.61764706, 0.55384615,
-            0.57971014, 0.51515152, 0.55882353, 0.53125   , 0.53731343,
-            0.5       , 0.49230769, 0.51612903, 0.50793651, 0.51612903,
-            0.51612903, 0.52459016, 0.53125   , 0.45614035, 0.49180328,
-            0.5       , 0.50793651, 0.49180328, 0.50793651, 0.52459016,
-            0.50793651, 0.5       , 0.53125   , 0.5       , 0.49180328,
-            0.5       , 0.51612903, 0.46666667, 0.51612903, 0.49180328]),
-     'split2_test_score': array([0.62337662, 0.55737705, 0.64      , 0.59375   , 0.60526316,
-            0.61764706, 0.5915493 , 0.59375   , 0.68571429, 0.68656716,
-            0.68571429, 0.70588235, 0.68571429, 0.70588235, 0.68571429,
-            0.66666667, 0.67647059, 0.68656716, 0.67647059, 0.6875    ,
-            0.6969697 , 0.6875    , 0.67692308, 0.64516129, 0.66666667,
-            0.66666667, 0.65625   , 0.64516129, 0.61538462, 0.63492063,
-            0.63492063, 0.63492063, 0.625     , 0.64516129, 0.625     ,
-            0.63492063, 0.63492063, 0.63492063, 0.625     , 0.63492063,
-            0.63492063, 0.64516129, 0.63492063, 0.63492063, 0.63492063,
-            0.63492063, 0.63492063, 0.63492063, 0.63492063, 0.63492063]),
-     'split3_test_score': array([0.5       , 0.43636364, 0.60606061, 0.45614035, 0.55882353,
-            0.46428571, 0.60869565, 0.46428571, 0.625     , 0.6       ,
-            0.61538462, 0.57627119, 0.65671642, 0.61290323, 0.64615385,
-            0.64516129, 0.67692308, 0.64516129, 0.63636364, 0.63636364,
-            0.64705882, 0.625     , 0.66666667, 0.625     , 0.66666667,
-            0.6031746 , 0.64615385, 0.64516129, 0.64516129, 0.64516129,
-            0.625     , 0.61290323, 0.59375   , 0.59375   , 0.61538462,
-            0.6031746 , 0.61538462, 0.6       , 0.6031746 , 0.6       ,
-            0.6       , 0.5862069 , 0.62295082, 0.5862069 , 0.61290323,
-            0.59016393, 0.61290323, 0.57627119, 0.62295082, 0.61016949]),
-     'split4_test_score': array([0.44776119, 0.31111111, 0.56666667, 0.53571429, 0.55737705,
-            0.54545455, 0.59375   , 0.52631579, 0.57142857, 0.56140351,
-            0.59016393, 0.54237288, 0.53333333, 0.48275862, 0.46666667,
-            0.47457627, 0.5       , 0.47457627, 0.49180328, 0.48275862,
-            0.48387097, 0.50847458, 0.47619048, 0.49180328, 0.47619048,
-            0.49180328, 0.48387097, 0.48387097, 0.47619048, 0.48387097,
-            0.47619048, 0.49180328, 0.49180328, 0.5       , 0.49180328,
-            0.50847458, 0.49180328, 0.46666667, 0.49180328, 0.49180328,
-            0.49180328, 0.49180328, 0.49180328, 0.46666667, 0.46666667,
-            0.47457627, 0.46666667, 0.47457627, 0.47457627, 0.47457627]),
-     'mean_test_score': array([0.55651328, 0.46603054, 0.61633198, 0.53441237, 0.5916932 ,
-            0.54415741, 0.60076686, 0.55343628, 0.62485891, 0.58827408,
-            0.61825257, 0.59933666, 0.61333846, 0.5779559 , 0.5881514 ,
-            0.58257729, 0.59217632, 0.58121433, 0.60500486, 0.5863794 ,
-            0.59885526, 0.57579665, 0.5962687 , 0.57864291, 0.59369177,
-            0.56500497, 0.57676913, 0.56982922, 0.56948252, 0.56616131,
-            0.56312409, 0.5662763 , 0.56502732, 0.55416184, 0.55656294,
-            0.56623704, 0.56595104, 0.55632517, 0.56322994, 0.56541433,
-            0.56693208, 0.55540352, 0.57212698, 0.55005884, 0.56247088,
-            0.5560612 , 0.56487391, 0.55112187, 0.57279227, 0.55657965]),
-     'std_test_score': array([0.07305337, 0.08996717, 0.02784269, 0.04607991, 0.02786557,
-            0.04857557, 0.01525449, 0.05140723, 0.04081778, 0.05287908,
-            0.03468311, 0.05825134, 0.0537662 , 0.07664411, 0.07577075,
-            0.06886668, 0.07360243, 0.07865872, 0.06175804, 0.07034629,
-            0.07167498, 0.06956107, 0.07392401, 0.05799484, 0.07538676,
-            0.06538929, 0.0744408 , 0.06594467, 0.06547005, 0.06400322,
-            0.06123631, 0.05323696, 0.04745417, 0.06761097, 0.05750888,
-            0.05318539, 0.05701469, 0.0652759 , 0.05328324, 0.05141882,
-            0.05645216, 0.05678428, 0.05423363, 0.06020487, 0.06908663,
-            0.05961347, 0.06335284, 0.06834635, 0.06487993, 0.0634826 ]),
-     'rank_test_score': array([40, 50,  3, 49, 12, 48,  6, 45,  1, 13,  2,  7,  4, 19, 14, 16, 11,
-            17,  5, 15,  8, 21,  9, 18, 10, 33, 20, 24, 25, 29, 36, 27, 32, 44,
-            39, 28, 30, 41, 35, 31, 26, 43, 23, 47, 37, 42, 34, 46, 22, 38]),
-     'split0_train_score': array([1.        , 0.69298246, 0.79322034, 0.68825911, 0.74468085,
-            0.68525896, 0.73381295, 0.69047619, 0.73260073, 0.6746988 ,
-            0.7063197 , 0.68235294, 0.70072993, 0.6796875 , 0.69818182,
-            0.640625  , 0.68888889, 0.62204724, 0.67407407, 0.6374502 ,
-            0.64864865, 0.60408163, 0.63035019, 0.60162602, 0.640625  ,
-            0.6090535 , 0.61111111, 0.57740586, 0.592     , 0.57959184,
-            0.60869565, 0.5785124 , 0.60240964, 0.58196721, 0.61660079,
-            0.56431535, 0.59677419, 0.55833333, 0.58536585, 0.56903766,
-            0.59760956, 0.53617021, 0.56790123, 0.54700855, 0.55230126,
-            0.55319149, 0.56431535, 0.53679654, 0.54008439, 0.53679654]),
-     'split1_train_score': array([1.        , 0.74789916, 0.83108108, 0.71146245, 0.75958188,
-            0.69019608, 0.74911661, 0.70498084, 0.72535211, 0.70411985,
-            0.70877193, 0.67924528, 0.70967742, 0.6744186 , 0.69117647,
-            0.65882353, 0.69372694, 0.6640625 , 0.68656716, 0.66666667,
-            0.6641791 , 0.64822134, 0.64638783, 0.64      , 0.66153846,
-            0.624     , 0.63117871, 0.61417323, 0.62790698, 0.624     ,
-            0.64313725, 0.62650602, 0.63779528, 0.63114754, 0.64285714,
-            0.63157895, 0.624     , 0.61788618, 0.61354582, 0.6097561 ,
-            0.61904762, 0.60408163, 0.60557769, 0.60728745, 0.608     ,
-            0.60162602, 0.608     , 0.59016393, 0.6       , 0.59349593]),
-     'split2_train_score': array([1.        , 0.71794872, 0.78456592, 0.671875  , 0.72413793,
-            0.64885496, 0.71724138, 0.65637066, 0.6971831 , 0.66415094,
-            0.6971831 , 0.67669173, 0.71014493, 0.66923077, 0.70072993,
-            0.66412214, 0.6884058 , 0.66923077, 0.68592058, 0.6539924 ,
-            0.68100358, 0.66415094, 0.66909091, 0.64684015, 0.66666667,
-            0.6490566 , 0.64944649, 0.62068966, 0.63670412, 0.61478599,
-            0.63878327, 0.63529412, 0.63878327, 0.62992126, 0.63320463,
-            0.62698413, 0.61960784, 0.60483871, 0.60392157, 0.59437751,
-            0.60700389, 0.608     , 0.61176471, 0.60483871, 0.5984252 ,
-            0.59016393, 0.60629921, 0.60240964, 0.60079051, 0.58299595]),
-     'split3_train_score': array([1.        , 0.7394958 , 0.8       , 0.69201521, 0.76      ,
-            0.6969697 , 0.71186441, 0.6641791 , 0.70508475, 0.7032967 ,
-            0.71477663, 0.69090909, 0.69204152, 0.66917293, 0.68100358,
-            0.6490566 , 0.66425993, 0.63846154, 0.63970588, 0.62548263,
-            0.63432836, 0.6328125 , 0.63636364, 0.62256809, 0.63909774,
-            0.61478599, 0.60769231, 0.6015625 , 0.61538462, 0.5984252 ,
-            0.60465116, 0.608     , 0.62307692, 0.6       , 0.61111111,
-            0.59349593, 0.60869565, 0.59109312, 0.5859375 , 0.59591837,
-            0.6031746 , 0.58299595, 0.59760956, 0.59349593, 0.59760956,
-            0.59109312, 0.5952381 , 0.592     , 0.5952381 , 0.58064516]),
-     'split4_train_score': array([1.        , 0.74476987, 0.80405405, 0.734375  , 0.76551724,
-            0.7027027 , 0.70138889, 0.67680608, 0.69257951, 0.68679245,
-            0.69039146, 0.68148148, 0.69257951, 0.67883212, 0.70877193,
-            0.66914498, 0.68571429, 0.65917603, 0.65949821, 0.64925373,
-            0.66903915, 0.6394052 , 0.66906475, 0.64150943, 0.67391304,
-            0.66165414, 0.67153285, 0.65151515, 0.65925926, 0.65671642,
-            0.65934066, 0.64150943, 0.65185185, 0.64638783, 0.65917603,
-            0.64393939, 0.64444444, 0.62068966, 0.64179104, 0.63117871,
-            0.63197026, 0.62307692, 0.6394052 , 0.62068966, 0.62641509,
-            0.61478599, 0.6259542 , 0.62015504, 0.6259542 , 0.62015504]),
-     'mean_train_score': array([1.        , 0.7286192 , 0.80258428, 0.69959735, 0.75078358,
-            0.68479648, 0.72268485, 0.67856258, 0.71056004, 0.68661175,
-            0.70348856, 0.68213611, 0.70103466, 0.67426838, 0.69597275,
-            0.65635445, 0.68419917, 0.65059562, 0.66915318, 0.64656912,
-            0.65943977, 0.63773432, 0.65025146, 0.63050874, 0.65636818,
-            0.63171005, 0.63419229, 0.61306928, 0.62625099, 0.61470389,
-            0.6309216 , 0.61796439, 0.63078339, 0.61788477, 0.63258994,
-            0.61206275, 0.61870443, 0.5985682 , 0.60611236, 0.60005367,
-            0.61176119, 0.59086494, 0.60445168, 0.59466406, 0.59655022,
-            0.59017211, 0.59996137, 0.58830503, 0.59241344, 0.58281772]),
-     'std_train_score': array([0.        , 0.02066252, 0.0157051 , 0.02147016, 0.01501111,
-            0.01892079, 0.01686834, 0.01756309, 0.0157278 , 0.01569306,
-            0.00865613, 0.00480497, 0.00787595, 0.00450684, 0.00936387,
-            0.01030248, 0.0102989 , 0.01768895, 0.01771423, 0.01409978,
-            0.01628888, 0.019836  , 0.01620324, 0.01658361, 0.01404798,
-            0.02028171, 0.0239628 , 0.02425555, 0.0223283 , 0.02588177,
-            0.02098952, 0.02273058, 0.01686122, 0.0234228 , 0.01749061,
-            0.02913483, 0.01595317, 0.02270059, 0.02083491, 0.02036771,
-            0.01231364, 0.03019714, 0.02306186, 0.02534805, 0.02443611,
-            0.02052048, 0.02036351, 0.02786968, 0.02828081, 0.02694736])}
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>mean_fit_time</th>
+      <th>std_fit_time</th>
+      <th>mean_score_time</th>
+      <th>std_score_time</th>
+      <th>param_n_neighbors</th>
+      <th>params</th>
+      <th>split0_test_score</th>
+      <th>split1_test_score</th>
+      <th>split2_test_score</th>
+      <th>split3_test_score</th>
+      <th>...</th>
+      <th>mean_test_score</th>
+      <th>std_test_score</th>
+      <th>rank_test_score</th>
+      <th>split0_train_score</th>
+      <th>split1_train_score</th>
+      <th>split2_train_score</th>
+      <th>split3_train_score</th>
+      <th>split4_train_score</th>
+      <th>mean_train_score</th>
+      <th>std_train_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000777</td>
+      <td>0.000132</td>
+      <td>0.003920</td>
+      <td>0.000191</td>
+      <td>1</td>
+      <td>{'n_neighbors': 1}</td>
+      <td>0.571429</td>
+      <td>0.640000</td>
+      <td>0.623377</td>
+      <td>0.500000</td>
+      <td>...</td>
+      <td>0.556513</td>
+      <td>0.073053</td>
+      <td>40</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.000601</td>
+      <td>0.000023</td>
+      <td>0.004057</td>
+      <td>0.000054</td>
+      <td>2</td>
+      <td>{'n_neighbors': 2}</td>
+      <td>0.550725</td>
+      <td>0.474576</td>
+      <td>0.557377</td>
+      <td>0.436364</td>
+      <td>...</td>
+      <td>0.466031</td>
+      <td>0.089967</td>
+      <td>50</td>
+      <td>0.692982</td>
+      <td>0.747899</td>
+      <td>0.717949</td>
+      <td>0.739496</td>
+      <td>0.744770</td>
+      <td>0.728619</td>
+      <td>0.020663</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.000567</td>
+      <td>0.000021</td>
+      <td>0.003661</td>
+      <td>0.000254</td>
+      <td>3</td>
+      <td>{'n_neighbors': 3}</td>
+      <td>0.627907</td>
+      <td>0.641026</td>
+      <td>0.640000</td>
+      <td>0.606061</td>
+      <td>...</td>
+      <td>0.616332</td>
+      <td>0.027843</td>
+      <td>3</td>
+      <td>0.793220</td>
+      <td>0.831081</td>
+      <td>0.784566</td>
+      <td>0.800000</td>
+      <td>0.804054</td>
+      <td>0.802584</td>
+      <td>0.015705</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.000583</td>
+      <td>0.000043</td>
+      <td>0.003551</td>
+      <td>0.000060</td>
+      <td>4</td>
+      <td>{'n_neighbors': 4}</td>
+      <td>0.563380</td>
+      <td>0.523077</td>
+      <td>0.593750</td>
+      <td>0.456140</td>
+      <td>...</td>
+      <td>0.534412</td>
+      <td>0.046080</td>
+      <td>49</td>
+      <td>0.688259</td>
+      <td>0.711462</td>
+      <td>0.671875</td>
+      <td>0.692015</td>
+      <td>0.734375</td>
+      <td>0.699597</td>
+      <td>0.021470</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.000555</td>
+      <td>0.000004</td>
+      <td>0.003617</td>
+      <td>0.000069</td>
+      <td>5</td>
+      <td>{'n_neighbors': 5}</td>
+      <td>0.617284</td>
+      <td>0.619718</td>
+      <td>0.605263</td>
+      <td>0.558824</td>
+      <td>...</td>
+      <td>0.591693</td>
+      <td>0.027866</td>
+      <td>12</td>
+      <td>0.744681</td>
+      <td>0.759582</td>
+      <td>0.724138</td>
+      <td>0.760000</td>
+      <td>0.765517</td>
+      <td>0.750784</td>
+      <td>0.015011</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 21 columns</p>
+</div>
 
 
 
@@ -1477,40 +1364,24 @@ print(fit_knn.best_estimator_.n_neighbors)
 
 
 ```python
-# lets make a pandas dataframe to enable plotting
-cvresults = pd.DataFrame.from_dict({k: v for k, v in fit_knn.cv_results_.items() if (k.startswith('split') and k.endswith('test_score'))})
-cvparams = pd.DataFrame.from_dict(fit_knn.cv_results_['params'])
-knn_cv_results = pd.concat([cvresults, cvparams], axis=1).melt(id_vars=['n_neighbors'])
-```
+split_cols = knn_results.filter(regex='split.*test_score').columns
+knn_cv_scores = knn_results.melt(id_vars='param_n_neighbors', 
+                                  value_vars=split_cols)
 
-Let's make a plot to see performance of the algorithm with various numbers of neighbors
+sns.pointplot(x="param_n_neighbors",
+              y="value",
+              data = knn_cv_scores)
 
-
-```python
-_ = sns.pointplot(x="n_neighbors",
-                  y="value",
-                 data = knn_cv_results)
-# need to subtract 1 for x due to zero-based indexing
-plt.scatter(x = fit_knn.best_estimator_.n_neighbors-1,
-            y = knn_cv_results[knn_cv_results['n_neighbors'] == fit_knn.best_estimator_.n_neighbors]['value'].mean(),
+best_n = fit_knn.best_estimator_.n_neighbors
+plt.scatter(x = best_n - 1,
+            y = knn_cv_scores.loc[knn_cv_scores['param_n_neighbors'] == best_n, 'value'].mean(),
             color = 'r',
             # plots point on top of other plot
-            zorder = 10)
+            zorder = 10);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
-
-
-
-
-    <matplotlib.collections.PathCollection at 0x1fb2aa56748>
-
-
-
-
-![png](../fig/50-Classification_65_2.png)
+![png](../fig/50-Classification_61_0.png)
 
 
 > ## Challenge
@@ -1544,7 +1415,6 @@ def model_probabilities(model = fit_knn, dataset = features_train_sc):
 
 knn_outcome_pred_prob_train = model_probabilities(model = fit_knn, dataset = features_train_sc)
 knn_outcome_pred_prob_test = model_probabilities(model = fit_knn, dataset = features_test_sc)
-
 ```
 
 ### Classifier Diagnostics/evaluation
@@ -1553,7 +1423,8 @@ So how well did the classifier do? Let's define a function to generate a confusi
 
 ```python
 # define custom confusion matrix function
-def confmatrix(truth = outcome_train, prediction = knn_outcome_pred_class_train):
+def confmatrix(truth = outcome_train, 
+               prediction = knn_outcome_pred_class_train):
     df = pd.DataFrame(confusion_matrix(truth, prediction))
     #Total sum per row: 
     df.loc['Predictions',:]= df.sum(axis=0)
@@ -1679,7 +1550,8 @@ confmatrix(truth = outcome_test, prediction = knn_outcome_pred_class_test)
 
 ```python
 # define a function to plot an ROC curve
-def plot_ROC(truth = outcome_train, prediction1 = knn_outcome_pred_prob_train, col = 'b'):
+def plot_ROC(truth = outcome_train, prediction1 = knn_outcome_pred_prob_train, 
+             col = 'b'):
     fpr, tpr, _ = roc_curve(truth, prediction1)
     AUC = roc_auc_score(truth, prediction1)
     plt.xlim([-0.05, 1.0])
@@ -1699,7 +1571,7 @@ plot_ROC(truth = outcome_test, prediction1 = knn_outcome_pred_prob_test, col = '
 ```
 
 
-![png](../fig/50-Classification_73_0.png)
+![png](../fig/50-Classification_69_0.png)
 
 
 > ## Challenge
@@ -1738,7 +1610,6 @@ from sklearn.naive_bayes import GaussianNB
 cf_gnb = GaussianNB()
 
 
-# use GridSeachCV to test how many neighbors are optimal
 cf_gnb_gscv = GridSearchCV(cf_gnb, 
                            {'var_smoothing' : [1e-09]},
                            # use 5xfold cross-validation
@@ -1767,22 +1638,122 @@ So how well did it go?
 ```python
 # print matrix for predictions on training and testing
 print("Training set")
-print(confmatrix(truth = outcome_train, prediction = gnb_train_pred_class))
-print("\nTesting set")
-print(confmatrix(truth = outcome_test, prediction = gnb_test_pred_class))
+confmatrix(truth = outcome_train, prediction = gnb_train_pred_class)
 ```
 
     Training set
-                     0      1  Truth
-    0            297.0   53.0  350.0
-    1             77.0  110.0  187.0
-    Predictions  374.0  163.0  537.0
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>Truth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>297.0</td>
+      <td>53.0</td>
+      <td>350.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>77.0</td>
+      <td>110.0</td>
+      <td>187.0</td>
+    </tr>
+    <tr>
+      <th>Predictions</th>
+      <td>374.0</td>
+      <td>163.0</td>
+      <td>537.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+print("\nTesting set")
+confmatrix(truth = outcome_test, prediction = gnb_test_pred_class)
+```
+
     
     Testing set
-                     0     1  Truth
-    0            121.0  29.0  150.0
-    1             34.0  47.0   81.0
-    Predictions  155.0  76.0  231.0
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>Truth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>121.0</td>
+      <td>29.0</td>
+      <td>150.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>34.0</td>
+      <td>47.0</td>
+      <td>81.0</td>
+    </tr>
+    <tr>
+      <th>Predictions</th>
+      <td>155.0</td>
+      <td>76.0</td>
+      <td>231.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
 
 
 
@@ -1793,7 +1764,7 @@ plot_ROC(truth = outcome_test, prediction1 = gnb_pred_prob_test, col = 'r')
 ```
 
 
-![png](../fig/50-Classification_82_0.png)
+![png](../fig/50-Classification_79_0.png)
 
 
 ## Regularized Logistic Classifier
@@ -1821,14 +1792,14 @@ np.linspace(start=0, stop=1, num=8)
 
 ```python
 from sklearn.linear_model import LogisticRegression
-# class_weight balanced will uses the values of y to automatically adjust weights inversely 
+# class_weight balanced will use the values of y to automatically adjust weights inversely 
 # proportional to class frequencies in the input data as n_samples / (n_classes * np.bincount(y)
 # multi_class='ovr' - a binary problem is fit for each label
-cf_rlc = LogisticRegression(random_state=42, solver='saga',multi_class='ovr' )
+cf_rlc = LogisticRegression(random_state=42, solver='saga',
+                            multi_class='ovr')
 
 # test different penalty and class weight parameters - define this as a dictionary to make subsequent plotting easier
-rlc_dict = {
-            'penalty': ['l1', 'l2'],
+rlc_dict = {'penalty': ['l1', 'l2'],
             # for proper ENET
             # 'penalty': ['elasticnet'], 
             'class_weight': [None, 'balanced']}
@@ -1841,15 +1812,10 @@ cf_rlc_gscv = GridSearchCV(cf_rlc,
                            # use 5xfold cross-validation
                            cv=5,
                            # use AUC as error metric
-                           scoring = 'f1',
-                           iid = False)
+                           scoring = 'f1')
 # fit model on training data
 fit_rlc = cf_rlc_gscv.fit(features_train_sc, outcome_train)
 ```
-
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
-
 
 
 ```python
@@ -1861,9 +1827,10 @@ fit_rlc.best_estimator_
 
 
     LogisticRegression(C=1.0, class_weight='balanced', dual=False,
-              fit_intercept=True, intercept_scaling=1, max_iter=100,
-              multi_class='ovr', n_jobs=None, penalty='l2', random_state=42,
-              solver='saga', tol=0.0001, verbose=0, warm_start=False)
+                       fit_intercept=True, intercept_scaling=1, l1_ratio=None,
+                       max_iter=100, multi_class='ovr', n_jobs=None, penalty='l2',
+                       random_state=42, solver='saga', tol=0.0001, verbose=0,
+                       warm_start=False)
 
 
 
@@ -1885,35 +1852,138 @@ So how well did the classifier do?
 ```python
 # print matrix for predictions on training and testing
 print("Training set")
-print(confmatrix(truth = outcome_train, prediction = rlc_train_pred_class))
-print("\nTesting set")
-print(confmatrix(truth = outcome_test, prediction = rlc_test_pred_class))
+confmatrix(truth = outcome_train, prediction = rlc_train_pred_class)
+```
 
+    Training set
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>Truth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>279.0</td>
+      <td>71.0</td>
+      <td>350.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>51.0</td>
+      <td>136.0</td>
+      <td>187.0</td>
+    </tr>
+    <tr>
+      <th>Predictions</th>
+      <td>330.0</td>
+      <td>207.0</td>
+      <td>537.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+print("\nTesting set")
+confmatrix(truth = outcome_test, prediction = rlc_test_pred_class)
+```
+
+    
+    Testing set
+
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>Truth</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>119.0</td>
+      <td>31.0</td>
+      <td>150.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>24.0</td>
+      <td>57.0</td>
+      <td>81.0</td>
+    </tr>
+    <tr>
+      <th>Predictions</th>
+      <td>143.0</td>
+      <td>88.0</td>
+      <td>231.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
 # plot the roc curves
 plot_ROC(truth = outcome_train, prediction1 = rlc_pred_prob_train, col = 'b')
 plot_ROC(truth = outcome_test, prediction1 = rlc_pred_prob_test, col = 'r')
 ```
 
-    Training set
-                     0      1  Truth
-    0            279.0   71.0  350.0
-    1             51.0  136.0  187.0
-    Predictions  330.0  207.0  537.0
-    
-    Testing set
-                     0     1  Truth
-    0            119.0  31.0  150.0
-    1             24.0  57.0   81.0
-    Predictions  143.0  88.0  231.0
 
-
-
-![png](../fig/50-Classification_90_1.png)
+![png](../fig/50-Classification_89_0.png)
 
 
 ## Decision Trees
 
-A decision tree 🌳 picks the best split in the data greedily for each feature and basically makes a flowchart to follow with a new data point to say what you should classify it as. This makes them easy to understsand, but also usually not very accurate. 
+A decision tree 🌳 picks the best split in the data greedily for each feature and basically makes a flowchart to follow with a new data point to say what you should classify it as. This makes them easy to understand, but also usually not very accurate. 
 
 ### Let's Classify!
 Train Decision Tree classifier.
@@ -1938,8 +2008,7 @@ cf_dtc_gscv = GridSearchCV(cf_dtc,
                            # use 5xfold cross-validation
                            cv=5,
                            # use AUC as error metric
-                           scoring = 'f1',
-                           iid = False)
+                           scoring = 'f1')
     
 # fit the model on the training data
 fit_dtc = cf_dtc_gscv.fit(features_train_sc, outcome_train)
@@ -1948,19 +2017,15 @@ fit_dtc = cf_dtc_gscv.fit(features_train_sc, outcome_train)
 fit_dtc.best_estimator_
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
 
 
 
-
-
-    DecisionTreeClassifier(class_weight=None, criterion='entropy', max_depth=None,
-                max_features=None, max_leaf_nodes=None,
-                min_impurity_decrease=0.0, min_impurity_split=None,
-                min_samples_leaf=9, min_samples_split=2,
-                min_weight_fraction_leaf=0.0, presort=False, random_state=42,
-                splitter='best')
+    DecisionTreeClassifier(ccp_alpha=0.0, class_weight=None, criterion='entropy',
+                           max_depth=None, max_features=None, max_leaf_nodes=None,
+                           min_impurity_decrease=0.0, min_impurity_split=None,
+                           min_samples_leaf=9, min_samples_split=2,
+                           min_weight_fraction_leaf=0.0, presort='deprecated',
+                           random_state=42, splitter='best')
 
 
 
@@ -2002,7 +2067,7 @@ plot_ROC(truth = outcome_test, prediction1 = dtc_pred_prob_test, col = 'r')
 
 
 
-![png](../fig/50-Classification_94_1.png)
+![png](../fig/50-Classification_93_1.png)
 
 
 We can also plot the decision tree
@@ -2011,21 +2076,13 @@ We can also plot the decision tree
 ```python
 from sklearn import tree
 from sklearn.tree import plot_tree
-tree.plot_tree(fit_dtc.best_estimator_) 
+tree.plot_tree(fit_dtc.best_estimator_, max_depth=2,
+               label='root',
+               filled=True); 
 ```
 
 
-    ---------------------------------------------------------------------------
-
-    NameError                                 Traceback (most recent call last)
-
-    <ipython-input-1-d5bb71920e99> in <module>
-          1 from sklearn import tree
-          2 from sklearn.tree import plot_tree
-    -- 3 tree.plot_tree(fit_dtc.best_estimator_)
-    
-
-    NameError: name 'fit_dtc' is not defined
+![png](../fig/50-Classification_95_0.png)
 
 
 > ## Challenge
@@ -2058,7 +2115,7 @@ Turns out these do pretty good and are used all over the place. But because they
 ```python
 from sklearn.ensemble import RandomForestClassifier
 cf_rfc = RandomForestClassifier(random_state=42)
-# 
+ 
 rf_dict = {
     # The number of trees in the forest
     'n_estimators': np.arange(10,150,25), 
@@ -2080,8 +2137,7 @@ cf_rf_gscv = GridSearchCV(cf_rfc,
                            # use 5xfold cross-validation
                            cv=5,
                            # use AUC as error metric
-                           scoring = 'f1',
-                           iid = False)
+                           scoring = 'f1')
 
 # fit model on training data
 fit_rf = cf_rf_gscv.fit(features_train_sc, outcome_train)
@@ -2090,20 +2146,17 @@ fit_rf = cf_rf_gscv.fit(features_train_sc, outcome_train)
 fit_rf.best_estimator_
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
 
 
 
-
-
-    RandomForestClassifier(bootstrap=True, class_weight='balanced_subsample',
-                criterion='entropy', max_depth=None, max_features='sqrt',
-                max_leaf_nodes=None, min_impurity_decrease=0.0,
-                min_impurity_split=None, min_samples_leaf=2,
-                min_samples_split=12, min_weight_fraction_leaf=0.0,
-                n_estimators=110, n_jobs=None, oob_score=False,
-                random_state=42, verbose=0, warm_start=False)
+    RandomForestClassifier(bootstrap=True, ccp_alpha=0.0,
+                           class_weight='balanced_subsample', criterion='entropy',
+                           max_depth=None, max_features='sqrt', max_leaf_nodes=None,
+                           max_samples=None, min_impurity_decrease=0.0,
+                           min_impurity_split=None, min_samples_leaf=2,
+                           min_samples_split=12, min_weight_fraction_leaf=0.0,
+                           n_estimators=110, n_jobs=None, oob_score=False,
+                           random_state=42, verbose=0, warm_start=False)
 
 
 
@@ -2128,7 +2181,7 @@ print(confmatrix(truth = outcome_test, prediction = rf_test_pred_class))
 
 # plot the roc curves
 plot_ROC(truth = outcome_train, prediction1 = rf_pred_prob_train, col = 'b')
-plot_ROC(truth = outcome_test, prediction1 = rf_pred_prob_test, col = 'r')
+plot_ROC(truth = outcome_test, prediction1 = rf_pred_prob_test, col = 'r');
 ```
 
     Training set
@@ -2145,7 +2198,7 @@ plot_ROC(truth = outcome_test, prediction1 = rf_pred_prob_test, col = 'r')
 
 
 
-![png](../fig/50-Classification_101_1.png)
+![png](../fig/50-Classification_100_1.png)
 
 
 ## Support Vector Machine
@@ -2169,8 +2222,7 @@ cf_svm_gscv_lin = GridSearchCV(cf_svm,
                            # use 5xfold cross-validation
                            cv=5,
                            # use F1 score as error metric
-                           scoring = 'f1',
-                           iid = False)
+                           scoring = 'f1')
 
 fit_svm_lin = cf_svm_gscv_lin.fit(features_train_sc, outcome_train)
 
@@ -2180,17 +2232,10 @@ cf_svm_gscv_rad = GridSearchCV(cf_svm,
                            # use 5xfold cross-validation
                            cv=5,
                            # use F1 as error metric
-                           scoring = 'f1',
-                           iid = False)
+                           scoring = 'f1')
 
 fit_svm_rbf = cf_svm_gscv_rad.fit(features_train_sc, outcome_train)
 ```
-
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\sklearn\model_selection\_search.py:841: DeprecationWarning: The default of the `iid` parameter will change from True to False in version 0.22 and will be removed in 0.24. This will change numeric results when test-set sizes are unequal.
-      DeprecationWarning)
-
 
 Use trained classifier to predict outcome for test-set
 
@@ -2202,10 +2247,10 @@ fit_svm_lin.best_estimator_
 
 
 
-    SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-      decision_function_shape='ovr', degree=3, gamma='scale', kernel='linear',
-      max_iter=-1, probability=True, random_state=42, shrinking=True,
-      tol=0.001, verbose=False)
+    SVC(C=1.0, break_ties=False, cache_size=200, class_weight=None, coef0=0.0,
+        decision_function_shape='ovr', degree=3, gamma='scale', kernel='linear',
+        max_iter=-1, probability=True, random_state=42, shrinking=True, tol=0.001,
+        verbose=False)
 
 
 
@@ -2217,10 +2262,10 @@ fit_svm_rbf.best_estimator_
 
 
 
-    SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-      decision_function_shape='ovr', degree=3, gamma='scale', kernel='rbf',
-      max_iter=-1, probability=True, random_state=42, shrinking=True,
-      tol=0.001, verbose=False)
+    SVC(C=1.0, break_ties=False, cache_size=200, class_weight=None, coef0=0.0,
+        decision_function_shape='ovr', degree=3, gamma='scale', kernel='rbf',
+        max_iter=-1, probability=True, random_state=42, shrinking=True, tol=0.001,
+        verbose=False)
 
 
 
@@ -2260,7 +2305,7 @@ plot_ROC(truth = outcome_test, prediction1 = svm_l_pred_prob_test, col = 'r')
 
 
 
-![png](../fig/50-Classification_107_1.png)
+![png](../fig/50-Classification_106_1.png)
 
 
 
@@ -2299,7 +2344,7 @@ plot_ROC(truth = outcome_test, prediction1 = svm_r_pred_prob_test, col = 'r')
 
 
 
-![png](../fig/50-Classification_108_1.png)
+![png](../fig/50-Classification_107_1.png)
 
 
 # Compare all the classifiers
@@ -2317,12 +2362,9 @@ pretrained_models = {'k Nearest Neighbours':cf_knn_gscv,
 comparison_stats = pd.DataFrame(index = pretrained_models.keys(), columns=evaluations)
 for method, model in pretrained_models.items():
     outcome_pred_class = model.predict(features_test_sc)
-    if method in []: # Support Vector Machine'
-        AUC = float('nan')
-    else:
-        outcome_pred_prob = model.predict_proba(features_test_sc)
-        outcome_pred_prob1 = [p[1] for p in outcome_pred_prob]
-        AUC = roc_auc_score(outcome_test, outcome_pred_prob1)
+    outcome_pred_prob = model.predict_proba(features_test_sc)
+    outcome_pred_prob1 = [p[1] for p in outcome_pred_prob]
+    AUC = roc_auc_score(outcome_test, outcome_pred_prob1)
     conf_mat = confusion_matrix(outcome_test, outcome_pred_class)
     # in this case 0-0 is negatives
     # 1-1 is diabetes
@@ -2417,7 +2459,7 @@ comparison_stats.round(decimals=3).sort_values(by = 'AUC', ascending=False)
       <td>0.255411</td>
       <td>0.506173</td>
       <td>0.873333</td>
-      <td>0.817572</td>
+      <td>0.817449</td>
       <td>0.683</td>
       <td>0.745</td>
       <td>0.317</td>
@@ -2548,7 +2590,7 @@ comparison_stats.round(decimals=3).sort_values(by = 'Misclassification rate', as
       <td>0.255411</td>
       <td>0.506173</td>
       <td>0.873333</td>
-      <td>0.817572</td>
+      <td>0.817449</td>
       <td>0.683</td>
       <td>0.745</td>
       <td>0.317</td>
@@ -2668,7 +2710,7 @@ comparison_stats.round(decimals=3).sort_values(by = 'Sensitivity', ascending=Fal
       <td>0.255411</td>
       <td>0.506173</td>
       <td>0.873333</td>
-      <td>0.817572</td>
+      <td>0.817449</td>
       <td>0.683</td>
       <td>0.745</td>
       <td>0.317</td>
@@ -2755,7 +2797,7 @@ comparison_stats.round(decimals=3).sort_values(by = 'Specificity', ascending=Fal
       <td>0.255411</td>
       <td>0.506173</td>
       <td>0.873333</td>
-      <td>0.817572</td>
+      <td>0.817449</td>
       <td>0.683</td>
       <td>0.745</td>
       <td>0.317</td>
@@ -2908,7 +2950,7 @@ comparison_stats.round(decimals=3).sort_values(by = 'F1', ascending=False)
       <td>0.255411</td>
       <td>0.506173</td>
       <td>0.873333</td>
-      <td>0.817572</td>
+      <td>0.817449</td>
       <td>0.683</td>
       <td>0.745</td>
       <td>0.317</td>
