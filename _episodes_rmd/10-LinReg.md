@@ -30,6 +30,7 @@ import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.special import exp10
 %matplotlib inline
 sns.set(font_scale = 1.5)
 #
@@ -40,8 +41,9 @@ from sklearn.pipeline import Pipeline
 from pandas.api.types import CategoricalDtype
 import pickle 
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import PolynomialFeatures
+from sklearn.preprocessing import (
+    StandardScaler, PolynomialFeatures, FunctionTransformer
+)
 
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
@@ -200,9 +202,19 @@ pickle.dump(predictors, open('models/predictors.pickle', 'wb'))
 
 
 ```python
+# define a transformation function for the Y
+log_transf_f = FunctionTransformer(
+    func=np.log10,
+    inverse_func=exp10,
+    validate=True
+)
+```
+
+
+```python
 # Create training and test response vectors
-ames_train_y = np.log10(ames_train['Sale_Price'])
-ames_test_y = np.log10(ames_test['Sale_Price'])
+ames_train_y = log_transf_f.fit_transform(ames_train['Sale_Price'].values.reshape(-1, 1))
+ames_test_y = log_transf_f.transform(ames_test['Sale_Price'].values.reshape(-1, 1))
 
 # Write training and test design matrices
 ames_train_X = ames_train[predictors].copy()
@@ -236,7 +248,7 @@ type(ames_train_y)
 
 
 
-    pandas.core.series.Series
+    numpy.ndarray
 
 
 
@@ -284,6 +296,8 @@ Assess model fit on the training data:
 def assess_fit_vars(models, variables, datasetX, datasetY):
     columns = ['RMSE', 'R2', 'MAE']
     results = pd.DataFrame(0.0, columns=columns, index=variables)
+    # compute the actual Y
+    y_actual = log_transf_f.inverse_transform(datasetY)
     for i, method in enumerate(models):
         if variables[i] != "All":
             tmp_dataset_X = datasetX[variables[i]]
@@ -293,20 +307,22 @@ def assess_fit_vars(models, variables, datasetX, datasetY):
             tmp_dataset_X = datasetX
         # while we build the model and predict on the log10Transformed sale price, we display the error in dollars
         # as that makes more sense
-        y_pred=10**(method.predict(tmp_dataset_X))
-        results.iloc[i,0] = np.sqrt(mean_squared_error(10**(datasetY), y_pred))
-        results.iloc[i,1] = r2_score(10**(datasetY), y_pred)
-        results.iloc[i,2] = mean_absolute_error(10**(datasetY), y_pred)
-    return(results.round(3))
+        y_pred = log_transf_f.inverse_transform(method.predict(tmp_dataset_X))
+        results.iloc[i,0] = np.sqrt(
+            mean_squared_error(y_actual, y_pred))
+        results.iloc[i,1] = r2_score(y_actual, y_pred)
+        results.iloc[i,2] = mean_absolute_error(y_actual, y_pred)
+    return results.round(3)
 
 models = [ames_ols_all, ames_ols_GrLivArea, ames_ols_Second_Flr_SF, 
           ames_ols_GrLivArea_Age, ames_ols_GrLivArea_Second_Flr_SF]
 
-variables =["All", 'Gr_Liv_Area','Second_Flr_SF',
+variables = ["All", 'Gr_Liv_Area','Second_Flr_SF',
             ['Gr_Liv_Area', 'Age'], ['Gr_Liv_Area', 'Second_Flr_SF']]
 
 compare_train = assess_fit_vars(
-    models=models, variables=variables, 
+    models=models,
+    variables=variables, 
     datasetX=ames_train_X, 
     datasetY=ames_train_y
 )
@@ -374,6 +390,45 @@ compare_train.sort_values('RMSE')
 </table>
 </div>
 
+
+
+Let's built a comparison plot
+
+
+```python
+# rearrange the scores df to for the plot
+def rearrange_df(df):
+    out_df = (
+        df.copy()
+        .reset_index()
+        .melt(
+            id_vars='index',
+            value_vars=df.columns.values.tolist(),
+            var_name='metric',
+            value_name='number'
+        )
+        .sort_values('number')
+    )
+    out_df['index'] = out_df['index'].astype(str)
+    out_df= out_df.rename(columns={'index':'model_features'})
+    return out_df
+```
+
+
+```python
+chart = sns.catplot(
+    x='model_features',
+    y='number',
+    col='metric',
+    data=rearrange_df(compare_train),
+    kind='bar',
+    sharey=False,
+)
+chart.set_xticklabels(rotation=90);
+```
+
+
+![png](../fig/10-LinReg_25_0.png)
 
 
 Compare with peformance on the test set
@@ -449,6 +504,37 @@ compare.sort_values('RMSE')
 </table>
 </div>
 
+
+
+Let's compare the scores across train and test sets
+
+
+```python
+# combine test and train dfs
+def combine_train_test_res_df(df_train_scores, df_test_scores):
+    df = rearrange_df(df_train_scores)
+    df['dataset'] = 'train'
+    df1 = rearrange_df(df_train_scores)
+    df1['dataset'] = 'test'
+    return df.append(df1)
+```
+
+
+```python
+chart = sns.catplot(
+    x='model_features',
+    y='number',
+    col='metric',
+    data=combine_train_test_res_df(compare_train, compare),
+    kind='bar',
+    sharey=False,
+    hue='dataset'
+)
+chart.set_xticklabels(rotation=90);
+```
+
+
+![png](../fig/10-LinReg_30_0.png)
 
 
 
