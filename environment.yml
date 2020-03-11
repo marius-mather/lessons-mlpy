@@ -1,0 +1,12 @@
+name: base
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - conda
+  - anaconda
+  - xgboost
+  - sklearn-contrib-py-earth
+  - upsetplot
+prefix: /opt/anaconda3
+
