@@ -22,7 +22,7 @@ bibliography: references.bib
 
 
 ```python
-websiterendering = False
+websiterendering = True
 # when delivering live coding, these libraries and code in this cell have already been loaded
 import matplotlib.pyplot as plt
 import numpy as np
