@@ -73,17 +73,17 @@ for file in cached_files:
         f.close()
 
 ## 
-def assess_model_fit(listOfModels,
-                     listOfMethodNamesAsStrings, 
+def assess_model_fit(models,
+                     model_labels, 
                      datasetX, 
                      datasetY):
-    columns= ['RMSE', 'R2', 'MAE']
-    rows=listOfMethodNamesAsStrings
-    results=pd.DataFrame(0.0, columns=columns, index=rows)
-    for i, method in enumerate(listOfModels):
-        tmp_dataset_X=datasetX
-        # while we build the model and predict on the log10Transformed sale price, we display the error in dollars
-        # as that makes more sense
+    columns = ['RMSE', 'R2', 'MAE']
+    rows = model_labels
+    results = pd.DataFrame(0.0, columns=columns, index=rows)
+    for i, method in enumerate(models):
+        tmp_dataset_X = datasetX
+        # while we build the model and predict on the log10Transformed 
+        # sale price, we display the error in dollars as that makes more sense
         y_pred=10**(method.predict(tmp_dataset_X))
         results.iloc[i,0] = np.sqrt(mean_squared_error(10**(datasetY), y_pred))
         results.iloc[i,1] = r2_score(10**(datasetY), y_pred)
@@ -97,7 +97,6 @@ def assess_model_fit(listOfModels,
 import itertools
 from sklearn.ensemble import GradientBoostingRegressor  # GBM algorithm
 import xgboost as xgb
-
 ```
 
 ## Gradient boosting
@@ -200,7 +199,7 @@ This ends up being quite an expansive grid search, as we need to fit 6 * 7 = 42 
 
 ```python
 param_test2 = {'min_samples_split': list(range(5, 31, 5)),
-              'max_depth': list(range(3,16, 2))}
+               'max_depth': list(range(3,16, 2))}
 ```
 
 To do this, we can use Artemis, the university's HPC cluster. A simple way to do this is to fit each of the `min_samples_split` independently, using a python and bash script. The python script we'd use would look like this:
@@ -747,6 +746,7 @@ print(ames_xgb.best_params_)
 print(ames_xgb.best_score_)
 ```
 
+    [16:26:42] WARNING: src/objective/regression_obj.cu:152: reg:linear is now deprecated in favor of reg:squarederror.
     {'colsample_bytree': 0.5, 'gamma': 0, 'max_depth': 3, 'min_child_weight': 0.5, 'n_estimators': 285, 'subsample': 0.75}
     0.9138998720966125
 
@@ -756,11 +756,10 @@ Unfortunately, even the code above runs out of RAM on my normal machine, so I op
 
 ```python
 # What was the RMSE on the training data?
-
-assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars, ames_RF, ames_knn, ames_gbm, ames_xgb],
-                listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN', 'GB', "XGB"],
-                datasetX=ames_train_X,
-                datasetY=ames_train_y).sort_values("RMSE")
+assess_model_fit(models=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars, ames_RF, ames_knn, ames_gbm, ames_xgb],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN', 'GB', "XGB"],
+                 datasetX=ames_train_X,
+                 datasetY=ames_train_y).sort_values("RMSE")
 ```
 
 
@@ -810,9 +809,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>RF</th>
-      <td>16038.217</td>
-      <td>0.959</td>
-      <td>10884.483</td>
+      <td>16308.709</td>
+      <td>0.958</td>
+      <td>11079.531</td>
     </tr>
     <tr>
       <th>Lasso</th>
@@ -866,10 +865,10 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
 ```python
 # What was the RMSE on the test data?
 
-assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars, ames_RF, ames_knn, ames_gbm, ames_xgb],
-                listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN', 'GB', "XGB"],
-                datasetX=ames_test_X,
-                datasetY=ames_test_y).sort_values("RMSE")
+assess_model_fit(models=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars, ames_RF, ames_knn, ames_gbm, ames_xgb],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN', 'GB', "XGB"],
+                 datasetX=ames_test_X,
+                 datasetY=ames_test_y).sort_values("RMSE")
 ```
 
 
@@ -955,9 +954,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>RF</th>
-      <td>27382.699</td>
-      <td>0.872</td>
-      <td>16858.700</td>
+      <td>27458.802</td>
+      <td>0.871</td>
+      <td>16960.577</td>
     </tr>
     <tr>
       <th>kNN</th>
@@ -970,8 +969,3 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
 </div>
 
 
-
-
-```python
-
-```
