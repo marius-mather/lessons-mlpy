@@ -117,14 +117,12 @@ for i in categorical_variable_list:
 
 # step 5
 # drop double no basement: (ranges from 80 to 83 in dataset, going with 80)
-ameshousingClean = ameshousingClean.drop('Bsmt_Exposure_No_Basement', axis=1)
-ameshousingClean = ameshousingClean.drop('BsmtFin_Type_2_No_Basement', axis=1)
-ameshousingClean = ameshousingClean.drop('Bsmt_Qual_No_Basement', axis=1)
-ameshousingClean = ameshousingClean.drop('Garage_Finish_No_Garage', axis=1)
-ameshousingClean = ameshousingClean.drop('Garage_Type_No_Garage', axis=1)
-ameshousingClean = ameshousingClean.drop('Garage_Qual_No_Garage', axis=1)
-ameshousingClean = ameshousingClean.drop('Year_Built', axis=1)
-ameshousingClean = ameshousingClean.drop('Year_Remod_Add', axis=1)
+columns_to_drop = [
+    'Bsmt_Exposure_No_Basement','BsmtFin_Type_2_No_Basement','Bsmt_Qual_No_Basement',
+    'Garage_Finish_No_Garage','Garage_Type_No_Garage','Garage_Qual_No_Garage',
+    'Year_Built','Year_Remod_Add',
+]
+ameshousingClean = ameshousingClean.drop(columns_to_drop, axis=1)
 ```
 
 > ## Challenge 1
@@ -151,8 +149,10 @@ Now we can use scikit-learn's train-test split to split the data into a training
 
 
 ```python
-index_train, index_test  = train_test_split(np.array(ameshousingClean.index), train_size=0.7, test_size = 0.3, 
-                                            stratify = np.array(ameshousingClean['Sale_Price_quartile']), random_state=42)
+index_train, index_test  = train_test_split(
+    ameshousingClean.index.values, train_size=0.7, test_size = 0.3, 
+    stratify = ameshousingClean['Sale_Price_quartile'].values, random_state=42
+)
 #
 #
 ## get rid of the quartile column so we're not using it to predict sale price
@@ -160,7 +160,7 @@ ameshousingClean = ameshousingClean.drop('Sale_Price_quartile', axis = 1)
 
 # Create variables for the training and test sets 
 ames_train = ameshousingClean.loc[index_train,:].copy()
-ames_test =  ameshousingClean.loc[index_test,:].copy()
+ames_test = ameshousingClean.loc[index_test,:].copy()
 ```
 
 
@@ -178,7 +178,7 @@ Get a list of predictor names and make numpy matrices of the data:
 
 
 ```python
-predictors = list(ameshousingClean.columns)
+predictors = ameshousingClean.columns.values.tolist()
 predictors.remove('Sale_Price')
 
 # this is extra, to help keep  the train/test consistent between different page renders
@@ -269,17 +269,16 @@ Assess model fit on the training data:
 
 ```python
 ## Paste the function below, then go slowly through how it is built up
-def assess_fit_vars(listOfMethods, variables, datasetX, datasetY):
-    columns= ['RMSE', 'R2', 'MAE']
-    rows=variables
-    results=pd.DataFrame(0.0, columns=columns, index=rows)
-    for i, method in enumerate(methods):
-        if variables[i] != ":":
+def assess_fit_vars(listOfModels, variables, datasetX, datasetY):
+    columns = ['RMSE', 'R2', 'MAE']
+    results = pd.DataFrame(0.0, columns=columns, index=variables)
+    for i, method in enumerate(listOfModels):
+        if variables[i] != "All":
             tmp_dataset_X = datasetX[variables[i]]
             if type(variables[i]) == str: #only one column - so need to reshape
                 tmp_dataset_X = datasetX[variables[i]].values.reshape(-1, 1)
         else:
-            tmp_dataset_X=datasetX
+            tmp_dataset_X = datasetX
         # while we build the model and predict on the log10Transformed sale price, we display the error in dollars
         # as that makes more sense
         y_pred=10**(method.predict(tmp_dataset_X))
@@ -288,11 +287,13 @@ def assess_fit_vars(listOfMethods, variables, datasetX, datasetY):
         results.iloc[i,2] = mean_absolute_error(10**(datasetY), y_pred)
     return(results.round(3))
 
-methods =[ames_ols_all,  ames_ols_GrLivArea, ames_ols_Second_Flr_SF, ames_ols_GrLivArea_Age, ames_ols_GrLivArea_Second_Flr_SF]
+models =[ames_ols_all,  ames_ols_GrLivArea, ames_ols_Second_Flr_SF, ames_ols_GrLivArea_Age, ames_ols_GrLivArea_Second_Flr_SF]
 
-variables =[":", 'Gr_Liv_Area','Second_Flr_SF',['Gr_Liv_Area', 'Age'], ['Gr_Liv_Area', 'Second_Flr_SF']]
+variables =["All", 'Gr_Liv_Area','Second_Flr_SF',['Gr_Liv_Area', 'Age'], ['Gr_Liv_Area', 'Second_Flr_SF']]
 
-compare_train = assess_fit_vars(listOfMethods = methods,variables=variables, datasetX = ames_train_X, datasetY = ames_train_y)
+compare_train = assess_fit_vars(
+    listOfMethods=models, variables=variables, datasetX=ames_train_X, datasetY=ames_train_y
+)
 compare_train.sort_values('RMSE')
 ```
 
@@ -364,7 +365,9 @@ Compare with peformance on the test set
 
 ```python
 # on the test! set
-compare = assess_fit_vars(listOfMethods = methods,variables=variables, datasetX = ames_test_X, datasetY = ames_test_y)
+compare = assess_fit_vars(
+    listOfModels=models, variables=variables, datasetX=ames_test_X, datasetY=ames_test_y
+)
 compare.sort_values('RMSE')
 ```
 

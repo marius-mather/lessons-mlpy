@@ -30,8 +30,7 @@ import statsmodels.api as sm
 import seaborn as sns
 from sklearn import preprocessing
 from sklearn import model_selection
-# pip install UpSetPlot #no conda option??
-# import upsetplot
+import upsetplot
 %matplotlib inline
 sns.set(font_scale = 1.5)
 ```
@@ -276,67 +275,17 @@ ameshousingClean.dtypes
 
 
 
-    MS_SubClass            object
-    MS_Zoning              object
-    Lot_Frontage            int64
-    Lot_Area                int64
-    Street                 object
-    Alley                  object
-    Lot_Shape              object
-    Land_Contour           object
-    Utilities              object
-    Lot_Config             object
-    Land_Slope             object
-    Neighborhood           object
-    Condition_1            object
-    Condition_2            object
-    Bldg_Type              object
-    House_Style            object
-    Overall_Qual           object
-    Overall_Cond           object
-    Year_Built              int64
-    Year_Remod_Add          int64
-    Roof_Style             object
-    Roof_Matl              object
-    Exterior_1st           object
-    Exterior_2nd           object
-    Mas_Vnr_Type           object
-    Mas_Vnr_Area            int64
-    Exter_Qual             object
-    Exter_Cond             object
-    Foundation             object
-    Bsmt_Qual              object
-                           ...   
-    Kitchen_AbvGr           int64
-    Kitchen_Qual           object
-    TotRms_AbvGrd           int64
-    Functional             object
-    Fireplaces              int64
-    Fireplace_Qu           object
-    Garage_Type            object
-    Garage_Finish          object
-    Garage_Cars             int64
-    Garage_Area             int64
-    Garage_Qual            object
-    Garage_Cond            object
-    Paved_Drive            object
-    Wood_Deck_SF            int64
-    Open_Porch_SF           int64
-    Enclosed_Porch          int64
-    Three_season_porch      int64
-    Screen_Porch            int64
-    Pool_Area               int64
-    Pool_QC                object
-    Fence                  object
-    Misc_Feature           object
-    Misc_Val                int64
-    Mo_Sold                 int64
-    Year_Sold               int64
-    Sale_Type              object
-    Sale_Condition         object
-    Sale_Price              int64
-    Longitude             float64
-    Latitude              float64
+    MS_SubClass        object
+    MS_Zoning          object
+    Lot_Frontage        int64
+    Lot_Area            int64
+    Street             object
+                       ...   
+    Sale_Type          object
+    Sale_Condition     object
+    Sale_Price          int64
+    Longitude         float64
+    Latitude          float64
     Length: 81, dtype: object
 
 
@@ -351,87 +300,89 @@ ameshousingClean.info()
     <class 'pandas.core.frame.DataFrame'>
     RangeIndex: 2930 entries, 0 to 2929
     Data columns (total 81 columns):
-    MS_SubClass           2930 non-null object
-    MS_Zoning             2930 non-null object
-    Lot_Frontage          2930 non-null int64
-    Lot_Area              2930 non-null int64
-    Street                2930 non-null object
-    Alley                 2930 non-null object
-    Lot_Shape             2930 non-null object
-    Land_Contour          2930 non-null object
-    Utilities             2930 non-null object
-    Lot_Config            2930 non-null object
-    Land_Slope            2930 non-null object
-    Neighborhood          2930 non-null object
-    Condition_1           2930 non-null object
-    Condition_2           2930 non-null object
-    Bldg_Type             2930 non-null object
-    House_Style           2930 non-null object
-    Overall_Qual          2930 non-null object
-    Overall_Cond          2930 non-null object
-    Year_Built            2930 non-null int64
-    Year_Remod_Add        2930 non-null int64
-    Roof_Style            2930 non-null object
-    Roof_Matl             2930 non-null object
-    Exterior_1st          2930 non-null object
-    Exterior_2nd          2930 non-null object
-    Mas_Vnr_Type          2930 non-null object
-    Mas_Vnr_Area          2930 non-null int64
-    Exter_Qual            2930 non-null object
-    Exter_Cond            2930 non-null object
-    Foundation            2930 non-null object
-    Bsmt_Qual             2930 non-null object
-    Bsmt_Cond             2930 non-null object
-    Bsmt_Exposure         2930 non-null object
-    BsmtFin_Type_1        2930 non-null object
-    BsmtFin_SF_1          2930 non-null int64
-    BsmtFin_Type_2        2930 non-null object
-    BsmtFin_SF_2          2930 non-null int64
-    Bsmt_Unf_SF           2930 non-null int64
-    Total_Bsmt_SF         2930 non-null int64
-    Heating               2930 non-null object
-    Heating_QC            2930 non-null object
-    Central_Air           2930 non-null object
-    Electrical            2930 non-null object
-    First_Flr_SF          2930 non-null int64
-    Second_Flr_SF         2930 non-null int64
-    Low_Qual_Fin_SF       2930 non-null int64
-    Gr_Liv_Area           2930 non-null int64
-    Bsmt_Full_Bath        2930 non-null int64
-    Bsmt_Half_Bath        2930 non-null int64
-    Full_Bath             2930 non-null int64
-    Half_Bath             2930 non-null int64
-    Bedroom_AbvGr         2930 non-null int64
-    Kitchen_AbvGr         2930 non-null int64
-    Kitchen_Qual          2930 non-null object
-    TotRms_AbvGrd         2930 non-null int64
-    Functional            2930 non-null object
-    Fireplaces            2930 non-null int64
-    Fireplace_Qu          2930 non-null object
-    Garage_Type           2930 non-null object
-    Garage_Finish         2930 non-null object
-    Garage_Cars           2930 non-null int64
-    Garage_Area           2930 non-null int64
-    Garage_Qual           2930 non-null object
-    Garage_Cond           2930 non-null object
-    Paved_Drive           2930 non-null object
-    Wood_Deck_SF          2930 non-null int64
-    Open_Porch_SF         2930 non-null int64
-    Enclosed_Porch        2930 non-null int64
-    Three_season_porch    2930 non-null int64
-    Screen_Porch          2930 non-null int64
-    Pool_Area             2930 non-null int64
-    Pool_QC               2930 non-null object
-    Fence                 2930 non-null object
-    Misc_Feature          2930 non-null object
-    Misc_Val              2930 non-null int64
-    Mo_Sold               2930 non-null int64
-    Year_Sold             2930 non-null int64
-    Sale_Type             2930 non-null object
-    Sale_Condition        2930 non-null object
-    Sale_Price            2930 non-null int64
-    Longitude             2930 non-null float64
-    Latitude              2930 non-null float64
+     #   Column              Non-Null Count  Dtype  
+    ---  ------              --------------  -----  
+     0   MS_SubClass         2930 non-null   object 
+     1   MS_Zoning           2930 non-null   object 
+     2   Lot_Frontage        2930 non-null   int64  
+     3   Lot_Area            2930 non-null   int64  
+     4   Street              2930 non-null   object 
+     5   Alley               2930 non-null   object 
+     6   Lot_Shape           2930 non-null   object 
+     7   Land_Contour        2930 non-null   object 
+     8   Utilities           2930 non-null   object 
+     9   Lot_Config          2930 non-null   object 
+     10  Land_Slope          2930 non-null   object 
+     11  Neighborhood        2930 non-null   object 
+     12  Condition_1         2930 non-null   object 
+     13  Condition_2         2930 non-null   object 
+     14  Bldg_Type           2930 non-null   object 
+     15  House_Style         2930 non-null   object 
+     16  Overall_Qual        2930 non-null   object 
+     17  Overall_Cond        2930 non-null   object 
+     18  Year_Built          2930 non-null   int64  
+     19  Year_Remod_Add      2930 non-null   int64  
+     20  Roof_Style          2930 non-null   object 
+     21  Roof_Matl           2930 non-null   object 
+     22  Exterior_1st        2930 non-null   object 
+     23  Exterior_2nd        2930 non-null   object 
+     24  Mas_Vnr_Type        2930 non-null   object 
+     25  Mas_Vnr_Area        2930 non-null   int64  
+     26  Exter_Qual          2930 non-null   object 
+     27  Exter_Cond          2930 non-null   object 
+     28  Foundation          2930 non-null   object 
+     29  Bsmt_Qual           2930 non-null   object 
+     30  Bsmt_Cond           2930 non-null   object 
+     31  Bsmt_Exposure       2930 non-null   object 
+     32  BsmtFin_Type_1      2930 non-null   object 
+     33  BsmtFin_SF_1        2930 non-null   int64  
+     34  BsmtFin_Type_2      2930 non-null   object 
+     35  BsmtFin_SF_2        2930 non-null   int64  
+     36  Bsmt_Unf_SF         2930 non-null   int64  
+     37  Total_Bsmt_SF       2930 non-null   int64  
+     38  Heating             2930 non-null   object 
+     39  Heating_QC          2930 non-null   object 
+     40  Central_Air         2930 non-null   object 
+     41  Electrical          2930 non-null   object 
+     42  First_Flr_SF        2930 non-null   int64  
+     43  Second_Flr_SF       2930 non-null   int64  
+     44  Low_Qual_Fin_SF     2930 non-null   int64  
+     45  Gr_Liv_Area         2930 non-null   int64  
+     46  Bsmt_Full_Bath      2930 non-null   int64  
+     47  Bsmt_Half_Bath      2930 non-null   int64  
+     48  Full_Bath           2930 non-null   int64  
+     49  Half_Bath           2930 non-null   int64  
+     50  Bedroom_AbvGr       2930 non-null   int64  
+     51  Kitchen_AbvGr       2930 non-null   int64  
+     52  Kitchen_Qual        2930 non-null   object 
+     53  TotRms_AbvGrd       2930 non-null   int64  
+     54  Functional          2930 non-null   object 
+     55  Fireplaces          2930 non-null   int64  
+     56  Fireplace_Qu        2930 non-null   object 
+     57  Garage_Type         2930 non-null   object 
+     58  Garage_Finish       2930 non-null   object 
+     59  Garage_Cars         2930 non-null   int64  
+     60  Garage_Area         2930 non-null   int64  
+     61  Garage_Qual         2930 non-null   object 
+     62  Garage_Cond         2930 non-null   object 
+     63  Paved_Drive         2930 non-null   object 
+     64  Wood_Deck_SF        2930 non-null   int64  
+     65  Open_Porch_SF       2930 non-null   int64  
+     66  Enclosed_Porch      2930 non-null   int64  
+     67  Three_season_porch  2930 non-null   int64  
+     68  Screen_Porch        2930 non-null   int64  
+     69  Pool_Area           2930 non-null   int64  
+     70  Pool_QC             2930 non-null   object 
+     71  Fence               2930 non-null   object 
+     72  Misc_Feature        2930 non-null   object 
+     73  Misc_Val            2930 non-null   int64  
+     74  Mo_Sold             2930 non-null   int64  
+     75  Year_Sold           2930 non-null   int64  
+     76  Sale_Type           2930 non-null   object 
+     77  Sale_Condition      2930 non-null   object 
+     78  Sale_Price          2930 non-null   int64  
+     79  Longitude           2930 non-null   float64
+     80  Latitude            2930 non-null   float64
     dtypes: float64(2), int64(33), object(46)
     memory usage: 1.8+ MB
 
@@ -446,88 +397,90 @@ ameshousingDirty.info()
     <class 'pandas.core.frame.DataFrame'>
     RangeIndex: 2930 entries, 0 to 2929
     Data columns (total 82 columns):
-    Order              2930 non-null int64
-    PID                2930 non-null int64
-    MS SubClass        2930 non-null int64
-    MS Zoning          2930 non-null object
-    Lot Frontage       2440 non-null float64
-    Lot Area           2930 non-null int64
-    Street             2930 non-null object
-    Alley              198 non-null object
-    Lot Shape          2930 non-null object
-    Land Contour       2930 non-null object
-    Utilities          2930 non-null object
-    Lot Config         2930 non-null object
-    Land Slope         2930 non-null object
-    Neighborhood       2930 non-null object
-    Condition 1        2930 non-null object
-    Condition 2        2930 non-null object
-    Bldg Type          2930 non-null object
-    House Style        2930 non-null object
-    Overall Qual       2930 non-null int64
-    Overall Cond       2930 non-null int64
-    Year Built         2930 non-null int64
-    Year Remod/Add     2930 non-null int64
-    Roof Style         2930 non-null object
-    Roof Matl          2930 non-null object
-    Exterior 1st       2930 non-null object
-    Exterior 2nd       2930 non-null object
-    Mas Vnr Type       2907 non-null object
-    Mas Vnr Area       2907 non-null float64
-    Exter Qual         2930 non-null object
-    Exter Cond         2930 non-null object
-    Foundation         2930 non-null object
-    Bsmt Qual          2850 non-null object
-    Bsmt Cond          2850 non-null object
-    Bsmt Exposure      2847 non-null object
-    BsmtFin Type 1     2850 non-null object
-    BsmtFin SF 1       2929 non-null float64
-    BsmtFin Type 2     2849 non-null object
-    BsmtFin SF 2       2929 non-null float64
-    Bsmt Unf SF        2929 non-null float64
-    Total Bsmt SF      2929 non-null float64
-    Heating            2930 non-null object
-    Heating QC         2930 non-null object
-    Central Air        2930 non-null object
-    Electrical         2929 non-null object
-    1st Flr SF         2930 non-null int64
-    2nd Flr SF         2930 non-null int64
-    Low Qual Fin SF    2930 non-null int64
-    Gr Liv Area        2930 non-null int64
-    Bsmt Full Bath     2928 non-null float64
-    Bsmt Half Bath     2928 non-null float64
-    Full Bath          2930 non-null int64
-    Half Bath          2930 non-null int64
-    Bedroom AbvGr      2930 non-null int64
-    Kitchen AbvGr      2930 non-null int64
-    Kitchen Qual       2930 non-null object
-    TotRms AbvGrd      2930 non-null int64
-    Functional         2930 non-null object
-    Fireplaces         2930 non-null int64
-    Fireplace Qu       1508 non-null object
-    Garage Type        2773 non-null object
-    Garage Yr Blt      2771 non-null float64
-    Garage Finish      2771 non-null object
-    Garage Cars        2929 non-null float64
-    Garage Area        2929 non-null float64
-    Garage Qual        2771 non-null object
-    Garage Cond        2771 non-null object
-    Paved Drive        2930 non-null object
-    Wood Deck SF       2930 non-null int64
-    Open Porch SF      2930 non-null int64
-    Enclosed Porch     2930 non-null int64
-    3Ssn Porch         2930 non-null int64
-    Screen Porch       2930 non-null int64
-    Pool Area          2930 non-null int64
-    Pool QC            13 non-null object
-    Fence              572 non-null object
-    Misc Feature       106 non-null object
-    Misc Val           2930 non-null int64
-    Mo Sold            2930 non-null int64
-    Yr Sold            2930 non-null int64
-    Sale Type          2930 non-null object
-    Sale Condition     2930 non-null object
-    SalePrice          2930 non-null int64
+     #   Column           Non-Null Count  Dtype  
+    ---  ------           --------------  -----  
+     0   Order            2930 non-null   int64  
+     1   PID              2930 non-null   int64  
+     2   MS SubClass      2930 non-null   int64  
+     3   MS Zoning        2930 non-null   object 
+     4   Lot Frontage     2440 non-null   float64
+     5   Lot Area         2930 non-null   int64  
+     6   Street           2930 non-null   object 
+     7   Alley            198 non-null    object 
+     8   Lot Shape        2930 non-null   object 
+     9   Land Contour     2930 non-null   object 
+     10  Utilities        2930 non-null   object 
+     11  Lot Config       2930 non-null   object 
+     12  Land Slope       2930 non-null   object 
+     13  Neighborhood     2930 non-null   object 
+     14  Condition 1      2930 non-null   object 
+     15  Condition 2      2930 non-null   object 
+     16  Bldg Type        2930 non-null   object 
+     17  House Style      2930 non-null   object 
+     18  Overall Qual     2930 non-null   int64  
+     19  Overall Cond     2930 non-null   int64  
+     20  Year Built       2930 non-null   int64  
+     21  Year Remod/Add   2930 non-null   int64  
+     22  Roof Style       2930 non-null   object 
+     23  Roof Matl        2930 non-null   object 
+     24  Exterior 1st     2930 non-null   object 
+     25  Exterior 2nd     2930 non-null   object 
+     26  Mas Vnr Type     2907 non-null   object 
+     27  Mas Vnr Area     2907 non-null   float64
+     28  Exter Qual       2930 non-null   object 
+     29  Exter Cond       2930 non-null   object 
+     30  Foundation       2930 non-null   object 
+     31  Bsmt Qual        2850 non-null   object 
+     32  Bsmt Cond        2850 non-null   object 
+     33  Bsmt Exposure    2847 non-null   object 
+     34  BsmtFin Type 1   2850 non-null   object 
+     35  BsmtFin SF 1     2929 non-null   float64
+     36  BsmtFin Type 2   2849 non-null   object 
+     37  BsmtFin SF 2     2929 non-null   float64
+     38  Bsmt Unf SF      2929 non-null   float64
+     39  Total Bsmt SF    2929 non-null   float64
+     40  Heating          2930 non-null   object 
+     41  Heating QC       2930 non-null   object 
+     42  Central Air      2930 non-null   object 
+     43  Electrical       2929 non-null   object 
+     44  1st Flr SF       2930 non-null   int64  
+     45  2nd Flr SF       2930 non-null   int64  
+     46  Low Qual Fin SF  2930 non-null   int64  
+     47  Gr Liv Area      2930 non-null   int64  
+     48  Bsmt Full Bath   2928 non-null   float64
+     49  Bsmt Half Bath   2928 non-null   float64
+     50  Full Bath        2930 non-null   int64  
+     51  Half Bath        2930 non-null   int64  
+     52  Bedroom AbvGr    2930 non-null   int64  
+     53  Kitchen AbvGr    2930 non-null   int64  
+     54  Kitchen Qual     2930 non-null   object 
+     55  TotRms AbvGrd    2930 non-null   int64  
+     56  Functional       2930 non-null   object 
+     57  Fireplaces       2930 non-null   int64  
+     58  Fireplace Qu     1508 non-null   object 
+     59  Garage Type      2773 non-null   object 
+     60  Garage Yr Blt    2771 non-null   float64
+     61  Garage Finish    2771 non-null   object 
+     62  Garage Cars      2929 non-null   float64
+     63  Garage Area      2929 non-null   float64
+     64  Garage Qual      2771 non-null   object 
+     65  Garage Cond      2771 non-null   object 
+     66  Paved Drive      2930 non-null   object 
+     67  Wood Deck SF     2930 non-null   int64  
+     68  Open Porch SF    2930 non-null   int64  
+     69  Enclosed Porch   2930 non-null   int64  
+     70  3Ssn Porch       2930 non-null   int64  
+     71  Screen Porch     2930 non-null   int64  
+     72  Pool Area        2930 non-null   int64  
+     73  Pool QC          13 non-null     object 
+     74  Fence            572 non-null    object 
+     75  Misc Feature     106 non-null    object 
+     76  Misc Val         2930 non-null   int64  
+     77  Mo Sold          2930 non-null   int64  
+     78  Yr Sold          2930 non-null   int64  
+     79  Sale Type        2930 non-null   object 
+     80  Sale Condition   2930 non-null   object 
+     81  SalePrice        2930 non-null   int64  
     dtypes: float64(11), int64(28), object(43)
     memory usage: 1.8+ MB
 
@@ -542,67 +495,17 @@ ameshousingClean.isnull().sum(axis = 0)
 
 
 
-    MS_SubClass           0
-    MS_Zoning             0
-    Lot_Frontage          0
-    Lot_Area              0
-    Street                0
-    Alley                 0
-    Lot_Shape             0
-    Land_Contour          0
-    Utilities             0
-    Lot_Config            0
-    Land_Slope            0
-    Neighborhood          0
-    Condition_1           0
-    Condition_2           0
-    Bldg_Type             0
-    House_Style           0
-    Overall_Qual          0
-    Overall_Cond          0
-    Year_Built            0
-    Year_Remod_Add        0
-    Roof_Style            0
-    Roof_Matl             0
-    Exterior_1st          0
-    Exterior_2nd          0
-    Mas_Vnr_Type          0
-    Mas_Vnr_Area          0
-    Exter_Qual            0
-    Exter_Cond            0
-    Foundation            0
-    Bsmt_Qual             0
-                         ..
-    Kitchen_AbvGr         0
-    Kitchen_Qual          0
-    TotRms_AbvGrd         0
-    Functional            0
-    Fireplaces            0
-    Fireplace_Qu          0
-    Garage_Type           0
-    Garage_Finish         0
-    Garage_Cars           0
-    Garage_Area           0
-    Garage_Qual           0
-    Garage_Cond           0
-    Paved_Drive           0
-    Wood_Deck_SF          0
-    Open_Porch_SF         0
-    Enclosed_Porch        0
-    Three_season_porch    0
-    Screen_Porch          0
-    Pool_Area             0
-    Pool_QC               0
-    Fence                 0
-    Misc_Feature          0
-    Misc_Val              0
-    Mo_Sold               0
-    Year_Sold             0
-    Sale_Type             0
-    Sale_Condition        0
-    Sale_Price            0
-    Longitude             0
-    Latitude              0
+    MS_SubClass       0
+    MS_Zoning         0
+    Lot_Frontage      0
+    Lot_Area          0
+    Street            0
+                     ..
+    Sale_Type         0
+    Sale_Condition    0
+    Sale_Price        0
+    Longitude         0
+    Latitude          0
     Length: 81, dtype: int64
 
 
@@ -617,67 +520,17 @@ ameshousingDirty.isnull().sum(axis = 0)
 
 
 
-    Order                0
-    PID                  0
-    MS SubClass          0
-    MS Zoning            0
-    Lot Frontage       490
-    Lot Area             0
-    Street               0
-    Alley             2732
-    Lot Shape            0
-    Land Contour         0
-    Utilities            0
-    Lot Config           0
-    Land Slope           0
-    Neighborhood         0
-    Condition 1          0
-    Condition 2          0
-    Bldg Type            0
-    House Style          0
-    Overall Qual         0
-    Overall Cond         0
-    Year Built           0
-    Year Remod/Add       0
-    Roof Style           0
-    Roof Matl            0
-    Exterior 1st         0
-    Exterior 2nd         0
-    Mas Vnr Type        23
-    Mas Vnr Area        23
-    Exter Qual           0
-    Exter Cond           0
-                      ... 
-    Bedroom AbvGr        0
-    Kitchen AbvGr        0
-    Kitchen Qual         0
-    TotRms AbvGrd        0
-    Functional           0
-    Fireplaces           0
-    Fireplace Qu      1422
-    Garage Type        157
-    Garage Yr Blt      159
-    Garage Finish      159
-    Garage Cars          1
-    Garage Area          1
-    Garage Qual        159
-    Garage Cond        159
-    Paved Drive          0
-    Wood Deck SF         0
-    Open Porch SF        0
-    Enclosed Porch       0
-    3Ssn Porch           0
-    Screen Porch         0
-    Pool Area            0
-    Pool QC           2917
-    Fence             2358
-    Misc Feature      2824
-    Misc Val             0
-    Mo Sold              0
-    Yr Sold              0
-    Sale Type            0
-    Sale Condition       0
-    SalePrice            0
+    Order               0
+    PID                 0
+    MS SubClass         0
+    MS Zoning           0
+    Lot Frontage      490
+                     ... 
+    Mo Sold             0
+    Yr Sold             0
+    Sale Type           0
+    Sale Condition      0
+    SalePrice           0
     Length: 82, dtype: int64
 
 
@@ -730,26 +583,30 @@ Plot that missingness
 
 ```python
 f, ax = plt.subplots(figsize = (10, 20))
-sns.barplot(missingNo.values, missingNo.index, ax = ax)
+sns.barplot(missingNo.values, missingNo.index, ax = ax);
 ```
 
 
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1b35a3b80f0>
-
-
-
-
-![png](../fig/03-EDA_21_1.png)
+![png](../fig/03-EDA_21_0.png)
 
 
 
 ```python
-# future: upsetplot for missingness - FIXME
-# upsetplot.plot()
-# ref https://upsetplot.readthedocs.io/en/stable/_examples/plot_boston.html#sphx-glr-examples-plot-boston-py
+# Use upsetplot to see where missing values occur
+# together
+# Only use the top 5 columns
+missing_cols = missingNo.index[:5].tolist()
+missing_counts = (ameshousingDirty.loc[:, missing_cols]
+                  .isnull()
+                  .groupby(missing_cols)
+                  .size())
+
+upsetplot.plot(missing_counts);
 ```
+
+
+![png](../fig/03-EDA_22_0.png)
+
 
 > ### Challenge: Missingness
 >
@@ -826,18 +683,11 @@ numericVars = ameshousingClean.select_dtypes(exclude = ['object']).columns
 sns.pairplot(
     ameshousingClean,
     vars = numericVars[np.append(np.arange(1, 11), 33)]
-)
+);
 ```
 
 
-
-
-    <seaborn.axisgrid.PairGrid at 0x1b35a780320>
-
-
-
-
-![png](../fig/03-EDA_30_1.png)
+![png](../fig/03-EDA_30_0.png)
 
 
 
@@ -845,22 +695,13 @@ sns.pairplot(
 sns.pairplot(
     ameshousingClean,
     diag_kind="kde",
-    vars = numericVars[np.append(np.arange(11, 22), 33)])
+    vars = numericVars[np.append(np.arange(11, 22), 33)],
+    diag_kws={'bw': 0.01}
+);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
-
-
-
-
-    <seaborn.axisgrid.PairGrid at 0x1b35faec5c0>
-
-
-
-
-![png](../fig/03-EDA_31_2.png)
+![png](../fig/03-EDA_31_0.png)
 
 
 Of the numeric variables, which ones are the most correlated (with Sale price, and, more critically, with each other)?
@@ -891,7 +732,6 @@ Now generate a correlation plot to visualise this relationship
 
 ```python
 corr = ameshousingClean[numericVars].corr()
-rs = np.random.RandomState(33)
 
 # Generate a mask for the upper triangle
 mask = np.zeros_like(corr, dtype=np.bool)
@@ -901,18 +741,11 @@ mask[np.triu_indices_from(mask)] = True
 cmap = sns.diverging_palette(220, 10, as_cmap=True)
 
 # Draw the heatmap with the mask and correct aspect ratio
-sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, square=True)
+sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, square=True);
 ```
 
 
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1b36778da58>
-
-
-
-
-![png](../fig/03-EDA_34_1.png)
+![png](../fig/03-EDA_34_0.png)
 
 
 
@@ -920,18 +753,11 @@ sns.heatmap(corr, mask=mask, cmap=cmap, vmax=.3, square=True)
 sns.lmplot(
     data = ameshousingClean,
     x = 'Gr_Liv_Area', y = 'Sale_Price'
-)
+);
 ```
 
 
-
-
-    <seaborn.axisgrid.FacetGrid at 0x1b36779bbe0>
-
-
-
-
-![png](../fig/03-EDA_35_1.png)
+![png](../fig/03-EDA_35_0.png)
 
 
 ### Explore distribution of Outcome variable
@@ -963,22 +789,11 @@ sns.violinplot(
     y = 'Sale_Price',
     data = ameshousingClean,
     ax = ax
-)
+);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
-
-
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1b3680342b0>
-
-
-
-
-![png](../fig/03-EDA_40_2.png)
+![png](../fig/03-EDA_40_0.png)
 
 
 
@@ -990,18 +805,11 @@ sns.boxplot(
     y = 'Sale_Price',
     data = ameshousingClean,
     ax = ax
-)
+);
 ```
 
 
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1b367fa2940>
-
-
-
-
-![png](../fig/03-EDA_41_1.png)
+![png](../fig/03-EDA_41_0.png)
 
 
 
@@ -1012,22 +820,11 @@ sns.distplot(
     ameshousingClean['Sale_Price'],
     kde = False,
     ax = ax
-)
+);
 ```
 
-    C:\Users\dvanichkina\AppData\Local\Continuum\anaconda3\lib\site-packages\scipy\stats\stats.py:1713: FutureWarning: Using a non-tuple sequence for multidimensional indexing is deprecated; use `arr[tuple(seq)]` instead of `arr[seq]`. In the future this will be interpreted as an array index, `arr[np.array(seq)]`, which will result either in an error or a different result.
-      return np.add.reduce(sorted[indexer] * weights, axis=axis) / sumval
 
-
-
-
-
-    <matplotlib.axes._subplots.AxesSubplot at 0x1b3698ab550>
-
-
-
-
-![png](../fig/03-EDA_42_2.png)
+![png](../fig/03-EDA_42_0.png)
 
 
 Explore different ways of transforming the Sale Price.
@@ -1038,18 +835,11 @@ Explore different ways of transforming the Sale Price.
 sm.qqplot(
     ameshousingClean['Sale_Price'],
     line = 's'
-)
+);
 ```
 
 
-
-
 ![png](../fig/03-EDA_44_0.png)
-
-
-
-
-![png](../fig/03-EDA_44_1.png)
 
 
 
@@ -1058,18 +848,11 @@ sm.qqplot(
 sm.qqplot(
     np.sqrt(ameshousingClean['Sale_Price']),
     line = 's'
-)
+);
 ```
 
 
-
-
 ![png](../fig/03-EDA_45_0.png)
-
-
-
-
-![png](../fig/03-EDA_45_1.png)
 
 
 
@@ -1078,18 +861,11 @@ sm.qqplot(
 sm.qqplot(
     np.log(ameshousingClean['Sale_Price']),
     line = 's'
-)
+);
 ```
 
 
-
-
 ![png](../fig/03-EDA_46_0.png)
-
-
-
-
-![png](../fig/03-EDA_46_1.png)
 
 
 
@@ -1098,18 +874,11 @@ sm.qqplot(
 sm.qqplot(
     np.log10(ameshousingClean['Sale_Price']),
     line = 's'
-)
+);
 ```
 
 
-
-
 ![png](../fig/03-EDA_47_0.png)
-
-
-
-
-![png](../fig/03-EDA_47_1.png)
 
 
 > ## Challenge
