@@ -56,12 +56,14 @@ Define some functions to help us one hot encode variables, group together infreq
 ```python
 # do live code the next code chunk
 def onehot_row_drop(df, column = 'column'):
-    df = pd.concat([df.drop(column, axis=1), pd.get_dummies(df[column], drop_first=True, prefix=column)],axis=1)
+    dummies = pd.get_dummies(df[column], drop_first=True, prefix=column)
+    df = pd.concat([df.drop(column, axis=1), dummies],axis=1)
     return(df)
 
-def group_infrequent(df, columnname,counts = 10):
-    df.loc[df[columnname].value_counts()[df[columnname]].values <= counts, columnname] = "Other"
-
+def group_infrequent(df, column_name, counts = 10):
+    frequencies = df[column_name].value_counts()
+    infrequent = frequencies[frequencies <= counts].index
+    df.loc[df[column_name].isin(infrequent), column_name] = "Other"
 
 def none_of_this_feature(df, column = 'column'):
     # adds a column to the dataframe with a value of 0 where there is none of this feature,
@@ -80,7 +82,10 @@ ameshousingClean = ameshousingClean.loc[ameshousingClean['Gr_Liv_Area'] <= 4000,
 #
 #
 #
+```
 
+
+```python
 # But DO copy-paste the below code to proceed to the challenge
 # step 1
 ameshousingClean['Age'] = ameshousingClean['Year_Sold'].max() - ameshousingClean['Year_Built']
@@ -90,15 +95,19 @@ ameshousingClean['Misc_Feature_Present'] =  np.where(ameshousingClean['Misc_Feat
 
 # step 2
 # group situations where there are less than 20 cases of something
-for i in ['Neighborhood', 'Roof_Matl', 'Exterior_1st', 'Exterior_2nd', 'Heating', 'MS_Zoning', 'Misc_Feature', 'Sale_Type']:
-    group_infrequent(df=ameshousingClean, columnname=i, counts=20)
+infrequent_cols = ['Neighborhood', 'Roof_Matl', 'Exterior_1st', 'Exterior_2nd', 
+                   'Heating', 'MS_Zoning', 'Misc_Feature', 'Sale_Type']
+for col in infrequent_cols:
+    group_infrequent(df=ameshousingClean, column_name=col, counts=20)
 
 
 # Capture variables where some houses have "none of this feature" (i.e value of parameter = 0 aka zero-inflation)
-none_of_feature = ['Second_Flr_SF','Three_season_porch','BsmtFin_SF_2','Bsmt_Unf_SF','Enclosed_Porch','Low_Qual_Fin_SF',
-                   'Mas_Vnr_Area','Lot_Frontage','Open_Porch_SF','Screen_Porch','Pool_Area','Wood_Deck_SF', 'BsmtFin_SF_2', 'Second_Flr_SF']
-for i in none_of_feature:
-    ameshousingClean = none_of_this_feature(df = ameshousingClean, column=i)
+none_of_feature = ['Second_Flr_SF','Three_season_porch','BsmtFin_SF_2','Bsmt_Unf_SF',
+                   'Enclosed_Porch','Low_Qual_Fin_SF', 'Mas_Vnr_Area','Lot_Frontage',
+                   'Open_Porch_SF','Screen_Porch','Pool_Area','Wood_Deck_SF', 
+                   'BsmtFin_SF_2', 'Second_Flr_SF']
+for col in none_of_feature:
+    ameshousingClean = none_of_this_feature(df = ameshousingClean, column=col)
     
 # step 3
 categorical_variable_list = ['Alley', 'Bldg_Type', 'Condition_1', 'Electrical', 'Exter_Cond', 'Exter_Qual', 
@@ -108,12 +117,14 @@ categorical_variable_list = ['Alley', 'Bldg_Type', 'Condition_1', 'Electrical', 
                              'Fireplace_Qu', 'Garage_Cond', 'Garage_Finish', 'Garage_Type', 'Heating_QC',  
                               'MS_SubClass',  'Overall_Cond', 'Overall_Qual', 
                              'Paved_Drive', 'Roof_Style', 'Year_Sold', 'Neighborhood', 'Roof_Matl', 'Exterior_2nd',
-                            'Exterior_1st', 'Heating', 'MS_Zoning', 'Misc_Feature', 'Street', 'Mas_Vnr_Type', 'Utilities',"Condition_2", "Pool_QC", "Garage_Qual", 'Sale_Type', 'Sale_Condition']
+                            'Exterior_1st', 'Heating', 'MS_Zoning', 'Misc_Feature', 'Street', 
+                             'Mas_Vnr_Type', 'Utilities',"Condition_2", "Pool_QC", "Garage_Qual", 'Sale_Type', 
+                             'Sale_Condition']
 
 # step 4
 # one hot encode the other categoricals
-for i in categorical_variable_list:
-    ameshousingClean = onehot_row_drop(df = ameshousingClean, column=i)
+for col in categorical_variable_list:
+    ameshousingClean = onehot_row_drop(df = ameshousingClean, column=col)
 
 # step 5
 # drop double no basement: (ranges from 80 to 83 in dataset, going with 80)
@@ -142,7 +153,8 @@ Add a column to the dataset to split the Sale Price by percentile into 10 bins:
 
 
 ```python
-ameshousingClean['Sale_Price_quartile'] =  pd.qcut(ameshousingClean['Sale_Price'], 10, labels=range(10))
+ameshousingClean['Sale_Price_quartile'] =  pd.qcut(ameshousingClean['Sale_Price'], 10, 
+                                                   labels=range(10))
 ```
 
 Now we can use scikit-learn's train-test split to split the data into a training and testing subset, stratifying it by the percentile bin of the Sale_Price:
@@ -239,11 +251,12 @@ ames_ols_all.fit(ames_train_X, ames_train_y)
 
 ## Fit an Ordinary Least Squares Regression using Gr_Liv_Area
 ames_ols_GrLivArea = LinearRegression()
-ames_ols_GrLivArea.fit(ames_train_X['Gr_Liv_Area'].values.reshape(-1, 1), ames_train_y)
+# Note: need [] around the column name so it is kept as a dataframe
+ames_ols_GrLivArea.fit(ames_train_X.loc[:, ['Gr_Liv_Area']], ames_train_y)
 
 ## 
 ames_ols_Second_Flr_SF = LinearRegression()
-ames_ols_Second_Flr_SF.fit(ames_train_X['Second_Flr_SF'].values.reshape(-1, 1), ames_train_y)
+ames_ols_Second_Flr_SF.fit(ames_train_X.loc[:, ['Second_Flr_SF']], ames_train_y)
 
 ## Fit an Ordinary Least Squares Regression using Gr_Liv_Area and Second_Flr_SF
 ames_ols_GrLivArea_Second_Flr_SF = LinearRegression()
@@ -257,8 +270,7 @@ ames_ols_GrLivArea_Age.fit(ames_train_X[['Gr_Liv_Area','Age']], ames_train_y)
 
 
 
-    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None,
-             normalize=False)
+    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
 
 
 
@@ -269,10 +281,10 @@ Assess model fit on the training data:
 
 ```python
 ## Paste the function below, then go slowly through how it is built up
-def assess_fit_vars(listOfModels, variables, datasetX, datasetY):
+def assess_fit_vars(models, variables, datasetX, datasetY):
     columns = ['RMSE', 'R2', 'MAE']
     results = pd.DataFrame(0.0, columns=columns, index=variables)
-    for i, method in enumerate(listOfModels):
+    for i, method in enumerate(models):
         if variables[i] != "All":
             tmp_dataset_X = datasetX[variables[i]]
             if type(variables[i]) == str: #only one column - so need to reshape
@@ -287,12 +299,16 @@ def assess_fit_vars(listOfModels, variables, datasetX, datasetY):
         results.iloc[i,2] = mean_absolute_error(10**(datasetY), y_pred)
     return(results.round(3))
 
-models =[ames_ols_all,  ames_ols_GrLivArea, ames_ols_Second_Flr_SF, ames_ols_GrLivArea_Age, ames_ols_GrLivArea_Second_Flr_SF]
+models = [ames_ols_all, ames_ols_GrLivArea, ames_ols_Second_Flr_SF, 
+          ames_ols_GrLivArea_Age, ames_ols_GrLivArea_Second_Flr_SF]
 
-variables =["All", 'Gr_Liv_Area','Second_Flr_SF',['Gr_Liv_Area', 'Age'], ['Gr_Liv_Area', 'Second_Flr_SF']]
+variables =["All", 'Gr_Liv_Area','Second_Flr_SF',
+            ['Gr_Liv_Area', 'Age'], ['Gr_Liv_Area', 'Second_Flr_SF']]
 
 compare_train = assess_fit_vars(
-    listOfMethods=models, variables=variables, datasetX=ames_train_X, datasetY=ames_train_y
+    models=models, variables=variables, 
+    datasetX=ames_train_X, 
+    datasetY=ames_train_y
 )
 compare_train.sort_values('RMSE')
 ```
@@ -325,7 +341,7 @@ compare_train.sort_values('RMSE')
   </thead>
   <tbody>
     <tr>
-      <th>:</th>
+      <th>All</th>
       <td>15757.714</td>
       <td>0.961</td>
       <td>10931.668</td>
@@ -366,7 +382,8 @@ Compare with peformance on the test set
 ```python
 # on the test! set
 compare = assess_fit_vars(
-    listOfModels=models, variables=variables, datasetX=ames_test_X, datasetY=ames_test_y
+    models=models, variables=variables, 
+    datasetX=ames_test_X, datasetY=ames_test_y
 )
 compare.sort_values('RMSE')
 ```
@@ -399,7 +416,7 @@ compare.sort_values('RMSE')
   </thead>
   <tbody>
     <tr>
-      <th>:</th>
+      <th>All</th>
       <td>20541.485</td>
       <td>0.928</td>
       <td>13346.733</td>
@@ -482,3 +499,135 @@ print(ameshousingClean.columns.get_loc('Second_Flr_SF'))
 # save OLS model to pickle
 pickle.dump(ames_ols_all, open('models/ames_ols_all.pickle', 'wb'))
 ```
+
+## Extra: interactions
+
+We can also use some of the `scikit-learn` tools to create interaction
+terms, e.g. an interaction between the ground floor living area
+and second floor square footage. This is a little bit harder to integrate with 
+our previous models (as we have to create a dataset with a new interaction term in it),
+so it has been kept separate:
+
+
+```python
+# Create interaction term (not polynomial features) 
+interaction = PolynomialFeatures(degree=2, include_bias=False, interaction_only=True) 
+X_inter = interaction.fit_transform(ames_train_X[['Gr_Liv_Area','Second_Flr_SF']])
+X_inter = pd.DataFrame(
+    X_inter, 
+    columns = interaction.get_feature_names(['Gr_Liv_Area','Second_Flr_SF'])
+)
+ames_ols_GrLivArea_Second_Flr_SF_interaction = LinearRegression() 
+ames_ols_GrLivArea_Second_Flr_SF_interaction.fit(X_inter, ames_train_y)
+```
+
+
+
+
+    LinearRegression(copy_X=True, fit_intercept=True, n_jobs=None, normalize=False)
+
+
+
+
+```python
+# Training performance
+assess_fit_vars(
+    models=[ames_ols_GrLivArea_Second_Flr_SF_interaction], 
+    variables=["All"], 
+    datasetX=X_inter, datasetY=ames_train_y
+)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>RMSE</th>
+      <th>R2</th>
+      <th>MAE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>All</th>
+      <td>55222.314</td>
+      <td>0.516</td>
+      <td>36406.468</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
+
+
+```python
+# Test performance
+X_inter_test = interaction.fit_transform(ames_test_X[['Gr_Liv_Area','Second_Flr_SF']])
+X_inter_test = pd.DataFrame(
+    X_inter_test, 
+    columns = interaction.get_feature_names(['Gr_Liv_Area','Second_Flr_SF'])
+)
+
+assess_fit_vars(
+    models=[ames_ols_GrLivArea_Second_Flr_SF_interaction], 
+    variables=["All"], 
+    datasetX=X_inter_test, datasetY=ames_test_y
+)
+```
+
+
+
+
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>RMSE</th>
+      <th>R2</th>
+      <th>MAE</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>All</th>
+      <td>49301.482</td>
+      <td>0.585</td>
+      <td>35003.994</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+
