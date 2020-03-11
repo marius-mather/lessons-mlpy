@@ -42,7 +42,7 @@ exercises: 120
 
 A classifier is some kind of rule / black box / widget that you can feed a new observation/data/record and it will decide whether or not it is part of a given class. E.g. below, we are classifying the animals to be either *cat* or *not cat*.
 
-![A classifier for cats and not cats](50-CatNotCat.jpg)
+![A classifier for cats and not cats](../fig/50-CatNotCat.jpg)
 
 You can have classifiers for anything you can have a yes/no answer to, e.g.
 
@@ -63,7 +63,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](fig/50-CatConfusion.jpg)
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](../fig/50-CatConfusion.jpg)
 
 ### Confusion Matrix
 
@@ -71,7 +71,7 @@ When applying classification models, we often use a confusion matrix to evaluate
 
 ### Some common metrics
 
-![Error metrics](50-ErrorMetrics.png)
+![Error metrics](../fig/50-ErrorMetrics.png)
 
 #### AUC: Area under the curve
 
@@ -79,7 +79,7 @@ A good classifier will have high precision and high specificity, minimizing both
 
 To capture this balance, we often use a Receiver Operator Characteristic (ROC) curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis, for all possible trade-offs. A line that is diagonal from the lower left corner to the upper right corner represents a random guess at labelling each example. The higher the line is in the upper left-hand corner, the better the classifier in general. AUC computes the area under this curve. For a perfect classifier, AUC = 1, for a random guess, AUC=0.5. Objective: maximize.
 
-![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](fig/50-CatArea.jpg)
+![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](../fig/50-CatArea.jpg)
 
 
 # Pima Indians Diabetes
