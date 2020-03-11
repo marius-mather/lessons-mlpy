@@ -72,35 +72,23 @@ for file in cached_files:
         f.close()
 
 ## 
-def assess_model_fit(listOfModels,
-                     listOfMethodNamesAsStrings, 
+def assess_model_fit(models,
+                     model_labels, 
                      datasetX, 
                      datasetY):
-    columns= ['RMSE', 'R2', 'MAE']
-    rows=listOfMethodNamesAsStrings
-    results=pd.DataFrame(0.0, columns=columns, index=rows)
-    for i, method in enumerate(listOfModels):
-        tmp_dataset_X=datasetX
-        # while we build the model and predict on the log10Transformed sale price, we display the error in dollars
-        # as that makes more sense
+    columns = ['RMSE', 'R2', 'MAE']
+    rows = model_labels
+    results = pd.DataFrame(0.0, columns=columns, index=rows)
+    for i, method in enumerate(models):
+        tmp_dataset_X = datasetX
+        # while we build the model and predict on the log10Transformed 
+        # sale price, we display the error in dollars as that makes more sense
         y_pred=10**(method.predict(tmp_dataset_X))
         results.iloc[i,0] = np.sqrt(mean_squared_error(10**(datasetY), y_pred))
         results.iloc[i,1] = r2_score(10**(datasetY), y_pred)
         results.iloc[i,2] = mean_absolute_error(10**(datasetY), y_pred)
     return(results.round(3))
 ```
-
-
-```python
-list(np.arange(3,11,1))
-```
-
-
-
-
-    [3, 4, 5, 6, 7, 8, 9, 10]
-
-
 
 ## Random Forest
 In random forest, each tree in the ensemble is built from a bootstrap sample from the training set. In addition, when splitting a node during the construction of the tree, the split that is chosen is the best split among a random subset of the features.
@@ -134,6 +122,7 @@ ames_RF = Pipeline([
                                        max_depth = 9,
                                        min_samples_split = 0.005,
                                        max_features = 'auto'))
+    # If we want to actually tune these parameters
     #('estimator', GridSearchCV(RandomForestRegressor(), param_grid, scoring='r2', cv=10))
 ])
 
@@ -157,13 +146,13 @@ ames_RF.named_steps['estimator']
 
 
 
-    RandomForestRegressor(bootstrap=True, criterion='mse', max_depth=9,
-                          max_features='auto', max_leaf_nodes=None,
-                          min_impurity_decrease=0.0, min_impurity_split=None,
-                          min_samples_leaf=1, min_samples_split=0.005,
-                          min_weight_fraction_leaf=0.0, n_estimators=150,
-                          n_jobs=None, oob_score=False, random_state=None,
-                          verbose=0, warm_start=False)
+    RandomForestRegressor(bootstrap=True, ccp_alpha=0.0, criterion='mse',
+                          max_depth=9, max_features='auto', max_leaf_nodes=None,
+                          max_samples=None, min_impurity_decrease=0.0,
+                          min_impurity_split=None, min_samples_leaf=1,
+                          min_samples_split=0.005, min_weight_fraction_leaf=0.0,
+                          n_estimators=150, n_jobs=None, oob_score=False,
+                          random_state=None, verbose=0, warm_start=False)
 
 
 
@@ -178,14 +167,9 @@ ames_RF.named_steps['estimator']
 
 ```python
 def plot_coefficients(model, labels):
-    importance = model.feature_importances_
-
-    table = pd.Series(importance.ravel(), index = labels).sort_values(ascending=True, inplace=False)
-    
-    reference = pd.Series(np.abs(importance.ravel()), index = labels).sort_values(ascending=False, inplace=False)
-    reference = reference.iloc[:20]
-    table = table[reference.index]
-    table = table.sort_values(ascending=True, inplace=False)
+    table = pd.Series(model.feature_importances_, index = labels)
+    # Get the largest 20 values (by absolute value)
+    table = table[table.abs().nlargest(20).index].sort_values()
 
     fig, ax = fig, ax = plt.subplots()
     table.T.plot(kind='barh', edgecolor='black', width=0.7, linewidth=.8, alpha=0.9, ax=ax)
@@ -202,7 +186,7 @@ plt.show()
 ```
 
 
-![png](../fig/30-RF_knn_10_0.png)
+![png](../fig/30-RF_knn_9_0.png)
 
 
 ## k-Nearest Neighbours Regression
@@ -214,10 +198,10 @@ param_grid = {"n_neighbors": list(np.arange(3,21,2)),
               "weights": ['uniform','distance'],
              }
 
+# Results from tuning:
 # print(ames_kNN.named_steps['estimator'].best_score_)
-#0.7842456772785913
+# 0.7842456772785913
 # KNeighborsRegressor(algorithm='auto', leaf_size=30, metric='minkowski',metric_params=None, n_jobs=1, n_neighbors=7, p=2, weights='distance')
-
 ```
 
 
@@ -233,7 +217,8 @@ ames_kNN = Pipeline([
     ('scaler', StandardScaler()),
     #('scaler', RobustScaler()),
     #('estimator', KNeighborsRegressor(n_neighbors=10))
-    ('estimator', GridSearchCV(KNeighborsRegressor(), param_grid, scoring='r2', cv=10))
+    ('estimator', GridSearchCV(KNeighborsRegressor(), 
+                               param_grid, scoring='r2', cv=10))
 ])
 
 
@@ -254,7 +239,7 @@ print(ames_kNN.named_steps['estimator'].best_score_)
     KNeighborsRegressor(algorithm='auto', leaf_size=30, metric='minkowski',
                         metric_params=None, n_jobs=None, n_neighbors=8, p=2,
                         weights='uniform')
-    0.777542140008902
+    0.7775511840741828
 
 
 ## Compare Models
@@ -262,10 +247,11 @@ print(ames_kNN.named_steps['estimator'].best_score_)
 
 ```python
 # What was the RMSE on the training data?
-assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr,ames_mars, ames_RF, ames_kNN],
-                listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR', 'MARS','RF', 'kNN'],
-                datasetX=ames_train_X,
-                datasetY=ames_train_y).sort_values("RMSE")
+assess_model_fit(models=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
+                         ames_pcr, ames_plsr,ames_mars, ames_RF, ames_kNN],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR', 'MARS','RF', 'kNN'],
+                 datasetX=ames_train_X,
+                 datasetY=ames_train_y).sort_values("RMSE")
 ```
 
 
@@ -303,9 +289,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>RF</th>
-      <td>16038.217</td>
-      <td>0.959</td>
-      <td>10884.483</td>
+      <td>16208.353</td>
+      <td>0.958</td>
+      <td>11033.811</td>
     </tr>
     <tr>
       <th>Lasso</th>
@@ -327,9 +313,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>PCR</th>
-      <td>16752.591</td>
+      <td>16764.468</td>
       <td>0.955</td>
-      <td>11765.495</td>
+      <td>11776.527</td>
     </tr>
     <tr>
       <th>ENet</th>
@@ -358,10 +344,11 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
 
 ```python
 # What was the RMSE on the testing data?
-assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, ames_pcr, ames_plsr, ames_mars, ames_RF, ames_kNN],
-                listOfMethodNamesAsStrings=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN'],
-                datasetX=ames_test_X,
-                datasetY=ames_test_y).sort_values("RMSE")
+assess_model_fit(models=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
+                         ames_pcr, ames_plsr, ames_mars, ames_RF, ames_kNN],
+                 model_labels=['OLS','Ridge', 'Lasso', 'ENet','PCR','PLSR','MARS', 'RF', 'kNN'],
+                 datasetX=ames_test_X,
+                 datasetY=ames_test_y).sort_values("RMSE")
 ```
 
 
@@ -423,9 +410,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>PCR</th>
-      <td>20988.955</td>
-      <td>0.925</td>
-      <td>13957.143</td>
+      <td>21165.295</td>
+      <td>0.924</td>
+      <td>14049.317</td>
     </tr>
     <tr>
       <th>MARS</th>
@@ -435,9 +422,9 @@ assess_model_fit(listOfModels=[ames_ols_all, ames_ridge, ames_lasso, ames_enet, 
     </tr>
     <tr>
       <th>RF</th>
-      <td>27382.699</td>
-      <td>0.872</td>
-      <td>16858.700</td>
+      <td>27320.009</td>
+      <td>0.873</td>
+      <td>16817.876</td>
     </tr>
     <tr>
       <th>kNN</th>
