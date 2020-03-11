@@ -63,7 +63,7 @@ It is clear that in some of these examples we are more concerned with being wron
 For now, let's imagine we have a classifier already. How can we test it to see how good it is?
 A good start is a confusion matrix - a table of what test data it labels correctly and incorrectly.
 
-![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.]("50-CatConfusion.jpg")
+![An demonstration of a confusion matrix for a cat classifier that has labelled 100 animals as cats or not-cats.](fig/50-CatConfusion.jpg)
 
 ### Confusion Matrix
 
@@ -79,7 +79,7 @@ A good classifier will have high precision and high specificity, minimizing both
 
 To capture this balance, we often use a Receiver Operator Characteristic (ROC) curve that plots the false positive rate along the x-axis and the true positive rate along the y-axis, for all possible trade-offs. A line that is diagonal from the lower left corner to the upper right corner represents a random guess at labelling each example. The higher the line is in the upper left-hand corner, the better the classifier in general. AUC computes the area under this curve. For a perfect classifier, AUC = 1, for a random guess, AUC=0.5. Objective: maximize.
 
-![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](50-CatArea.jpg)
+![A Receiver Operator Characteristic (ROC) curve, from which the Area Under the Curve (AUC) can be calculated.](fig/50-CatArea.jpg)
 
 
 # Pima Indians Diabetes
