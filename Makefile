@@ -90,7 +90,7 @@ HTML_DST = \
 
 ## lesson-md        : convert Rmarkdown files to markdown
 lesson-md : ${RMD_DST}
-	@santiser.sh 
+	@sanitiser.sh 
 #_episodes/%.md: _episodes_rmd/%.Rmd
 #	@bin/knit_lessons.sh $< $@
 
